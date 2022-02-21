@@ -1,0 +1,26 @@
+﻿Occupational title,patient_t24_mild,patient_t24_mod,patient_t24_sev,patient_t24_crit,patient_t24_screen,esft_group
+General medical practitioner,0,0,0,0,0,HCW
+Internists,0,0,0,0,0,HCW
+Specialist medical practitioner (Critical care),0,0,0,4.28125,0,HCW
+Specialist medical practitioner (Dialysis),0,0,0,0.18,0,HCW
+Specialist medical practitioner (Radiology),0,0,0,0.2125,0,HCW
+"Specialist medical practitioner (Junior resident medical officer, Medical licentiate)",0,1,1.338636364,0,0,HCW
+Nursing professional (Outpatient) (Clinical officer general),0.5,0,0,0,0.5,HCW
+Nursing professional (Ward) (Registered nurse),0,3.5,8.635545455,0,0,HCW
+Nursing professional (Critical care) (Clinical nurse),0,0,0.5,15.528125,0,HCW
+Nursing professional (Dialysis),0,0,0,4.05,0,HCW
+Junior Clinical Nurses,0.5,0,0,0,0.3,HCW
+Medical Technician (Radiology),0,0,0,0.625,0,HCW
+Pharmaceutical technician,0,0.25,0.25,0.5,0,HCW
+Lab technician (Lab/medical lab scientist and technologist),0,1,2,2,0,HCW
+Pharmacist (Pharmacists),0,1,0.5,0.5,0,HCW
+Hospital support (Cleaner/Helper) (EHT),0,0.5,0.5,0.75,0,Cleaner
+Hospital support (Medical secretaries),0,0.5,0.5,0.5,0,Admin
+Patient support (Social work & counselling),0,1,1,0.5,0,HCW
+Patient support (Physio & occupational therapy),0,0,0.5,1,0,HCW
+Patient Support (Liaison nurse),0,3.5,3.5,3.3125,0,HCW
+Community Health Workers,0,0,0,0,0,HCW
+,,,,,,
+,,,,,,
+,,,,,,
+,,,,,,
