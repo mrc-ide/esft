@@ -1,41 +1,32 @@
 #' Load imperial forecasts
 #'
-#' Downloads the raw imperial data from the imperial fits repo.
-#' Before use, run through the github setup code.
-#' Do not use this function to mass download data.
+#' Takes a long time (a few hours) to download all the data.
+#' Data results in about 5 GBs, 15 million obs.
+#' Maybe filter out before?
 #'
+#' This function loads the imperial forecasts from their github repo.
 #'
 #' @param warnings Default is false. Whether to give warnings.
-#' @param country.code Country code of country/countries to load. Else will
-#' yield random sample of 5 countries.
-#'
 #' @import countrycode
-#' @import gh
-#'
 #' @return All of the imperial SEIR projections.
 #' @export
-load_imperial_data <- function(warnings=FALSE, country.code=NULL){
+load_imperial_data2 <- function(warnings=FALSE){
 
   iso3 <-read.csv("data-raw/countries.csv")
   colnames(iso3)[1]<-"country_code"
   iso3<-iso3[!is.na(iso3)]
-  if (!(is.null(country.code))){
-    iso3<-subset(iso3, iso3==country.code)
-  } else {
-    iso3<-sample(iso3, size=5)
-  }
 
   urls.to.try<-list()
-  for(c in iso3){
-    qurl<-paste0("https://raw.githubusercontent.com/mrc-ide/global-lmic-reports/master/",
-                c, "/projections.csv")
-    urls.to.try<-append(urls.to.try, qurl)
+  for(country in iso3){
+    url<-paste0("https://raw.githubusercontent.com/mrc-ide/global-lmic-reports/master/",
+                country, "/projections.csv")
+    urls.to.try<-append(urls.to.try, url)
   }
 
   if(warnings==TRUE){
-    df_list <-lapply(urls.to.try, readUrl)
+    df_list <-lapply(urls.to.try[1:5], readUrl2)
   } else {
-    df_list <-suppressMessages(lapply(urls.to.try, readUrl))
+    df_list <-suppressMessages(lapply(urls.to.try[1:5], readUrl2))
   }
 
   df_list<-df_list[!sapply(df_list,is.null)]
@@ -49,15 +40,11 @@ load_imperial_data <- function(warnings=FALSE, country.code=NULL){
 #' Modify somewhat please.
 #'
 #' @param url
-#' @importFrom gh gh
-#' @export
+#'
 #' @return Whatever url is read.
-readUrl <- function(url) {
-  # download
-  tmp<-tempfile()
-  gh::gh(paste0('GET ', url), .destfile = tmp, .overwrite = TRUE)
-  # read
-  out <- tryCatch(read.csv(tmp),
+readUrl2 <- function(url) {
+
+  out <- tryCatch(vroom::vroom(url),
                   error=function(cond) {
                     message(paste("URL does not exist:", url))
                     message(cond)
@@ -72,6 +59,6 @@ readUrl <- function(url) {
                     message(paste("Processed URL:", url))
                   }
   )
-  unlink(tmp)
+
   return(out)
 }
