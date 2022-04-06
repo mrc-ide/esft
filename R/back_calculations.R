@@ -3,6 +3,11 @@
 #'
 #'
 #'
-TO DO -
-  - hcw_per_bed
-  - cleaner_per_bed
+
+#       MORE PARAMS
+# - hcw_per_bed
+# - cleaner_per_bed
+
+
+
+# - item needed per bed per day (equipment list & usage)

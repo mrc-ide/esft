@@ -1,5 +1,3 @@
-# update descriptions & assumptions
-
 #' Sets country parameters.
 #'
 #' @param country
@@ -318,7 +316,7 @@ set_beds <- function(iso3c = NULL,
 
   return(bed_params)
 }
-#' Set HCWs per bed ----------------------------------------------------------------------- NEED HWFE INPUTS
+#' Set HCWs per bed ---------------------------------------------------------
 #'
 #' @param ambulancews_per_bed
 #' @param bioengs_per_bed
@@ -371,15 +369,18 @@ get_hcws_per_bed <- function(ambulancews_per_bed = NULL,
 
 #' Calculate case screened per HCW per day -----------------------------------------------------------------------
 #'
-#' @param
-#' @param
+#' @param cases_screened_per_hcw_per_day
 #'
 #' @return
 #' @export
-get_case_screened_per_hcw_per_day <- function() {
+set_cases_screened_per_hcw_per_day <- function(cases_screened_per_hcw_per_day = NULL) {
 
-# look at the complex capping again here
-
+# Screening/triage ratio is based on the assumption that each screening/triage
+# takes approximately 48 minutes, which is 10 consultations per 8-hour shift
+# ((8*60)/48).
+  if(is.null(cases_screened_per_hcw_per_day)){
+    cases_screened_per_hcw_per_day <- ((8*60)/48)
+  }
   return(cases_screened_per_hcw_per_day)
 }
 
@@ -393,19 +394,28 @@ get_case_screened_per_hcw_per_day <- function() {
 #' @return
 #' @export
 set_mv_params <- function(perc_crit_inv_mv = NULL,
-                           perc_crit_noninv_mv = NULL,
+                          perc_crit_noninv_mv = NULL,
 
-                           o2_flow_sev = NULL,
-                           o2_flow_crit_inv_mv = NULL,
-                           o2_flow_crit_noninv_mv = NULL) {
-  # labs and testing
-  # oxygen use
-  perc_crit_inv_mv
-  perc_crit_noninv_mv
+                          o2_flow_sev = NULL,
+                          o2_flow_crit_inv_mv = NULL,
+                          o2_flow_crit_noninv_mv = NULL) {
+  # WHO recommendation
+  if(is.null(perc_crit_inv_mv)){
+    perc_crit_inv_mv <- 2/3
+  }
+  if (is.null(perc_crit_noninv_mv)){
+    perc_crit_noninv_mv<- 1/3
+  }
 
-  o2_flow_sev
-  o2_flow_crit_inv_mv
-  o2_flow_crit_noninv_mv
+  if(is.null(o2_flow_sev)){
+    o2_flow_sev<-10
+  }
+  if(is.null(o2_flow_crit_inv_mv)){
+    o2_flow_crit_inv_mv<-30
+  }
+  if(is.null(o2_flow_crit_noninv_mv)){
+    o2_flow_crit_noninv_mv<-30
+  }
 
   mv_params<- list(perc_crit_inv_mv = perc_crit_inv_mv,
                    perc_crit_noninv_mv = perc_crit_noninv_mv,

@@ -6,12 +6,11 @@
 #' @return All of the imperial SEIR projections.
 #' @export process imperial data like how esft did
 wrangle_imperial_data <- function(date = "2022-01-01", scenario = "all",
-                                  iso3c = "all", cumulative_infections = TRUE,
-                                  imperial_data = NULL){
+                                  iso3c = NULL, imperial_data = NULL){
 
   # load data if required
   if(is.null(imperial_data)){
-    imperial_data<-load_imperial_data()
+    imperial_data<-esft::load_imperial_data(iso3c=iso3c)
   }
 
   # filter by date
