@@ -1,8 +1,13 @@
 #' Patient Calculations
 #'
-#' For now, this works with imperial model outputs.
+#' For now, this will work with imperial model outputs.
 #'
-#' @param scenario
+#' @param country_data
+#' @param starting_date
+#' @param forecast_length
+#' @param model
+#' @param transmission_scenario
+#'
 #' @return
 #' @export
 calculate_cases<-function(country_data, starting_date = "2022-01-02",
