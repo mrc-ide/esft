@@ -1,6 +1,8 @@
 #' Patient Calculations
 #'
 #' For now, this will work with imperial model outputs.
+#' Add cumulative cases???
+#' delivery_leadtime will likely have to go to forecasted equipment demand
 #'
 #' @param country_data
 #' @param starting_date
@@ -28,11 +30,13 @@ calculate_cases<-function(country_data, starting_date = "2022-01-02",
     country_data<-subset(country_data, country_data$scenario == "Additional 50% Reduction")
   }
 
-  cases<-data.frame(week = seq(0,forecast_length, by=1))
+  # i'm stumped
+  cases<-data.frame(week = seq(1,forecast_length, by=1))
   for (week in cases$week){
     cases$cumulative_infections[week] <-
-      country_data$y_mean[country_data$date == starting_date + (week-1)*7
-                          & country_data$compartment == "cumulative_infections"]
+      max(country_data$y_mean[(country_data$date <= starting_date + (week)*7) &
+                                (country_data$date > starting_date + (week)*7-7) &
+                                (country_data$compartment == "cumulative_infections")])
     cases$new_infections_total[week]<-
       sum(country_data$y_mean[(country_data$date <= starting_date + (week)*7) &
                               (country_data$date > starting_date + (week)*7-7) &
