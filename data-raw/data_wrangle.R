@@ -15,3 +15,11 @@ usethis::use_data(bed_perc_crit_proxy, overwrite = TRUE, internal = FALSE)
 hwfe<-readxl::read_excel("data-raw/who_summary_data.xlsx", sheet="hwfe")
 usethis::use_data(hwfe, overwrite = TRUE, internal = FALSE)
 
+diagnostics<-readxl::read_excel("data-raw/who_summary_data.xlsx", sheet="platform_mapping")
+usethis::use_data(diagnostics, overwrite = TRUE, internal = FALSE)
+
+pharmaceuticals<-readxl::read_excel("data-raw/who_summary_data.xlsx", sheet="pharmaceutical")
+usethis::use_data(pharmaceuticals, overwrite = TRUE, internal = FALSE)
+
+equipment<-readxl::read_excel("data-raw/who_summary_data.xlsx", sheet="equipment")
+usethis::use_data(equipment, overwrite = TRUE, internal = FALSE)
