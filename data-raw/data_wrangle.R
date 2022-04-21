@@ -23,3 +23,6 @@ usethis::use_data(pharmaceuticals, overwrite = TRUE, internal = FALSE)
 
 equipment<-readxl::read_excel("data-raw/who_summary_data.xlsx", sheet="equipment")
 usethis::use_data(equipment, overwrite = TRUE, internal = FALSE)
+
+transmission_scenarios<-readxl::read_excel("data-raw/who_summary_data.xlsx", sheet="transmission_scenarios")
+usethis::use_data(transmission_scenarios, overwrite = TRUE, internal = FALSE)
