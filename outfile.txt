@@ -1,0 +1,5 @@
+#'   \item{imperial_scenario}{}
+#'   \item{label_death_calibrated}{}
+#'   \item{label_not_death_calibrated}{}
+#'   \item{R}{}
+#'   \item{imperial_category_labels}{}
