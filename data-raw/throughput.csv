@@ -1,0 +1,8 @@
+﻿platform,throughput_8hrs,throughout_16hrs,throughput_24hrs
+Roche 6800,384,768,1344
+Roche 8800,960,1920,3072
+Abbott m2000,94,282,470
+Hologic Panther,275,550,825
+Hologic Panther Fusion,383.3333333,766.6666667,1150
+GeneXpert,10,21,42
+Manual rt-PRC,188,376,564
