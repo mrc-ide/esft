@@ -1,8 +1,7 @@
 #' Load imperial forecasts
 #'
 #' Downloads the raw imperial data from the imperial fits repo.
-#' Before use, run through the github setup code. (double check if this is necessary)
-#' Do not use this function to mass download data.
+#' Do not use this function to mass download data, unless you have set up a Personal Access Token.
 #'
 #'
 #' @param warnings Default is false. Whether to give warnings.
@@ -68,19 +67,19 @@ load_imperial_data <- function(warnings = FALSE, country.code = NULL,
 #' @return Whatever url is read.
 readUrl <- function(url) {
   out <- tryCatch(readRDS(url(url, method = "libcurl")),
-    error = function(cond) {
-      message(paste("URL does not exist:", url))
-      message(cond)
-      return(NA)
-    },
-    warning = function(cond) {
-      message(paste("URL caused a warning:", url))
-      message(cond)
-      return(NULL)
-    },
-    finally = {
-      message(paste("Processed URL:", url))
-    }
+                  error = function(cond) {
+                    message(paste("URL does not exist:", url))
+                    message(cond)
+                    return(NA)
+                  },
+                  warning = function(cond) {
+                    message(paste("URL caused a warning:", url))
+                    message(cond)
+                    return(NULL)
+                  },
+                  finally = {
+                    message(paste("Processed URL:", url))
+                  }
   )
   return(out)
 }
