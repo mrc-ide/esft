@@ -20,7 +20,7 @@ med_transmission <- c("Maintain Current Transmission", "Medium Transmission", 0.
 high_transmission <- c("Increase Transmission 50%", "High Transmission", 1.41, "Relax Interventions 50%")
 
 
-#' @title Parameterise drugs to use in the model
+#' @title Parameterise scenarios to use in the model
 #'
 #' @param parameters the model parameters
 #' @param scenarios a list of scenario parameters, can be set using presets
