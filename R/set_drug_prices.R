@@ -1,5 +1,7 @@
 #' @title Sets pharmaceutical prices
 #'
+#'I am not sure i will continue with this one given how crazy complicated this could be.
+#'
 #' @description
 #' set_drug_prices takes a dataframe of drug names, concentrations, and prices,
 #' and returns a parameter dataframe with updated prices.

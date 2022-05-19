@@ -1,22 +1,8 @@
-#' @title Get model parameters
+#' @title Get extra model parameters
 #' @description
-#' get_parameters creates a named list of parameters for use in the model. These
-#' parameters are passed to process functions. These parameters are explained in
-#' "The US President's Malaria Initiative, Plasmodium falciparum transmission
-#' and mortality: A modelling study."
 #'
 #' @param overrides a named list of parameter values to use instead of defaults
 #' The parameters are defined below.
-#'
-#' fixed state transitions:
-#'
-#' * dd - the delay for humans to move from state D to A; default = 5
-#' * dt - the delay for humans to move from state Tr to Ph; default = 5
-#' * da - the delay for humans to move from state A to U; default = 200
-#'
-#' #' treatment parameters:
-#' please set treatment parameters with the convenience functions in
-#' `drug_parameters.R`
 #'
 #' @export
 get_parameters <- function(overrides = list()) {
@@ -100,6 +86,3 @@ get_parameters <- function(overrides = list()) {
 
   parameters
 }
-
-
-
