@@ -19,9 +19,7 @@ usethis::use_data(bed_perc_crit_proxy, overwrite = TRUE, internal = FALSE)
 hwfe <- readxl::read_excel("data-raw/who_summary_data.xlsx", sheet = "hwfe")
 usethis::use_data(hwfe, overwrite = TRUE, internal = FALSE)
 
-pharmaceuticals <- readxl::read_excel("data-raw/who_summary_data.xlsx",
-                                      sheet = "pharmaceutical")
-usethis::use_data(pharmaceuticals, overwrite = TRUE, internal = FALSE)
+
 
 equipment <- readxl::read_excel("data-raw/who_summary_data.xlsx",
                                 sheet = "equipment")
@@ -34,6 +32,12 @@ usethis::use_data(transmission_scenarios, overwrite = TRUE, internal = FALSE)
 population <- readxl::read_excel("data-raw/who_summary_data.xlsx",
                                  sheet = "population")
 usethis::use_data(population, overwrite = TRUE, internal = FALSE)
+
+# Pharmaceuticals
+pharmaceuticals <- readxl::read_excel("data-raw/who_summary_data.xlsx",
+                                      sheet = "pharmaceutical")
+pharmaceuticals$covid_specific <- ifelse(pharmaceuticals$covid_specific == "No", FALSE, TRUE)
+usethis::use_data(pharmaceuticals, overwrite = TRUE, internal = FALSE)
 
 # Diagnostics - matching country name to country code
 diagnostics <- readxl::read_excel("data-raw/who_summary_data.xlsx",

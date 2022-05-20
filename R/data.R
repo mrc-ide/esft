@@ -91,16 +91,19 @@
 #' Also uses adappt tool: \url{https://www.euro.who.int/en/health-topics/Health-systems/pages/strengthening-the-health-system-response-to-covid-19/surge-planning-tools/adaptt-surge-planning-support-tool}
 #' These tools yield different outputs based on different focus + models.
 #' Note ESFT has SEIR models, other tools use simplified projections/epi models.
+#' These are simplified groups from HWC Need worksheet (external). Patient time
+#' is given across different settings, according to staff skills and scope of
+#' practice. Note that only hours/day is used in the calculations.
 #'
 #'@format A data frame with 21 rows and 7 variables:
 #' \describe{
-#'   \item{occupational_title}{Occupational Title. }
-#'   \item{patient_t24_mild}{Iso3c codes}
-#'   \item{patient_t24_mod}{WHO region}
-#'   \item{patient_t24_sev}{WHO region}
-#'   \item{patient_t24_crit}{WHO region}
-#'   \item{patient_t24_screen}{WHO region}
-#'   \item{esft_group}{WHO region}
+#'   \item{occupational_title}{Occupational title}
+#'   \item{patient_t24_mild}{Patient time per 24 hrs per mild case}
+#'   \item{patient_t24_mod}{Patient time per 24 hrs per moderate case}
+#'   \item{patient_t24_sev}{Patient time per 24 hrs per severe case}
+#'   \item{patient_t24_crit}{Patient time per 24 hrs per critical case}
+#'   \item{patient_t24_screen}{Patient time per 24 hrs for screening/triage}
+#'   \item{esft_group}{Category of worker in ESFT}
 #' }
 #' @source WHO ESFT
 "hwfe"
@@ -115,40 +118,51 @@
 #' are estimates and may not exactly match the number of platforms in each
 #' country.
 #' \url{https://apps.who.int/iris/bitstream/handle/10665/333983/WHO-2019-nCoV-Tools-Essential_forecasting-Overview-2020.1-eng.pdf?sequence=1&isAllowed=y}
+#' The high-throughput conventional machines are the Roche 6800, Roche 8800,
+#' Abbott m2000, and the Hologic Panthers. These are also used for HIV testing.
+#' GeneXpert machines are near-patient PCR processing machines, that provide on
+#' the spot diagnostics for patients. Manual real time PCR platforms are slower
+#' but also provide PCR processing.
+#'
 #'
 #'@format A data frame with 220 rows and 9 variables:
 #' \describe{
 #'   \item{country_name}{Country name}
 #'   \item{who_region}{WHO region}
 #'   \item{income_group}{Income group}
-#'   \item{roche_6800}{}
-#'   \item{roche_8800}{}
-#'   \item{abbott_m2000}{}
-#'   \item{hologic_panther}{}
-#'   \item{genexpert}{}
-#'   \item{manual}{}
+#'   \item{roche_6800}{Number of Roche 6800 machines estimated to be in country}
+#'   \item{roche_8800}{Number of Roche 8800 machines estimated to be in country}
+#'   \item{abbott_m2000}{Number of Abbott m2000 machines estimated to be in country}
+#'   \item{hologic_panther}{Number of Hologic Panther machines estimated to be in country}
+#'   \item{genexpert}{Number of GeneXpert machines estimated to be in country}
+#'   \item{manual}{Number of manual machines estimated to be in country}
 #' }
 #' @source WHO ESFT
 "diagnostics"
 
 #' Pharmaceuticals
 #'
-#'@format A data frame with 148 rows and 44 variables:
+#' Data frame of all pharmaceutical commodities that are included in the
+#' forecast. The items included are based on bundles recommended by the WHO and
+#' estimates are generated from scenario patient volumes by patient type.
+#'
+#' Am not sure why I have volume in this dataframe. I can not find it in the original ESFTs or later ones.
+#'
+#'@format A data frame with 148 rows and 43 variables:
 #' \describe{
-#'   \item{covid_specific}{}
-#'   \item{item_nr}{}
-#'   \item{drug}{}
-#'   \item{classification}{}
-#'   \item{concentration}{}
-#'   \item{formulation}{}
-#'   \item{units}{}
-#'   \item{drug_form}{}
-#'   \item{price_usd}{}
-#'   \item{crit_days_per_treatment_course}{}
-#'   \item{crit_daily_amount}{}
-#'   \item{crit_drug_form_per_treatment_course}{}
-#'   \item{crit_vol_per_treatment_course}{}
-#'   \item{perc_crit_patients_receiving_treatment}{}
+#'   \item{covid_specific}{Whether or not the drug is specific to COVID-19 treatment - TRUE if COVID-19 specific, FALSE if not.}
+#'   \item{drug}{Drug product}
+#'   \item{classification}{Type of drug}
+#'   \item{concentration}{Concentration and formulation of drug}
+#'   \item{formulation}{Formulation of drug, numeric}
+#'   \item{units}{Units of formulation of drug}
+#'   \item{drug_form}{Form of drug administration}
+#'   \item{price_usd}{Price per unit of drug product}
+#'   \item{crit_days_per_treatment_course}{Number of days per treatment course for critical patients}
+#'   \item{crit_daily_amount}{Daily amount for critical patients}
+#'   \item{crit_drug_form_per_treatment_course}{Total amount per treatment course per critical patients}
+#'   \item{crit_vol_per_treatment_course}{Total volume of drug per treatment course}
+#'   \item{perc_crit_patients_receiving_treatment}{Percentage of critical patients receiving this treatment}
 #'   \item{sev_days_per_treatment_course}{}
 #'   \item{sev_daily_amount}{}
 #'   \item{sev_drug_form_per_treatment_course}{}
@@ -244,3 +258,16 @@
 #' }
 #' @source WHO ESFT
 "transmission_scenarios"
+
+#' Population info
+#'
+#'@format A data frame with 259 rows and 6 variables:
+#' \describe{
+#'   \item{imperial_scenario}{}
+#'   \item{label_death_calibrated}{}
+#'   \item{label_not_death_calibrated}{}
+#'   \item{R}{}
+#'   \item{imperial_category_labels}{}
+#' }
+#' @source WHO ESFT
+"population"
