@@ -21,11 +21,6 @@ R(eff) of 1.41, which simulates a 50% increase in transmission.}
 All of the imperial SEIR projections.
 }
 \description{
-Note: wait with pushing until have written tests + gotten new fits WITH
-dates from greg.
-}
-\details{
 Downloads the raw imperial data from the imperial fits repo.
-Before use, run through the github setup code.
-Do not use this function to mass download data.
+Do not use this function to mass download data, unless you have set up a Personal Access Token.
 }

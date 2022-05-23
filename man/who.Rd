@@ -3,17 +3,47 @@
 \docType{data}
 \name{who}
 \alias{who}
-\title{Data Objects Documentation}
+\title{Who Summary Data}
 \format{
-A list
+A data frame with 265 rows and 18 variables:
+\describe{
+  \item{country_name}{Country name}
+  \item{country_code}{Iso3c codes}
+  \item{who_region}{WHO region}
+  \item{income_group}{Income group}
+  \item{income_class}{Income class}
+  \item{population}{Country population}
+  \item{nurses}{Absolute number of estimated nurses.}
+  \item{midwives}{Absolute number of estimated midwives.}
+  \item{labs}{Absolute number of total estimated lab staff.}
+  \item{doctors}{Absolute number of estimated doctors.}
+  \item{trad_comp_med}{Number of estimated traditional and complementary
+  medical personnel.}
+  \item{chws}{Number of estimated community healthcare workers.}
+  \item{pharmacists}{Estimated number of pharmacists.}
+  \item{physiotherapists}{Estimated number of physiotherapists.}
+  \item{dentists}{Estimated absolute number of dentists.}
+  \item{beds_per_1000}{Estimated beds per 1,000 people in a country.}
+  \item{perc_icu_beds}{Estimated percentage of reported beds allocated to ICU
+  use.}
+  \item{beds_total}{Total estimated number of beds in a country.}
+}
 }
 \source{
-ESFT
+\url{https://www.who.int/publications/i/item/WHO-2019-nCoV-Tools-Essential_forecasting-2022.1}
 }
 \usage{
 who
 }
 \description{
-WHO summarized data inputs
+Summary of estimates of healthcare workforce and hospital bed indicators
+provided by the WHO. Compiled from the GHO, WB, and UNDP datasets.
+}
+\details{
+For healthcare workforce estimates, the average YoY population growth rate
+was applied to either the latest known number of healthcare workers within
+a specific category, or the product of the income group average and the
+population. Similar calculations were performed to estimate the number of
+beds and percentage of beds allocated to the ICU.
 }
 \keyword{datasets}

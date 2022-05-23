@@ -81,7 +81,7 @@
 #'   \item{source}{Source of estimate}
 #' }
 #' @source Imperial College, Report 12: The Global Impact of COVID-19 and Strategies for Mitigation and Suppression
-"perc_crit_proxy"
+"bed_perc_crit_proxy"
 
 #' @title Health care work force data
 #'
