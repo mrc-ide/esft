@@ -23,6 +23,7 @@ usethis::use_data(hwfe, overwrite = TRUE, internal = FALSE)
 
 equipment <- readxl::read_excel("data-raw/who_summary_data.xlsx",
                                 sheet = "equipment")
+equipment$reusable <- ifelse(equipment$reusable == "No", FALSE, TRUE)
 usethis::use_data(equipment, overwrite = TRUE, internal = FALSE)
 
 transmission_scenarios <- readxl::read_excel("data-raw/who_summary_data.xlsx",
