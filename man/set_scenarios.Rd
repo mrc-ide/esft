@@ -2,7 +2,7 @@
 % Please edit documentation in R/scenario_parameters.R
 \name{set_scenarios}
 \alias{set_scenarios}
-\title{Parameterise drugs to use in the model}
+\title{Parameterise scenarios to use in the model}
 \usage{
 set_scenarios(parameters, scenarios)
 }
@@ -12,5 +12,5 @@ set_scenarios(parameters, scenarios)
 \item{scenarios}{a list of scenario parameters, can be set using presets}
 }
 \description{
-Parameterise drugs to use in the model
+Parameterise scenarios to use in the model
 }
