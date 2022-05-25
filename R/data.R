@@ -255,3 +255,23 @@
 #' }
 #' @source \url{https://population.un.org/wup/Download/}
 "population"
+
+#' @title Hours per shift number for diagnostic machines
+#'
+#'@format A data frame with 3 rows and 2 variables:
+#' \describe{
+#'   \item{shifts}{Number of shifts per day}
+#'   \item{hours}{Total hours working with this number of shifts}
+#' }
+#' @source \url{https://www.who.int/publications/i/item/WHO-2019-nCoV-Tools-Essential_forecasting-2022.1}
+"hours_per_shift"
+
+#' @title Percent capacity dedicated to COVID
+#'
+#'@format A data frame with 4 rows and 2 variables:
+#' \describe{
+#'   \item{capacity}{Diagnostic capacity dedicated to COVID-19 response}
+#'   \item{percent}{Percentage of capacity this translates to}
+#' }
+#' @source \url{https://www.who.int/publications/i/item/WHO-2019-nCoV-Tools-Essential_forecasting-2022.1}
+"capacity_perc"
