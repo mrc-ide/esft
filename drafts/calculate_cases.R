@@ -1,5 +1,10 @@
 #' Patient Calculations
 #'
+#' Big assumption: assume remain in same severity state throughout - so dont transition between states
+#'goal: turn afg_data -> test_data
+#'this will be what calculate cases will do
+#' -> this calculation will be trialed in a separate file, then the calculations will be moved here
+#'
 #' For now, this will work with imperial model outputs.
 #' Add cumulative cases???
 #' delivery_leadtime will likely have to go to forecasted equipment demand

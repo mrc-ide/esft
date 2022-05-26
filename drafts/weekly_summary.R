@@ -31,8 +31,8 @@
 weekly_summary<-function(country=NULL, iso3c = NULL, starting_date = NULL,
                          forecast_length = NULL, delivery_leadtime = NULL,
                          model = NULL, transmission_scenario = "Medium"){
-
+  # so this is what is in patient calcs
   test_data<-read.csv("data-raw/test_forecast_data.csv")
-
+  test_data$country_code<-"AFG"
   output <- c()
 }
