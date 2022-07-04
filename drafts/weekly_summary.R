@@ -16,7 +16,7 @@
 #'   # uncapped sick patients per week excluding those who have been discharged/removed
 #'
 #'   # sick patients in beds per week (so the above with bedcaps)
-#'
+
 #'   # patients recovering or dying from illness, per week
 #'   # patients discharged from beds last week
 #'   \item{year}{Starting year of 5 year group, i.e. 1960 for 1960-64, etc. From
@@ -25,7 +25,7 @@
 #'   \item{value}{Age specific mortality rate, or the central rate of
 #'   mortality, mx.}
 #'   \item{income_group}{World Bank country income group.}
-#' }
+#'
 #'
 #' @export
 weekly_summary<-function(country=NULL, iso3c = NULL, starting_date = NULL,
