@@ -6,7 +6,7 @@ library(dplyr)
 
 # load("~/esft/data/afg_data.rda") -> latest afg data from own newer models, not good for figuring out calc pathway
 afg_tidy <- read.csv("data-raw/test_forecast_data.csv")
-
+who <- load("data/who.rda")
 # Cumulative total cases column is fed by the selected case estimation method
 # and specified transmission parameters (e.g. growth rate, infectious period,
 # etc.). This is then broken down into case severity based on the inputs on
@@ -40,10 +40,8 @@ afg_data <- afg_data %>%
   pivot_wider(names_from=compartment,
               values_from=y_mean)
 
-afg_data<-subset(afg_data, afg_data$date >= starting_date)
-
 afg_data_test<-afg_data %>%
-  group_by(week = week(date)) %>%
+  group_by(week = cut(date, breaks="week")) %>%
   summarise(date = last(date),
             hospital_demand = sum(hospital_demand, na.rm=TRUE),
             ICU_demand = sum(ICU_demand, na.rm=TRUE),
@@ -56,6 +54,22 @@ afg_data_test<-afg_data %>%
             deaths= sum(deaths, na.rm=TRUE),
             cumulative_infections = last(cumulative_infections),
             cumulative_deaths = last(cumulative_deaths)) # do i take
+
+afg_data_test <- afg_data_test %>%
+  mutate(cum_severe_cases = cumsum(hospital_incidence, na.rm=TRUE),
+         new_severe_cases = hospital_incidence,
+         cum_critical_cases = cumsum(ICU_incidence, na.rm=TRUE),
+         new_critical_cases = ICU_incidence,
+         adm_severe_cases_nocap = hospital_demand,
+         adm_critical_cases_nocap = ICU_demand)
+
+# to calculate cap:
+# load country_capacity
+# use that and percent distribution to find number of beds allocated
+
+
+# also look at removed numbers of cases
+# and quarantined cases
 
 # at the top, we have:
 # patient calcs
