@@ -4,6 +4,8 @@
 #' @param overrides a named list of parameter values to use instead of defaults
 #' The parameters are defined below.
 #'
+#' @return All of the misc parameters.
+#'
 #' @export
 get_parameters <- function(overrides = list()) {
   parameters <- list(
@@ -84,5 +86,5 @@ get_parameters <- function(overrides = list()) {
     stop("Mechanical ventilation proportions do not sum to 1")
   }
 
-  parameters
+  return(parameters)
 }

@@ -34,7 +34,7 @@ get_country_capacity <- function(country = NULL,
     }
 
     population <- esft::who$population[who$country_name == country]
-    yoy_growth <- esft::population$yoy_growth[population$country_wb == country]
+    yoy_growth <- esft::population$yoy[population$country_wb == country]
     income_group <- esft::who$income_group[who$country_name == country]
 
     n_hcws <- esft::who$doctors[who$country_name == country] +
@@ -57,7 +57,7 @@ get_country_capacity <- function(country = NULL,
       stop("Iso3c not found")
     }
     population <- esft::who$population[who$country_code == iso3c]
-    yoy_growth <- esft::population$yoy_growth[population$country_code == iso3c]
+    yoy_growth <- esft::population$yoy[population$country_code == iso3c]
     income_group <- esft::who$income_group[who$country_code == iso3c]
 
     n_hcws <- esft::who$doctors[who$country_code == iso3c] +
@@ -72,6 +72,8 @@ get_country_capacity <- function(country = NULL,
                                         destination = "country.name"
     )
   }
+
+  perc_beds_crit_covid <- perc_beds_crit_covid/100
 
   if (is.null(perc_beds_not_covid)) {
     perc_beds_not_covid <- 0.4

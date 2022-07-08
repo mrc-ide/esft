@@ -1,12 +1,16 @@
 # goal: turn afg_data -> test_data
 # this will be what calculate cases will do
+rm(list=ls())
 library(tidyverse)
 library(lubridate)
 library(dplyr)
 
+source("R/country_capacity.R")
+
 # load("~/esft/data/afg_data.rda") -> latest afg data from own newer models, not good for figuring out calc pathway
 afg_tidy <- read.csv("data-raw/test_forecast_data.csv")
-who <- load("data/who.rda")
+load("data/who.rda")
+load("data/population.rda")
 # Cumulative total cases column is fed by the selected case estimation method
 # and specified transmission parameters (e.g. growth rate, infectious period,
 # etc.). This is then broken down into case severity based on the inputs on
@@ -56,18 +60,61 @@ afg_data_test<-afg_data %>%
             cumulative_deaths = last(cumulative_deaths)) # do i take
 
 afg_data_test <- afg_data_test %>%
-  mutate(cum_severe_cases = cumsum(hospital_incidence, na.rm=TRUE),
+  mutate(cum_severe_cases = cumsum(hospital_incidence),
          new_severe_cases = hospital_incidence,
-         cum_critical_cases = cumsum(ICU_incidence, na.rm=TRUE),
+         cum_critical_cases = cumsum(ICU_incidence),
          new_critical_cases = ICU_incidence,
          adm_severe_cases_nocap = hospital_demand,
          adm_critical_cases_nocap = ICU_demand)
 
 # to calculate cap:
 # load country_capacity
+iso3c="AFG"
+pop <- who$population[who$country_code == iso3c]
+yoy_growth <- population$yoy[population$country_code == iso3c]
+income_group <- who$income_group[who$country_code == iso3c]
+
+n_hcws <- who$doctors[who$country_code == iso3c] +
+  who$nurses[who$country_code == iso3c]
+n_labs <- who$labs[who$country_code == iso3c]
+
+n_hosp_beds <- who$beds_total[who$country_code == iso3c]
+perc_beds_crit_covid <- who$perc_icu_beds[who$country_code == iso3c]
+
+country <- countrycode::countrycode(iso3c,
+                                    origin = "iso3c",
+                                    destination = "country.name"
+)
+
+
+perc_beds_crit_covid <- perc_beds_crit_covid/100
+perc_beds_not_covid <- 0.4
+perc_beds_sev_covid <- 1 - perc_beds_not_covid - perc_beds_crit_covid
+
+afg_params <- list(
+  iso3c = iso3c,
+  population = pop,
+  yoy_growth = yoy_growth,
+  income_group = income_group,
+  n_hcws = n_hcws,
+  n_labs = n_labs,
+  n_hosp_beds = n_hosp_beds,
+  perc_beds_crit_covid = perc_beds_crit_covid,
+  perc_beds_not_covid = perc_beds_not_covid,
+  perc_beds_sev_covid = perc_beds_sev_covid
+)
+
 # use that and percent distribution to find number of beds allocated
 
+beds_covid=round(n_hosp_beds*(1-perc_beds_not_covid))
+severe_beds_covid=round(n_hosp_beds*perc_beds_sev_covid)
+crit_beds_covid=round(n_hosp_beds*perc_beds_crit_covid)
 
+# capped - minimum of incidence or beds available
+afg_data_test <-afg_data_test %>%
+  mutate(adm_severe_cases_cap = min(hospital_incidence, severe_beds_covid),
+         adm_critical_cases_cap = min(ICU_incidence, crit_beds_covid),
+         new_mild_cases=(new_severe_cases*new_critical_cases)*)
 # also look at removed numbers of cases
 # and quarantined cases
 
@@ -90,7 +137,7 @@ afg_data_test <- afg_data_test %>%
 
 
 
-# capped - minimum of incidence or beds available
+
 afg_data<-subset(afg_data, afg_data$compartment %in% c("cumulative_infections",
                                                        "infections",
                                                        "Reff",
