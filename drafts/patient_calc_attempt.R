@@ -1,11 +1,13 @@
 # goal: turn afg_data -> test_data
 # this will be what calculate cases will do
+# to do - move this to a function file and get review
 rm(list=ls())
 library(tidyverse)
 library(lubridate)
 library(dplyr)
 
 source("R/country_capacity.R")
+source("R/parameters.R")
 
 # load("~/esft/data/afg_data.rda") -> latest afg data from own newer models, not good for figuring out calc pathway
 afg_tidy <- read.csv("data-raw/test_forecast_data.csv")
@@ -110,14 +112,52 @@ beds_covid=round(n_hosp_beds*(1-perc_beds_not_covid))
 severe_beds_covid=round(n_hosp_beds*perc_beds_sev_covid)
 crit_beds_covid=round(n_hosp_beds*perc_beds_crit_covid)
 
+afg_params <- list(
+  iso3c = iso3c,
+  population = pop,
+  yoy_growth = yoy_growth,
+  income_group = income_group,
+  n_hcws = n_hcws,
+  n_labs = n_labs,
+  n_hosp_beds = n_hosp_beds,
+  perc_beds_crit_covid = perc_beds_crit_covid,
+  perc_beds_not_covid = perc_beds_not_covid,
+  perc_beds_sev_covid = perc_beds_sev_covid,
+  beds_covid = beds_covid,
+  severe_beds_covid = severe_beds_covid,
+  crit_beds_covid = crit_beds_covid
+)
+
+# written by giovanni, in utils
+approx_sum <- function(X, n) abs(sum(X) - n) < sqrt(.Machine$double.eps)
+
+afg_params_2 <- get_parameters()
+
+afg_params<-merge(afg_params, afg_params_2)
+
+afg<-merge(afg_data_test, afg_params)
+
 # capped - minimum of incidence or beds available
-afg_data_test <-afg_data_test %>%
+afg <- afg %>%
   mutate(adm_severe_cases_cap = min(hospital_incidence, severe_beds_covid),
          adm_critical_cases_cap = min(ICU_incidence, crit_beds_covid),
-         new_mild_cases=(new_severe_cases*new_critical_cases)*)
-# also look at removed numbers of cases
-# and quarantined cases
 
+         # moderate and mild cases:
+         new_mild_cases = sum(new_severe_cases,new_critical_cases)*
+           mildI_proportion/sum(sevI_proportion,critI_proportion), # why only severe and critical here, and not moderate?
+         # what is difference between prevalence and infections here?
+         # second possible method - needs review
+         new_mild_cases_2 = infections*mildI_proportion,
+         new_mod_cases = sum(new_severe_cases,new_critical_cases)*
+           modI_proportion/sum(sevI_proportion,critI_proportion),
+         new_mod_cases_2 = infections*modI_proportion,
+         new_severe_cases_2 = infections*sevI_proportion,
+         new_critical_cases_2 = infections*critI_proportion)
+# also look at removed numbers of cases
+# includes dead and let out
+
+# and quarantined cases
+# quarantined is just cumulative new - cumulative removed
 # at the top, we have:
 # patient calcs
 # mild cases = sum(new severe cases, new critical cases) * mildI_proportion/sum(sevI_proportion + critI_proportion)
