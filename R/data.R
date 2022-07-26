@@ -36,6 +36,21 @@
 #' @source \url{https://www.who.int/publications/i/item/WHO-2019-nCoV-Tools-Essential_forecasting-2022.1}
 "who"
 
+#' @title Imperial Model Fits to Excess Death Data
+#'
+#'@format A data frame with 3,298,878 rows and 6 variables:
+#' \describe{
+#'   \item{scenario}{Transmission scenario, as given in the ESFT tool.}
+#'   \item{compartment}{Projection compartment.}
+#'   \item{date}{Date.}
+#'   \item{death_calibrated}{Logical: Calibrated to reported deaths (TRUE) or
+#'   to excess deaths (FALSE).}
+#'   \item{y_mean}{Mean value of compartment specified.}
+#'   \item{iso3c}{Iso3c country codes.}
+#' }
+#' @source \url{https://github.com/mrc-ide/global_lmic_projections_esft}
+"icl_data"
+
 #' @title World Bank estimates of number of hospital beds per country
 #'
 #' @description Number of hospital beds per 1,000 people by country by year.The most recent

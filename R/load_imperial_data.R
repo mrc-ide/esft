@@ -9,8 +9,8 @@
 #' yield random sample of 5 countries.
 #' @param scenario Default is medium transmission, with an R(0) number or R(eff)
 #' number of 0.94. Other options include "Low", with an R(0) or R(eff) of 0.47,
-#' which simulates a 50% decrease in transmission, or "High", with an R(0) or
-#' R(eff) of 1.41, which simulates a 50% increase in transmission.
+#' which simulates a 50 percent decrease in transmission, or "High", with an R(0) or
+#' R(eff) of 1.41, which simulates a 50 percent increase in transmission.
 #'
 #' @import countrycode
 #' @import gh

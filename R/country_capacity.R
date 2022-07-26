@@ -120,3 +120,32 @@ get_country_capacity <- function(country = NULL,
 
   return(country_capacity)
 }
+
+#' @title Gets beds
+#'
+#' @param country_capacity a named list produced by get_country_capacity
+#' @param overrides a named list of parameter values to use instead of defaults
+#'
+#' @return List of bed counts by category
+#' @export
+get_beds <- function(country_capacity, overrides = list()) {
+
+  n_hosp_beds <- country_capacity[[n_hosp_beds]]
+  perc_beds_not_covid <- country_capacity[[perc_beds_not_covid]]
+  perc_beds_sev_covid <- country_capacity[[perc_beds_sev_covid]]
+  perc_beds_crit_covid <- country_capacity[[perc_beds_crit_covid]]
+
+  beds <- list(
+    beds_covid = round(n_hosp_beds*(1-perc_beds_not_covid)),
+    severe_beds_covid = round(n_hosp_beds*perc_beds_sev_covid),
+    crit_beds_covid = round(n_hosp_beds*perc_beds_crit_covid))
+
+  for (name in names(overrides)) {
+    if (!(name %in% names(beds))) {
+      stop(paste('unknown parameter', name, sep=' '))
+    }
+    beds[[name]] <- overrides[[name]]
+  }
+
+  return(beds)
+}

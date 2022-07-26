@@ -46,7 +46,7 @@ afg_data <- afg_data %>%
   pivot_wider(names_from=compartment,
               values_from=y_mean)
 
-afg_data_test<-afg_data %>%
+afg_data<-afg_data %>%
   group_by(week = cut(date, breaks="week")) %>%
   summarise(date = last(date),
             hospital_demand = sum(hospital_demand, na.rm=TRUE),
@@ -61,7 +61,7 @@ afg_data_test<-afg_data %>%
             cumulative_infections = last(cumulative_infections),
             cumulative_deaths = last(cumulative_deaths)) # do i take
 
-afg_data_test <- afg_data_test %>%
+afg_data <- afg_data %>%
   mutate(cum_severe_cases = cumsum(hospital_incidence),
          new_severe_cases = hospital_incidence,
          cum_critical_cases = cumsum(ICU_incidence),
@@ -135,8 +135,9 @@ afg_params_2 <- get_parameters()
 
 afg_params<-merge(afg_params, afg_params_2)
 
-afg<-merge(afg_data_test, afg_params)
+afg<-merge(afg_data, afg_params)
 
+library(tidyverse)
 # capped - minimum of incidence or beds available
 afg <- afg %>%
   mutate(adm_severe_cases_cap = min(hospital_incidence, severe_beds_covid),
@@ -145,11 +146,11 @@ afg <- afg %>%
          # moderate and mild cases:
          new_mild_cases = sum(new_severe_cases,new_critical_cases)*
            mildI_proportion/sum(sevI_proportion,critI_proportion), # why only severe and critical here, and not moderate?
+         new_mod_cases = sum(new_severe_cases,new_critical_cases)*
+           modI_proportion/sum(sevI_proportion,critI_proportion),
          # what is difference between prevalence and infections here?
          # second possible method - needs review
          new_mild_cases_2 = infections*mildI_proportion,
-         new_mod_cases = sum(new_severe_cases,new_critical_cases)*
-           modI_proportion/sum(sevI_proportion,critI_proportion),
          new_mod_cases_2 = infections*modI_proportion,
          new_severe_cases_2 = infections*sevI_proportion,
          new_critical_cases_2 = infections*critI_proportion)
