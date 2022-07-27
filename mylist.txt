@@ -1,24 +1,24 @@
-"\\item{week}{xyz}"                    
- [2] "\\item{date}{xyz}"                    
- [3] "\\item{hospital_demand}{xyz}"         
- [4] "\\item{ICU_demand}{xyz}"              
- [5] "\\item{hospital_incidence}{xyz}"      
- [6] "\\item{ICU_incidence}{xyz}"           
- [7] "\\item{infections}{xyz}"              
- [8] "\\item{cumulative_infections}{xyz}"   
- [9] "\\item{cum_severe_cases}{xyz}"        
-[10] "\\item{new_severe_cases}{xyz}"        
-[11] "\\item{cum_critical_cases}{xyz}"      
-[12] "\\item{new_critical_cases}{xyz}"      
-[13] "\\item{adm_severe_cases_nocap}{xyz}"  
-[14] "\\item{adm_critical_cases_nocap}{xyz}"
-[15] "\\item{adm_severe_cases_cap}{xyz}"    
-[16] "\\item{adm_critical_cases_cap}{xyz}"  
-[17] "\\item{new_mild_cases}{xyz}"          
-[18] "\\item{new_mod_cases}{xyz}"           
-[19] "\\item{new_mild_cases_2}{xyz}"        
-[20] "\\item{new_mod_cases_2}{xyz}"         
-[21] "\\item{new_severe_cases_2}{xyz}"      
-[22] "\\item{new_critical_cases_2}{xyz}"    
-[23] "\\item{cum_mild_cases}{xyz}"          
-[24] "\\item{cum_mod_cases}{xyz}"           
+#'   \item{week}{xyz}
+#'   \item{date}{xyz}
+#'   \item{hospital_demand}{xyz}
+#'   \item{ICU_demand}{xyz}
+#'   \item{hospital_incidence}{xyz}
+#'   \item{ICU_incidence}{xyz}
+#'   \item{infections}{xyz}
+#'   \item{cumulative_infections}{xyz}
+#'   \item{cum_severe_cases}{xyz}
+#'   \item{new_severe_cases}{xyz}
+#'   \item{cum_critical_cases}{xyz}
+#'   \item{new_critical_cases}{xyz}
+#'   \item{adm_severe_cases_nocap}{xyz}
+#'   \item{adm_critical_cases_nocap}{xyz}
+#'   \item{adm_severe_cases_cap}{xyz}
+#'   \item{adm_critical_cases_cap}{xyz}
+#'   \item{new_mild_cases}{xyz}
+#'   \item{new_mod_cases}{xyz}
+#'   \item{new_mild_cases_2}{xyz}
+#'   \item{new_mod_cases_2}{xyz}
+#'   \item{new_severe_cases_2}{xyz}
+#'   \item{new_critical_cases_2}{xyz}
+#'   \item{cum_mild_cases}{xyz}
+#'   \item{cum_mod_cases}{xyz}

@@ -27,5 +27,5 @@ afg_summary <- weekly_summary(iso3c="AFG",
 # maybe add exists calls
 # finish documentsation
 sink("mylist.txt")
-print(paste0("\\item{",colnames(afg_summary, do.NULL=FALSE), "}{xyz}"))
+cat(paste0("#'   \\item{",names(afg_summary), "}{xyz}\n"))
 sink()

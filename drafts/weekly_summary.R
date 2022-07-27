@@ -1,90 +1,47 @@
 #' Produce Weekly Summary
 #'
 #' @param
-#' @return dataframe of weekly summary
+#' @return Dataframe of weekly summary
 #' \describe{
-#'   \item{starting_data}{first date of the week}
-#'   \item{current_week}{Week number}
-#'   \item{total_uncapped_new_cases}{Total new cases presenting each week - uncapped}
-#'   \item{new_sev_cases}{Subset of total new cases presenting each week that are severe}
-#'   \item{new_crit_cases}{Subset of total new cases presenting each week that are critical}
-#'   \item{new_uncapped_sus_cases}{Subset of total new cases presenting each week that are suspected but negative}
-#'
-#'   moderate/mild: would need to call get_parameters beforehand
-#'   \item{new_mild_cases}{Subset of total new cases presenting each week that are mild}
-#'   \item{new_mod_cases}{Subset of total new cases presenting each week that are moderate}
-
-#'
-#'   # patients that get admitted with caps
-#'   # would need to call country_capacity first
-#'
-#'   # uncapped sick patients per week excluding those who have been discharged/removed
-#'
-#'   # sick patients in beds per week (so the above with bedcaps)
-
-#'   # patients recovering or dying from illness, per week
-#'   # patients discharged from beds last week
-#'   \item{year}{Starting year of 5 year group, i.e. 1960 for 1960-64, etc. From
-#'   1950-2100.}
-#'   \item{gender}{"both", "female", or "male"}
-#'   \item{value}{Age specific mortality rate, or the central rate of
-#'   mortality, mx.}
-#'   \item{income_group}{World Bank country income group.}
-#' draft:
-#' would have the data passed in
-#' when we have the excess fits, I will implement them
-#'
+#'   \item{week_begins}{Date the week summarized begins}
+#'   \item{week_ends}{Date the week summarized ends}
+#'   \item{hospital_demand}{xyz}
+#'   \item{ICU_demand}{xyz}
+#'   \item{hospital_incidence}{xyz}
+#'   \item{ICU_incidence}{xyz}
+#'   \item{infections}{xyz}
+#'   \item{cumulative_infections}{xyz}
+#'   \item{cum_severe_cases}{xyz}
+#'   \item{new_severe_cases}{xyz}
+#'   \item{cum_critical_cases}{xyz}
+#'   \item{new_critical_cases}{xyz}
+#'   \item{adm_severe_cases_nocap}{xyz}
+#'   \item{adm_critical_cases_nocap}{xyz}
+#'   \item{adm_severe_cases_cap}{xyz}
+#'   \item{adm_critical_cases_cap}{xyz}
+#'   \item{new_mild_cases}{xyz}
+#'   \item{new_mod_cases}{xyz}
+#'   \item{new_mild_cases_2}{xyz}
+#'   \item{new_mod_cases_2}{xyz}
+#'   \item{new_severe_cases_2}{xyz}
+#'   \item{new_critical_cases_2}{xyz}
+#'   \item{cum_mild_cases}{xyz}
+#'   \item{cum_mod_cases}{xyz}
+#'   \item{rem_mild_cases}{xyz}
+#'   \item{rem_mod_cases}{xyz}
+#'   \item{rem_severe_cases}{xyz}
+#'   \item{rem_critical_cases}{xyz}
+#'}
 #' @import dplyr
 #' @importFrom data.table first
 #' @import countrycode
 #'
 #' @export
-weekly_summary<-function(country=NULL, iso3c = NULL, params = params,
-                         data=data,
-                         starting_date = NULL)
+weekly_summary<-function(params,
+                         data,
+                         starting_date)
                          {
-  if (!is.null(country) && !is.null(iso3c)) {
-    # check they are the same one using the countrycodes
-    iso3c_check <- countrycode::countrycode(country,
-                                            origin = "country.name",
-                                            destination = "iso3c"
-    )
-    country_check <- countrycode::countrycode(iso3c,
-                                              origin = "iso3c",
-                                              destination = "country.name"
-    )
-    if (iso3c_check != iso3c & country_check != country) {
-      stop("Iso3c country code and country name do not match. Please check
-           input/spelling and try again.")
-    }
-  }
-
-  ## country route
-  if (!is.null(country)) {
-    country <- as.character(country)
-    if (!country %in% unique(esft::who$country_name)) {
-      stop("Country not found")
-    }
-    iso3c <- countrycode::countrycode(country,
-                                      origin = "country.name",
-                                      destination = "iso3c"
-    )
-    data <- subset(data, data$country == country)
-  } else if (!is.null(iso3c)) {
-    iso3c <- as.character(iso3c)
-    if (!iso3c %in% unique(esft::who$country_code)) {
-      stop("Country not found")
-    }
-    country <- countrycode::countrycode(iso3c,
-                                      origin = "iso3c",
-                                      destination = "country.name"
-    )
-    data <- subset(data, data$iso3c == iso3c)
-  } else {
-    stop("Must specify country or Iso3c country code.")
-  }
-
-
+# add exists part here
   data$date <- as.Date(data$date)
 
   if (!is.null(starting_date)) {
@@ -105,19 +62,16 @@ weekly_summary<-function(country=NULL, iso3c = NULL, params = params,
                 values_from=y_mean)
 
   data <- data %>%
-    dplyr::group_by(week = cut(date, breaks="week")) %>%
-    dplyr::summarise(date = data.table::last(date),
+    dplyr::group_by(week_begins = cut(date, breaks="week")) %>%
+    dplyr::summarise(week_ends = data.table::last(date),
               hospital_demand = sum(hospital_demand, na.rm=TRUE),
               ICU_demand = sum(ICU_demand, na.rm=TRUE),
               hospital_incidence = sum(hospital_incidence, na.rm=TRUE),
               ICU_incidence = sum(ICU_incidence, na.rm=TRUE),
-              # prevalence = data.table::last(prevalence),
-              # Rt = data.table::last(Rt),
-              # Reff = data.table::last(Reff),
               infections = data.table::last(infections),
-              # deaths= sum(deaths, na.rm=TRUE),
               cumulative_infections = data.table::last(cumulative_infections))
-              # cumulative_deaths = data.table::last(cumulative_deaths)) # do i take
+
+  data$week_begins <- as.Date(as.character(data$week_begins))
 
   data <- data %>%
     dplyr::mutate(cum_severe_cases = cumsum(hospital_incidence),
@@ -152,7 +106,11 @@ weekly_summary<-function(country=NULL, iso3c = NULL, params = params,
 
   data <- data %>%
     dplyr::mutate(cum_mild_cases = cumsum(new_mild_cases),
-           cum_mod_cases = cumsum(new_mod_cases))
+           cum_mod_cases = cumsum(new_mod_cases),
+           rem_mild_cases = lag(new_mild_cases, n=params$stay_mild),
+           rem_mod_cases = lag(new_mod_cases, n=params$stay_mod),
+           rem_severe_cases = lag(new_severe_cases, n=params$stay_sev),
+           rem_critical_cases = lag(new_critical_cases, n=params$stay_crit))
 
 
   return(data)
