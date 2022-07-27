@@ -34,9 +34,13 @@
 #' would have the data passed in
 #' when we have the excess fits, I will implement them
 #'
+#' @import dplyr
+#' @importFrom data.table first
+#' @import countrycode
+#'
 #' @export
 weekly_summary<-function(country=NULL, iso3c = NULL, params = params,
-                         capacity = country_capacity, data=data,
+                         data=data,
                          starting_date = NULL)
                          {
   if (!is.null(country) && !is.null(iso3c)) {
@@ -93,32 +97,30 @@ weekly_summary<-function(country=NULL, iso3c = NULL, params = params,
          the weekly summary.")
   }
 
-  data <- merge(data, params, by="iso3c")
+  data <- data %>%
+    dplyr::select(-c(death_calibrated))
 
   data <- data %>%
-    select(c(date, compartment, y_mean, scenario, iso3c, country))
-
-  data <- data %>%
-    pivot_wider(names_from=compartment,
+    tidyr::pivot_wider(names_from=compartment,
                 values_from=y_mean)
 
   data <- data %>%
-    group_by(week = cut(date, breaks="week")) %>%
-    summarise(date = last(date),
+    dplyr::group_by(week = cut(date, breaks="week")) %>%
+    dplyr::summarise(date = data.table::last(date),
               hospital_demand = sum(hospital_demand, na.rm=TRUE),
               ICU_demand = sum(ICU_demand, na.rm=TRUE),
               hospital_incidence = sum(hospital_incidence, na.rm=TRUE),
               ICU_incidence = sum(ICU_incidence, na.rm=TRUE),
-              prevalence = last(prevalence),
-              Rt = last(Rt),
-              Reff = last(Reff),
-              infections = last(infections),
-              deaths= sum(deaths, na.rm=TRUE),
-              cumulative_infections = last(cumulative_infections),
-              cumulative_deaths = last(cumulative_deaths)) # do i take
+              # prevalence = data.table::last(prevalence),
+              # Rt = data.table::last(Rt),
+              # Reff = data.table::last(Reff),
+              infections = data.table::last(infections),
+              # deaths= sum(deaths, na.rm=TRUE),
+              cumulative_infections = data.table::last(cumulative_infections))
+              # cumulative_deaths = data.table::last(cumulative_deaths)) # do i take
 
   data <- data %>%
-    mutate(cum_severe_cases = cumsum(hospital_incidence),
+    dplyr::mutate(cum_severe_cases = cumsum(hospital_incidence),
            new_severe_cases = hospital_incidence,
            cum_critical_cases = cumsum(ICU_incidence),
            new_critical_cases = ICU_incidence,
@@ -126,30 +128,33 @@ weekly_summary<-function(country=NULL, iso3c = NULL, params = params,
            adm_critical_cases_nocap = ICU_demand)
 
   data <- data %>%
-    mutate(adm_severe_cases_cap = min(hospital_incidence, severe_beds_covid),
-           adm_critical_cases_cap = min(ICU_incidence, crit_beds_covid),
+    dplyr::mutate(adm_severe_cases_cap = ifelse(hospital_incidence<params$severe_beds_covid,
+                                                hospital_incidence, params$severe_beds_covid),
+           adm_critical_cases_cap = ifelse(ICU_incidence<params$crit_beds_covid,
+                                           ICU_incidence, params$crit_beds_covid),
 
            # moderate and mild cases, method in patient calcs:
            # why only severe and critical here, and not moderate?
-           new_mild_cases = sum(new_severe_cases,new_critical_cases)*
-             mildI_proportion/sum(sevI_proportion,critI_proportion),
-           new_mod_cases = sum(new_severe_cases,new_critical_cases)*
-             modI_proportion/sum(sevI_proportion,critI_proportion),
+           new_mild_cases = (new_severe_cases+new_critical_cases)*
+             params$mildI_proportion/(params$sevI_proportion+params$critI_proportion),
+           new_mod_cases = (new_severe_cases+new_critical_cases)*
+             params$modI_proportion/(params$sevI_proportion+params$critI_proportion),
 
            # second method also in patient calcs:
            # what is difference between prevalence and infections here? - need to talk to greg
            # second possible method - needs review
-           new_mild_cases_2 = infections*mildI_proportion,
-           new_mod_cases_2 = infections*modI_proportion,
-           new_severe_cases_2 = infections*sevI_proportion,
-           new_critical_cases_2 = infections*critI_proportion)
+           # this results in MUCH fewer cases estimated btw
+           new_mild_cases_2 = infections*params$mildI_proportion,
+           new_mod_cases_2 = infections*params$modI_proportion,
+           new_severe_cases_2 = infections*params$sevI_proportion,
+           new_critical_cases_2 = infections*params$critI_proportion)
 
 
   data <- data %>%
-    mutate(cum_mild_cases = cumsum(new_mild_cases),
+    dplyr::mutate(cum_mild_cases = cumsum(new_mild_cases),
            cum_mod_cases = cumsum(new_mod_cases))
 
-  data <- data[ , !(names(data) %in% names(params))]
+
   return(data)
 
 }

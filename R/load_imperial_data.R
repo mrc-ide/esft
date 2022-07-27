@@ -14,12 +14,14 @@
 #'
 #' @import countrycode
 #' @import gh
+#' @importFrom utils URLencode
+#' @importFrom utils read.csv
 #'
 #' @return All of the imperial SEIR projections.
 #' @export
 load_imperial_data <- function(warnings = FALSE, country.code = NULL,
                                scenario = "Medium") {
-  iso3 <- read.csv("data-raw/countries.csv")
+  iso3 <- utils::read.csv("data-raw/countries.csv")
   colnames(iso3)[1] <- "country_code"
   iso3 <- iso3[!is.na(iso3)]
   if (!(is.null(country.code))) {
@@ -31,7 +33,7 @@ load_imperial_data <- function(warnings = FALSE, country.code = NULL,
   scenarios <- esft::transmission_scenarios
   scenario_label <-
     scenarios$imperial_category_labels[scenarios$imperial_scenario == scenario]
-  scenario_label <- URLencode(scenario_label)
+  scenario_label <- utils::URLencode(scenario_label)
 
   urls.to.try <- list()
   for (c in iso3) {
