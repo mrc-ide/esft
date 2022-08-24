@@ -214,6 +214,11 @@
 #' Patient: suspected case or person diagnosed with COVID-19 (can be further defined as a severe or critical or applicable to both)
 #' Bed: equipment needed per patient bed (can be further defined as a severe or critical or applicable to both)
 #'
+#'Note: It may appear as if there is double counting, especially when it comes to inpatient patients and beds.
+#'This is not the case - if there is a value for one (either bed or patient), there is no value for the other.
+#'Furthermore, if there are singular values for severe and critical, there will not be values in the both severe
+#'and critical cell.
+#'
 #'@format A data frame with 53 rows and 24 variables:
 #' \describe{
 #'   \item{category}{Equipment type category: testing, infection prevention & control (IPC), case management - biomedical equipment, or case management - accessories & consumables.}

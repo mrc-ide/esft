@@ -29,3 +29,12 @@ afg_summary <- weekly_summary(iso3c="AFG",
 sink("mylist.txt")
 cat(paste0("#'   \\item{",names(afg_summary), "}{xyz}\n"))
 sink()
+
+
+# dealing with structuring commodities forecast
+input <- user_input()
+
+params <- append(params, input)
+
+# maybe have the actual sequence be that the user themselves subset amount by starttime, etc
+# might also need different reusability multiplier params per category
