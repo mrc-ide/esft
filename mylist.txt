@@ -1,24 +1,46 @@
-#'   \item{week}{xyz}
-#'   \item{date}{xyz}
-#'   \item{hospital_demand}{xyz}
-#'   \item{ICU_demand}{xyz}
-#'   \item{hospital_incidence}{xyz}
-#'   \item{ICU_incidence}{xyz}
-#'   \item{infections}{xyz}
-#'   \item{cumulative_infections}{xyz}
-#'   \item{cum_severe_cases}{xyz}
-#'   \item{new_severe_cases}{xyz}
-#'   \item{cum_critical_cases}{xyz}
-#'   \item{new_critical_cases}{xyz}
-#'   \item{adm_severe_cases_nocap}{xyz}
-#'   \item{adm_critical_cases_nocap}{xyz}
-#'   \item{adm_severe_cases_cap}{xyz}
-#'   \item{adm_critical_cases_cap}{xyz}
-#'   \item{new_mild_cases}{xyz}
-#'   \item{new_mod_cases}{xyz}
-#'   \item{new_mild_cases_2}{xyz}
-#'   \item{new_mod_cases_2}{xyz}
-#'   \item{new_severe_cases_2}{xyz}
-#'   \item{new_critical_cases_2}{xyz}
-#'   \item{cum_mild_cases}{xyz}
-#'   \item{cum_mod_cases}{xyz}
+#'   \item{week_begins}{xyz}
+ #'   \item{week_ends}{xyz}
+ #'   \item{hospital_demand}{xyz}
+ #'   \item{ICU_demand}{xyz}
+ #'   \item{hospital_incidence}{xyz}
+ #'   \item{ICU_incidence}{xyz}
+ #'   \item{infections}{xyz}
+ #'   \item{cumulative_infections}{xyz}
+ #'   \item{cum_severe_cases}{xyz}
+ #'   \item{new_severe_cases}{xyz}
+ #'   \item{cum_critical_cases}{xyz}
+ #'   \item{new_critical_cases}{xyz}
+ #'   \item{adm_severe_cases_nocap}{xyz}
+ #'   \item{adm_critical_cases_nocap}{xyz}
+ #'   \item{adm_severe_cases_cap}{xyz}
+ #'   \item{adm_critical_cases_cap}{xyz}
+ #'   \item{new_mild_cases}{xyz}
+ #'   \item{new_mod_cases}{xyz}
+ #'   \item{new_mild_cases_2}{xyz}
+ #'   \item{new_mod_cases_2}{xyz}
+ #'   \item{new_severe_cases_2}{xyz}
+ #'   \item{new_critical_cases_2}{xyz}
+ #'   \item{cum_mild_cases}{xyz}
+ #'   \item{cum_mod_cases}{xyz}
+ #'   \item{rem_mild_cases}{xyz}
+ #'   \item{rem_mod_cases}{xyz}
+ #'   \item{rem_severe_cases}{xyz}
+ #'   \item{rem_critical_cases}{xyz}
+ #'   \item{cum_rem_mild_cases}{xyz}
+ #'   \item{cum_rem_mod_cases}{xyz}
+ #'   \item{cum_rem_severe_cases}{xyz}
+ #'   \item{cum_rem_critical_cases}{xyz}
+ #'   \item{mild_patients_nocap}{xyz}
+ #'   \item{mod_patients_nocap}{xyz}
+ #'   \item{sev_patients_nocap}{xyz}
+ #'   \item{crit_patients_nocap}{xyz}
+ #'   \item{sev_beds_inuse}{xyz}
+ #'   \item{crit_beds_inuse}{xyz}
+ #'   \item{total_beds_inuse}{xyz}
+ #'   \item{hosp_facilities_inuse}{xyz}
+ #'   \item{rem_mild_patients}{xyz}
+ #'   \item{rem_mod_patients}{xyz}
+ #'   \item{rem_sev_patients}{xyz}
+ #'   \item{rem_crit_patients}{xyz}
+ #'   \item{discharged_sev_patients}{xyz}
+ #'   \item{discharged_crit_patients}{xyz}
