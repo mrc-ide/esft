@@ -41,6 +41,7 @@
 #'   \item{cum_rem_mod_cases}{xyz}
 #'   \item{cum_rem_severe_cases}{xyz}
 #'   \item{cum_rem_critical_cases}{xyz}
+#'   \item{sus_cases_but_negative}{xyz}
 #'   \item{mild_patients_nocap}{xyz}
 #'   \item{mod_patients_nocap}{xyz}
 #'   \item{sev_patients_nocap}{xyz}

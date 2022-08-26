@@ -42,10 +42,12 @@
 #'   \item{cum_rem_mod_cases}{xyz}
 #'   \item{cum_rem_severe_cases}{xyz}
 #'   \item{cum_rem_critical_cases}{xyz}
+#'   \item{sus_cases_but_negative}{xyz}
 #'}
 #' @import dplyr
 #' @import data.table
 #' @import countrycode
+#' @importFrom magrittr %>%
 #'
 #' @export
 cases_weekly<-function(params,
@@ -135,6 +137,11 @@ cases_weekly<-function(params,
                   cum_rem_severe_cases = cum_severe_cases - adm_severe_cases_nocap,
                   cum_rem_critical_cases = cum_critical_cases - adm_critical_cases_nocap)
 
+  data <- data %>%
+    dplyr::mutate(sus_cases_but_negative = (new_mild_cases
+                                            + new_mod_cases
+                                            + new_severe_cases
+                                            + new_critical_cases)*params$num_neg_per_pos_test)
   data[is.na(data)] <- 0
 
   return(data)

@@ -128,7 +128,7 @@ get_diagnostic_capacity <- function(country = NULL,
 #' The parameters are defined below.
 #'
 #' @export
-set_testing_strategy <- function(strategy = NULL,
+set_testing_strategy <- function(strategy = "all",
                                  perc_tested_mild_mod = NULL,
                                  overrides = list()) {
 
