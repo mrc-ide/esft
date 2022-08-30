@@ -10,6 +10,9 @@ get_parameters(overrides = list())
 \item{overrides}{a named list of parameter values to use instead of defaults
 The parameters are defined below.}
 }
+\value{
+All of the misc parameters.
+}
 \description{
 
 }

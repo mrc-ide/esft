@@ -71,3 +71,5 @@ hours_per_shift <- readxl::read_excel("data-raw/who_summary_data.xlsx",
                                     sheet = "hours_per_shift")
 usethis::use_data(hours_per_shift, overwrite = TRUE, internal = FALSE)
 
+icl_data <- readRDS("data-raw/all.Rds")
+usethis::use_data(icl_data, overwrite = TRUE, internal = FALSE)

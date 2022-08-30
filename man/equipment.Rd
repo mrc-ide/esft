@@ -61,5 +61,10 @@ Caregiver: patient carers such as parent, spouse, partner, etc.
 Ambulancier: emergency paramedics and drivers (ILO ISCO codes 8322, 3258)
 Patient: suspected case or person diagnosed with COVID-19 (can be further defined as a severe or critical or applicable to both)
 Bed: equipment needed per patient bed (can be further defined as a severe or critical or applicable to both)
+
+Note: It may appear as if there is double counting, especially when it comes to inpatient patients and beds.
+This is not the case - if there is a value for one (either bed or patient), there is no value for the other.
+Furthermore, if there are singular values for severe and critical, there will not be values in the both severe
+and critical cell.
 }
 \keyword{datasets}

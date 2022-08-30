@@ -9,17 +9,19 @@
 #' yield random sample of 5 countries.
 #' @param scenario Default is medium transmission, with an R(0) number or R(eff)
 #' number of 0.94. Other options include "Low", with an R(0) or R(eff) of 0.47,
-#' which simulates a 50% decrease in transmission, or "High", with an R(0) or
-#' R(eff) of 1.41, which simulates a 50% increase in transmission.
+#' which simulates a 50 percent decrease in transmission, or "High", with an R(0) or
+#' R(eff) of 1.41, which simulates a 50 percent increase in transmission.
 #'
 #' @import countrycode
 #' @import gh
+#' @importFrom utils URLencode
+#' @importFrom utils read.csv
 #'
 #' @return All of the imperial SEIR projections.
 #' @export
 load_imperial_data <- function(warnings = FALSE, country.code = NULL,
                                scenario = "Medium") {
-  iso3 <- read.csv("data-raw/countries.csv")
+  iso3 <- utils::read.csv("data-raw/countries.csv")
   colnames(iso3)[1] <- "country_code"
   iso3 <- iso3[!is.na(iso3)]
   if (!(is.null(country.code))) {
@@ -31,7 +33,7 @@ load_imperial_data <- function(warnings = FALSE, country.code = NULL,
   scenarios <- esft::transmission_scenarios
   scenario_label <-
     scenarios$imperial_category_labels[scenarios$imperial_scenario == scenario]
-  scenario_label <- URLencode(scenario_label)
+  scenario_label <- utils::URLencode(scenario_label)
 
   urls.to.try <- list()
   for (c in iso3) {

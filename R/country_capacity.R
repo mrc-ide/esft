@@ -33,13 +33,13 @@ get_country_capacity <- function(country = NULL,
       stop("Country not found")
     }
 
-    population <- esft::who$population[who$country_name == country]
-    yoy_growth <- esft::population$yoy_growth[population$country_wb == country]
-    income_group <- esft::who$income_group[who$country_name == country]
+    pop <- esft::who$population[esft::who$country_name == country]
+    yoy_growth <- esft::population$yoy[esft::population$country_wb == country]
+    income_group <- esft::who$income_group[esft::who$country_name == country]
 
-    n_hcws <- esft::who$doctors[who$country_name == country] +
-      esft::who$nurses[who$country_name == country]
-    n_labs <- esft::who$labs[who$country_name == iso3c]
+    n_hcws <- esft::who$doctors[esft::who$country_name == country] +
+      esft::who$nurses[esft::who$country_name == country]
+    n_labs <- esft::who$labs[esft::who$country_name == iso3c]
 
     n_hosp_beds <- esft::who$beds_total[esft::who$country_name == country]
     perc_beds_crit_covid <- esft::who$perc_icu_beds[esft::who$country_name == country]
@@ -56,13 +56,13 @@ get_country_capacity <- function(country = NULL,
     if (!iso3c %in% unique(esft::who$country_code)) {
       stop("Iso3c not found")
     }
-    population <- esft::who$population[who$country_code == iso3c]
-    yoy_growth <- esft::population$yoy_growth[population$country_code == iso3c]
-    income_group <- esft::who$income_group[who$country_code == iso3c]
+    pop <- esft::who$population[esft::who$country_code == iso3c]
+    yoy_growth <- esft::population$yoy[esft::population$country_code == iso3c]
+    income_group <- esft::who$income_group[esft::who$country_code == iso3c]
 
-    n_hcws <- esft::who$doctors[who$country_code == iso3c] +
-      esft::who$nurses[who$country_code == iso3c]
-    n_labs <- esft::who$labs[who$country_code == iso3c]
+    n_hcws <- esft::who$doctors[esft::who$country_code == iso3c] +
+      esft::who$nurses[esft::who$country_code == iso3c]
+    n_labs <- esft::who$labs[esft::who$country_code == iso3c]
 
     n_hosp_beds <- esft::who$beds_total[esft::who$country_code == iso3c]
     perc_beds_crit_covid <- esft::who$perc_icu_beds[esft::who$country_code == iso3c]
@@ -73,17 +73,14 @@ get_country_capacity <- function(country = NULL,
     )
   }
 
-  if (is.null(perc_beds_not_covid)) {
-    perc_beds_not_covid <- 0.4
-  }
-  if (is.null(perc_beds_sev_covid)) {
-    perc_beds_sev_covid <- 1 - perc_beds_not_covid - perc_beds_crit_covid
-  }
+  perc_beds_crit_covid <- perc_beds_crit_covid/100
+  perc_beds_not_covid <- 0.4
+  perc_beds_sev_covid <- 1 - perc_beds_not_covid - perc_beds_crit_covid
 
   country_capacity <- list(
     country = country,
     iso3c = iso3c,
-    population = population,
+    population = pop,
     yoy_growth = yoy_growth,
     income_group = income_group,
     n_hcws = n_hcws,
@@ -117,4 +114,62 @@ get_country_capacity <- function(country = NULL,
   }
 
   return(country_capacity)
+}
+
+#' @title Gets beds
+#'
+#' @param country_capacity a named list produced by get_country_capacity
+#' @param overrides a named list of parameter values to use instead of defaults
+#'
+#' @return List of bed counts by category
+#' @export
+get_beds <- function(country_capacity, overrides = list()) {
+
+  n_hosp_beds <- country_capacity$n_hosp_beds
+  perc_beds_not_covid <- country_capacity$perc_beds_not_covid
+  perc_beds_sev_covid <- country_capacity$perc_beds_sev_covid
+  perc_beds_crit_covid <- country_capacity$perc_beds_crit_covid
+
+  beds <- list(
+    beds_covid = round(n_hosp_beds*(1-perc_beds_not_covid)),
+    severe_beds_covid = round(n_hosp_beds*perc_beds_sev_covid),
+    crit_beds_covid = round(n_hosp_beds*perc_beds_crit_covid))
+
+  for (name in names(overrides)) {
+    if (!(name %in% names(beds))) {
+      stop(paste('unknown parameter', name, sep=' '))
+    }
+    beds[[name]] <- overrides[[name]]
+  }
+
+  return(beds)
+}
+
+#' @title Gets HCW caps
+#'
+#' @param country_capacity a named list produced by get_country_capacity
+#' @param params
+#' @param overrides a named list of parameter values to use instead of defaults
+#'
+#' @return List of HCW counts by category
+#' @export
+get_hcw_caps <- function(country_capacity, params, overrides = list()) {
+
+  n_hcws <- country_capacity$n_hcws
+  n_labs <- country_capacity$n_labs
+
+  hcws <- list(
+    hcw_cap_inpatient = n_hcws*params$perc_hcws_treat_covid,
+    hcw_cap_outpatient = n_hcws*params$perc_hcws_screen_covid,
+    lab_staff_cap = n_labs,
+    cleaner_cap_inpatient = ())
+
+  for (name in names(overrides)) {
+    if (!(name %in% names(beds))) {
+      stop(paste('unknown parameter', name, sep=' '))
+    }
+    beds[[name]] <- overrides[[name]]
+  }
+
+  return(beds)
 }
