@@ -12,6 +12,7 @@ source("R/diagnostic_parameters.R")
 
 load("data/who.rda")
 load("data/population.rda")
+load("data/hwfe.rda")
 
 all <- readRDS("data-raw/all.Rds")
 
