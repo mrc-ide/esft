@@ -1,10 +1,12 @@
 #' Produce Weekly Summary of HCWs
 #'
+#' @description This function takes some of the HCW cap options and calculates
+#' the section in the `Weekly Summary` tab marked HCW and staff.
+#' This will then be used in some sort of capacity mapping/forecasting.
+#'
 #' @param params
-#' @param beds
-#' @param country_capacity
+#' @param hwfe
 #' @param data
-#' @param starting_date
 #'
 #' @return Dataframe of weekly summary
 #' \describe{
@@ -18,12 +20,29 @@
 #' @import countrycode
 #'
 #' @export
-hcws_weekly<-function(params,
-                      beds,
-                      country_capacity,
+hcws_weekly<-function(params, # maybe this should already by a subsetted country vector of params?
+                      hwfe,
                       data,
-                      starting_date)
+                      country_capacity,
+                      hcws_in_region = NULL) # seems weird to have this at all
+  # - i think in calculation, it served as both a way to get a proxy value in
+  # and also allow for manual tinkering
                       {
   # add exists part here
+  if(is.null(hcws_in_region)){
+    hcws_inpatients_capped <- params$perc_hcws_treat_covid*params$n_hcws
+    # n_hcws = num nurses + num doctors
+    hcws_screening_capped <- params$perc_hcws_screen_covid*params$n_hcws
 
+  } else { # maybe if n_hcws is null?
+    hcws_inpatients_capped <- params$perc_hcws_treat_covid*hcws_in_region
+    # n_hcws = num nurses + num doctors
+    hcws_screening_capped <- params$perc_hcws_screen_covid*hcws_in_region
+
+  }
+
+  lab_staff_capped
+
+  # here we need HWFE
+  cleaners_inpatient_capped
 }
