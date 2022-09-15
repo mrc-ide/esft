@@ -5,7 +5,7 @@
 \title{Sets testing strategy and associated parameters}
 \usage{
 set_testing_strategy(
-  strategy = NULL,
+  strategy = "all",
   perc_tested_mild_mod = NULL,
   overrides = list()
 )

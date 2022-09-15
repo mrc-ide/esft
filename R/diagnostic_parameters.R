@@ -14,10 +14,10 @@ get_diagnostic_parameters <- function(overrides = list()) {
     perc_antigen_tests = 0.2,
     shifts_day_high_throughput = 1,
     days_week_high_throughput = 5,
-    covid_capacity_high_throughput = 0.5,
+    covid_capacity_high_throughput = 0.5, # most of the testing machines
     shifts_day_near_patient = 1,
     days_week_near_patient = 5,
-    covid_capacity_near_patient = 0.5,
+    covid_capacity_near_patient = 0.5, # genexpert
     shifts_day_manual = 1,
     days_week_manual = 5,
     covid_capacity_manual = 1)
@@ -181,5 +181,36 @@ set_testing_strategy <- function(strategy = "all",
     stop("All percentage values must be greater than or equal to 0.")
   }
 
+  parameters
+}
+
+#' @title Get lab parameters
+#'
+#' @description Sets the baseline lab parameters.
+#'
+#' @param overrides Named list of parameter values to use instead of defaults
+#' The parameters are defined below.
+#'
+#' @export
+get_lab_parmeters <- function(overrides = list()) {
+
+  parameters <- list(
+    lab_staff_per_lab = 3,
+    cleaners_per_lab = 1,
+    safety_boxes_per_unit_week = 8,
+    triple_packaging_per_unit = 4,
+    perc_wastage_manual_test_kits = 0.1)
+
+  # Override parameters with any client specified ones
+  if (!is.list(overrides)) {
+    stop('overrides must be a list')
+  }
+
+  for (name in names(overrides)) {
+    if (!(name %in% names(parameters))) {
+      stop(paste('unknown parameter', name, sep=' '))
+    }
+    parameters[[name]] <- overrides[[name]]
+  }
   parameters
 }

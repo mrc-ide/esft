@@ -44,6 +44,7 @@ Dataframe of weekly summary
   \item{cum_rem_mod_cases}{xyz}
   \item{cum_rem_severe_cases}{xyz}
   \item{cum_rem_critical_cases}{xyz}
+  \item{sus_cases_but_negative}{xyz}
   \item{mild_patients_nocap}{xyz}
   \item{mod_patients_nocap}{xyz}
   \item{sev_patients_nocap}{xyz}
@@ -61,6 +62,14 @@ Dataframe of weekly summary
   }
 }
 \description{
+Basically this function corresponds to the calculations in the Weekly
+Summary tab under the headers 'Sick patients per week', 'Patients recovering
+(or dying) from illness, per week'. It takes in the model output plus the
+cumulative infections calculated by cases_weekly (which is the first step in
+the weekly summary process).
+The difference with this function is that it includes some of the bed capping.
+
+
 I might be able to put this into cases weekly as well, but at first i'll just
 do it separately.
 }

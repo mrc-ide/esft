@@ -44,6 +44,7 @@ Dataframe of weekly summary
   \item{cum_rem_mod_cases}{xyz}
   \item{cum_rem_severe_cases}{xyz}
   \item{cum_rem_critical_cases}{xyz}
+  \item{sus_cases_but_negative}{xyz}
 }
 }
 \description{

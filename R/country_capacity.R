@@ -161,8 +161,8 @@ get_hcw_caps <- function(country_capacity, params, overrides = list()) {
   hcws <- list(
     hcw_cap_inpatient = n_hcws*params$perc_hcws_treat_covid,
     hcw_cap_outpatient = n_hcws*params$perc_hcws_screen_covid,
-    lab_staff_cap = n_labs,
-    cleaner_cap_inpatient = ())
+    lab_staff_cap = n_labs)
+    # cleaner_cap_inpatient = ())
 
   for (name in names(overrides)) {
     if (!(name %in% names(beds))) {
