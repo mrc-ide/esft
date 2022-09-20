@@ -144,32 +144,3 @@ get_beds <- function(country_capacity, overrides = list()) {
 
   return(beds)
 }
-
-#' @title Gets HCW caps
-#'
-#' @param country_capacity a named list produced by get_country_capacity
-#' @param params
-#' @param overrides a named list of parameter values to use instead of defaults
-#'
-#' @return List of HCW counts by category
-#' @export
-get_hcw_caps <- function(country_capacity, params, overrides = list()) {
-
-  n_hcws <- country_capacity$n_hcws
-  n_labs <- country_capacity$n_labs
-
-  hcws <- list(
-    hcw_cap_inpatient = n_hcws*params$perc_hcws_treat_covid,
-    hcw_cap_outpatient = n_hcws*params$perc_hcws_screen_covid,
-    lab_staff_cap = n_labs)
-    # cleaner_cap_inpatient = ())
-
-  for (name in names(overrides)) {
-    if (!(name %in% names(beds))) {
-      stop(paste('unknown parameter', name, sep=' '))
-    }
-    beds[[name]] <- overrides[[name]]
-  }
-
-  return(beds)
-}

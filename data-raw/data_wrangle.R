@@ -73,3 +73,7 @@ usethis::use_data(hours_per_shift, overwrite = TRUE, internal = FALSE)
 
 icl_data <- readRDS("data-raw/all.Rds")
 usethis::use_data(icl_data, overwrite = TRUE, internal = FALSE)
+
+throughput <- readxl::read_excel("data-raw/who_summary_data.xlsx",
+                                    sheet = "throughput")
+usethis::use_data(throughput, overwrite = TRUE, internal = FALSE)

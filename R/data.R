@@ -295,3 +295,19 @@
 #' }
 #' @source \url{https://www.who.int/publications/i/item/WHO-2019-nCoV-Tools-Essential_forecasting-2022.1}
 "capacity_perc"
+
+#' @title Throughput data for diagnostic machinery
+#'
+#'@format A data frame with 7 rows and 4 variables:
+#' \describe{
+#'   \item{platform}{Diagnostic platform}
+#'   \item{platform_key}{Platform key number that matches internal column names}
+#'   \item{throughput_8hrs}{Number of tests that could be processed in an 8 hr shift}
+#'   \item{throughput_16hrs}{Number of tests that could be processed in a 16 hr shift}
+#'   \item{throughput_24hrs}{Number of tests that could be processed in a 24 hr shift}
+#'   \item{type}{One of three types of machine: high throughput, near patient, or manual}
+#'   \item{shifts_day}{Shifts the item was intended to work for per day}
+#'   \item{days_week}{Days per week the machine would work per week}
+#'   \item{covid_capacity}{Capacity per machine for covid cases}
+#' }
+"throughput"

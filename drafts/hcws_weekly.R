@@ -21,9 +21,9 @@
 #' @import countrycode
 #'
 #' @export
-hcws_weekly <- function(params, # maybe this should already by a subsetted country vector of params?
+hcw_caps <- function(params, # maybe this should already by a subsetted country vector of params?
                         hwfe,
-                        data,
+                        data, # from patients_weekly
                         country_capacity,
                         diagnostic_parameters,
                         lab_params,
@@ -35,13 +35,13 @@ hcws_weekly <- function(params, # maybe this should already by a subsetted count
 {
   # add exists part here
   if (is.null(hcws_in_region)) {
-    hcws_inpatients_capped <- params$perc_hcws_treat_covid * params$n_hcws
+    hcws_inpatients_cap <- params$perc_hcws_treat_covid * params$n_hcws
     # n_hcws = num nurses + num doctors
-    hcws_screening_capped <- params$perc_hcws_screen_covid * params$n_hcws
+    hcws_screening_cap <- params$perc_hcws_screen_covid * params$n_hcws
   } else { # maybe if n_hcws is null?
-    hcws_inpatients_capped <- params$perc_hcws_treat_covid * hcws_in_region
+    hcws_inpatients_cap <- params$perc_hcws_treat_covid * hcws_in_region
     # n_hcws = num nurses + num doctors
-    hcws_screening_capped <- params$perc_hcws_screen_covid * hcws_in_region
+    hcws_screening_cap <- params$perc_hcws_screen_covid * hcws_in_region
   }
 
   if (cap_lab_staff == FALSE) {
@@ -54,7 +54,11 @@ hcws_weekly <- function(params, # maybe this should already by a subsetted count
     )
     lab_staff <- params$n_labs * lab_cap
   }
+#### UP TO HERE< STATIC CAPS
 
+  ### eventually would also rely on dynamic testing caps
+
+  ### if we have a wrapper - toggle on and off ? or maybe just break it down so much so that every little piece related to each other?
   # wrap this in error message?
   # also what bout mod - we have data for this?
   hygienists_per_sev_bed <- hwfe$patient_t24_sev[hwfe$esft_group == "Cleaner"] / 8 * (data$sev_beds_inuse / data$total_beds_inuse) * 10
@@ -62,17 +66,17 @@ hcws_weekly <- function(params, # maybe this should already by a subsetted count
   hygienists_per_bed <- hygienists_per_sev_bed + hygienists_per_crit_bed # here we need HWFE
 
   if (is.null(params$n_hosp_beds)) {
-    cleaners_inpatient_capped <- params$beds_covid * hygienists_per_bed
+    cleaners_inpatient_cap <- params$beds_covid * hygienists_per_bed
   } else {
-    cleaners_inpatient_capped <- params$n_hosp_beds * hygienists_per_bed
+    cleaners_inpatient_cap <- params$n_hosp_beds * hygienists_per_bed
   }
 
   ambulanciers_per_bed <- (2 / 100) * 3 # 1 ambulance per 100 bed hospital w 2 operators at all times (3x8 hour shifts)
   bio_eng_per_bed <- 0.02 # assumes 2 biomed engineers on 8 hr shifts per 100 bed hospital
 
-  inf_caregiver_inpatient_capped <- data$total_beds_inuse * params$n_inf_caregivers_hosp
-  amb_personnel_inpatient_capped <- data$total_beds_inuse * ambulanciers_per_bed
-  bio_eng_inpatient_capped <- data$total_beds_inuse * bio_eng_per_bed
+  inf_caregiver_inpatient_cap <- data$total_beds_inuse * params$n_inf_caregivers_hosp
+  amb_personnel_inpatient_cap<- data$total_beds_inuse * ambulanciers_per_bed
+  bio_eng_inpatient_cap <- data$total_beds_inuse * bio_eng_per_bed
 
   # screening_hcw_uncapped # this depends on testing
   # screening_hcw_capped # also depends on testing
@@ -80,16 +84,16 @@ hcws_weekly <- function(params, # maybe this should already by a subsetted count
   # cleaners_lab_capped <- total_labs*hygienists_per_lab # also depends on diagnostics
 
   hcws <- list(
-    hcws_inpatients_capped = hcws_inpatients_capped,
-    hcws_screening_capped = hcws_screening_capped,
+    hcws_inpatients_cap = hcws_inpatients_cap,
+    hcws_screening_cap = hcws_screening_cap,
     lab_staff = lab_staff,
-    cleaners_inpatient_capped = cleaners_inpatient_capped,
-    inf_caregiver_inpatient_capped = inf_caregiver_inpatient_capped,
-    amb_personnel_inpatient_capped = amb_personnel_inpatient_capped,
-    bio_eng_inpatient_capped = bio_eng_inpatient_capped,
-    screening_hcw_uncapped = screening_hcw_uncapped,
-    screening_hcw_capped = screening_hcw_capped,
-    inf_caregiver_isolation = inf_caregiver_isolation,
-    cleaners_lab_capped = cleaners_lab_capped
+    cleaners_inpatient_cap = cleaners_inpatient_cap,
+    inf_caregiver_inpatient_cap = inf_caregiver_inpatient_cap,
+    amb_personnel_inpatient_cap = amb_personnel_inpatient_cap,
+    bio_eng_inpatient_cap = bio_eng_inpatient_cap
+    # screening_hcw_uncap = screening_hcw_uncap,
+    # screening_hcw_cap = screening_hcw_cap,
+    # inf_caregiver_isolation = inf_caregiver_isolation,
+    # cleaners_lab_cap = cleaners_lab_cap
   )
 }
