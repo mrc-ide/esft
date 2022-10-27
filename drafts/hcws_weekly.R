@@ -7,7 +7,11 @@
 #' @param params
 #' @param hwfe
 #' @param data
-#' @par
+#' @param country_capacity
+#' @param diagnostic_parameters
+#' @param lab_params
+#' @param cap_lab_staff
+#' @param hcws_in_region
 #'
 #' @return Dataframe of weekly summary
 #' \describe{
@@ -31,7 +35,7 @@ hcw_caps <- function(params, # maybe this should already by a subsetted country 
                         # available in early iterations of esft, not in late ones
                         hcws_in_region = NULL) # seems weird to have this at all
                         # - i think in calculation, it served as both a way to get a proxy value in
-# and also allow for manual tinkering
+                        # and also allow for manual tinkering
 {
   # add exists part here
   if (is.null(hcws_in_region)) {

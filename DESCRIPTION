@@ -13,4 +13,4 @@ Depends:
     R (>= 3.5.0)
 Imports:
     countrycode, gh, magrittr, rlang
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.1

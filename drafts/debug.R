@@ -153,10 +153,14 @@ afg_summary <- cases_weekly(params=params,
 # do data processing and parameter setting before weekly summary
 # maybe add exists calls
 # finish documentsation
-sink("mylist.txt")
-cat(paste0("#'   \\item{",names(afg_summary), "}{xyz}\n"))
+sink("names.txt")
+cat(paste0("#'   \\item{",names(params), "}{xyz}\n"))
 sink()
 
+#param definitions
+sink("names.txt")
+cat(paste0("#' * ",names(params), "- INSERT; default = \n"))
+sink()
 
 # maybe have the actual sequence be that the user themselves subset amount by starttime, etc
 # might also need different reusability multiplier params per category

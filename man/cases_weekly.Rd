@@ -7,47 +7,92 @@
 cases_weekly(params, data, starting_date = "2019-11-29")
 }
 \arguments{
-\item{starting_date}{}
+\item{params}{Includes both estimates of beds and case severity proportions.}
+
+\item{data}{Specific country fit data, from the imperial model fits}
+
+\item{starting_date}{User specified, starting date of weekly summary}
 }
 \value{
 Dataframe of weekly summary
 \describe{
   \item{week_begins}{Date the week summarized begins}
   \item{week_ends}{Date the week summarized ends}
-  \item{hospital_demand}{xyz}
-  \item{ICU_demand}{xyz}
-  \item{hospital_incidence}{xyz}
-  \item{ICU_incidence}{xyz}
-  \item{infections}{xyz}
-  \item{cumulative_infections}{xyz}
-  \item{cum_severe_cases}{xyz}
-  \item{new_severe_cases}{xyz}
-  \item{cum_critical_cases}{xyz}
-  \item{new_critical_cases}{xyz}
-  \item{adm_severe_cases_nocap}{xyz}
-  \item{adm_critical_cases_nocap}{xyz}
-  \item{adm_severe_cases_cap}{xyz}
-  \item{adm_critical_cases_cap}{xyz}
-  \item{new_mild_cases}{xyz}
-  \item{new_mod_cases}{xyz}
-  \item{new_mild_cases_2}{xyz}
-  \item{new_mod_cases_2}{xyz}
-  \item{new_severe_cases_2}{xyz}
-  \item{new_critical_cases_2}{xyz}
-  \item{cum_mild_cases}{xyz}
-  \item{cum_mod_cases}{xyz}
-  \item{rem_mild_cases}{xyz}
-  \item{rem_mod_cases}{xyz}
-  \item{rem_severe_cases}{xyz}
-  \item{rem_critical_cases}{xyz}
-  \item{cum_rem_mild_cases}{xyz}
-  \item{cum_rem_mod_cases}{xyz}
-  \item{cum_rem_severe_cases}{xyz}
-  \item{cum_rem_critical_cases}{xyz}
-  \item{sus_cases_but_negative}{xyz}
+  \item{hospital_demand}{Summed hospital demand: number of people who would
+  be using a hospital bed given enough healthcare capacity but won't
+  necessarily have it}
+  \item{ICU_demand}{Summed ICU demand: number of people who would be using a
+  hospital bed given enough healthcare capacity but won't necessarily have
+  it}
+  \item{hospital_incidence}{Summed hospital incidence: the total number of
+  new people who need a new hospital bed at the current time. This does not
+  include those recovering from ICU in a hospital bed or who already have
+  access to a bed.}
+  \item{ICU_incidence}{Summed ICU incidence: the total number of
+  new people who need a new ICU bed at the current time. This does not
+  include those who already have access to a bed.}
+  \item{infections}{Estimated number of new infections, from model fits}
+  \item{cumulative_infections}{Cumulative number of infections}
+  \item{cum_severe_cases}{Cumulative severe cases per week as defined by the
+  ESFT: cumulative hospital incidence}
+  \item{new_severe_cases}{New severe cases per week as defined by the ESFT:
+  hospital incidence that week}
+  \item{cum_critical_cases}{Cumulative critical cases per week as defined by
+  the ESFT: cumulative ICU incidence}
+  \item{new_critical_cases}{New critical cases per week as defined by
+  the ESFT: new ICU incidence}
+  \item{adm_severe_cases_nocap}{Admitted severe cases per week = hospital
+  demand}
+  \item{adm_critical_cases_nocap}{Admitted critical cases per week - ICU
+  demand}
+  \item{adm_severe_cases_cap}{Hospital incidence, capped by severe bed
+  availability}
+  \item{adm_critical_cases_cap}{ICU incidence, capped by critical bed
+  availability}
+  \item{new_mild_cases}{New mild cases every week, found by doing a
+  transformation of the critical and severe cases and multiplying by the mild
+  case proportion}
+  \item{new_mod_cases}{New moderate cases every week, found by doing a
+  transformation of the critical and severe cases and multiplying by the
+  moderate case proportion}
+  \item{new_mild_cases_2}{New mild cases, alternative calculation. Multiplies
+  the infections per week times the mild proportion.}
+  \item{new_mod_cases_2}{New moderate cases, alternative calculation.
+  Multiplies the infections per week times the mild proportion.}
+  \item{new_severe_cases_2}{New severe cases, alternative calculation.
+  Multiplies the infections per week times the mild proportion.}
+  \item{new_critical_cases_2}{New critical cases, alternative calculation.
+  Multiplies the infections per week times the mild proportion.}
+  \item{cum_mild_cases}{Cumulative mild cases, using the first mild case
+  calculation}
+  \item{cum_mod_cases}{Cumulative moderate cases, using the first moderate
+  case calculation}
+  \item{rem_mild_cases}{Mild cases who have completed their isolation,
+  using the average length of stay for mild cases}
+  \item{rem_mod_cases}{Moderate cases who have completed their isolation,
+  using the average length of stay for moderate cases}
+  \item{rem_severe_cases}{Severe cases who have completed their hospital
+  stay, using the average length of stay for severe cases}
+  \item{rem_critical_cases}{Critical cases who have completed their hospital
+  stay, using the average length of stay for critical cases}
+  \item{cum_rem_mild_cases}{Cumulative mild cases who have completed their
+  isolation using the average length of stay for mild cases}
+  \item{cum_rem_mod_cases}{Cumulative moderate cases who have completed their
+  isolation using the average length of stay for moderate cases}
+  \item{cum_rem_severe_cases}{Cumulative severe cases - admitted severe cases
+  per week with no cap}
+  \item{cum_rem_critical_cases}{Cumulative critical cases - admitted critical
+  cases per week with no cap}
+  \item{sus_cases_but_negative}{Sum of all new cases multiplied by the
+  number of negative tests per positive case}
 }
 }
 \description{
+Replicates the calculations in the 'Weekly Summary' tab of the
+ESFT. There are elements of these calculations, such as the assumption that
+hospital incidence = number of severe cases, that the ICL team does not make
+in its calculations. Therefore, keep in mind that this is just a replication.
+
 Note: since proportion of mild and moderate are the same, the estimates of
 these categories will be the same.
 }
