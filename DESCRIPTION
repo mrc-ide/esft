@@ -13,5 +13,5 @@ LazyData: true
 Depends: 
     R (>= 3.5.0)
 Imports:
-    countrycode, gh, magrittr, rlang
+    countrycode, gh, magrittr, rlang, data.table, dplyr, tidyr
 RoxygenNote: 7.2.1
