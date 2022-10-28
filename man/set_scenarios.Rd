@@ -14,3 +14,6 @@ set_scenarios(parameters, scenarios)
 \description{
 Parameterise scenarios to use in the model
 }
+\details{
+Creates a dataframe of scenarios with their associated parameters
+}

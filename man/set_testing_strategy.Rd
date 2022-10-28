@@ -5,14 +5,53 @@
 \title{Sets testing strategy and associated parameters}
 \usage{
 set_testing_strategy(
-  strategy = NULL,
+  strategy = "all",
   perc_tested_mild_mod = NULL,
   overrides = list()
 )
 }
 \arguments{
+\item{strategy}{testing strategy for mild/moderate presenting cases - either
+"all" or "targeted"}
+
+\item{perc_tested_mild_mod}{percent of mild or moderate tested, tied to
+specific strategies, but can be manually changed}
+
 \item{overrides}{a named list of parameter values to use instead of defaults
-The parameters are defined below.}
+The parameters are defined below, and are taken from the default settings in
+the ESFT.
+
+testing strategies:
+
+* all - all cases that present, regardless of severity, using standard number
+of negatives per positive test
+* targeted - restricted testing of mild/moderate presenting cases may be
+employed if limited tests available. all required severe and critical cases
+will still be tested. if selected, only the percent of
+suspected/mild/moderate cases input here will be tested (typically high-risk
+patients)
+
+further testing parameters:
+
+* perc_tested_sev_crit - percent of severe or critical cases tested, always
+100%; default = 1
+* num_neg_per_pos_test - estimated average number of negative tests per
+positive test; default = 10
+* tests_per_hcw_per_week - tests per HCW or staff member per week. includes
+tests for inpatient HCW, screening/triage HCW, ambulance personnel, cleaners,
+lab techs, and biomedical engineers. input can also be 0 (for no tests) or a
+decimal (e.g. 0.5, to represent tests every other week); default = 1
+* testing_contacts - is testing done for contacts of positive cases;
+default = TRUE
+* avg_contacts_pos_case - average number of contacts per positive case.
+suggested options are 5 (High/Strong, e.g. stay at home regulations),
+10 (Medium/Weak social distancing, e.g. travel restrictions),
+15 (Low/No social distancing, e.g. advice only); default = 10
+* perc_contacts_tested - percent of contacts of a positive case who get
+tested; default = 0.6}
+}
+\value{
+Testing strategy parameters.
 }
 \description{
 Default is testing strategy = all

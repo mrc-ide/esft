@@ -14,9 +14,12 @@ med_transmission
 Preset parameters for the medium transmission scenario
 }
 \details{
-Use a vector of preset parameters for the medium transmission scenario
+Use a vector of preset parameters for the medium transmission
+scenario
 
-Default parameters are Death Calibrated Label = Maintain Current Transmission,
-Not Death Calibrated Label = Medium Transmission, R(eff) or R(0) = 0.94, Imperial Category Label = Maintain Status Quo
+Default parameters are Death Calibrated Label = Maintain Current
+Transmission,
+Not Death Calibrated Label = Medium Transmission, R(eff) or R(0) = 0.94,
+Imperial Category Label = Maintain Status Quo
 }
 \keyword{datasets}
