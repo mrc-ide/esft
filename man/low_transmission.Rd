@@ -16,7 +16,9 @@ Preset parameters for the low transmission scenario
 \details{
 Use a vector of preset parameters for the low transmission scenario
 
-Default parameters are Death Calibrated Label = Decrease Transmission 50%,
-Not Death Calibrated Label = Low Transmission, R(eff) or R(0) = 0.47, Imperial Category Label = Additional 50% Reduction
+Default parameters are Death Calibrated Label = Decrease
+Transmission 50%,
+Not Death Calibrated Label = Low Transmission, R(eff) or R(0) = 0.47,
+Imperial Category Label = Additional 50% Reduction
 }
 \keyword{datasets}

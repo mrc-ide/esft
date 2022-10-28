@@ -67,7 +67,6 @@ get_diagnostic_parameters <- function(overrides = list()) {
 #' * manual - manual real-time PCR platform
 #'
 #' @importFrom tidyr pivot_longer
-#' @importFrom base match
 #' @importFrom magrittr %>%
 #'
 #' @return Number of diagnostic machines available within each country.

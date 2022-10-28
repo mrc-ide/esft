@@ -16,7 +16,9 @@ Preset parameters for the high transmission scenario
 \details{
 Use a vector of preset parameters for the high transmission scenario
 
-Default parameters are Death Calibrated Label = Increase Transmission 50%,
-Not Death Calibrated Label = High Transmission, R(eff) or R(0) = 1.41, Imperial Category Label = Relax Interventions 50%
+Default parameters are Death Calibrated Label = Increase
+Transmission 50%,
+Not Death Calibrated Label = High Transmission, R(eff) or R(0) = 1.41,
+Imperial Category Label = Relax Interventions 50%
 }
 \keyword{datasets}

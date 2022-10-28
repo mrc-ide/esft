@@ -1,38 +1,14 @@
-#' * country- INSERT; default = 
- #' * iso3c- INSERT; default = 
- #' * population- INSERT; default = 
- #' * yoy_growth- INSERT; default = 
- #' * income_group- INSERT; default = 
- #' * n_hcws- INSERT; default = 
- #' * n_labs- INSERT; default = 
- #' * n_hosp_beds- INSERT; default = 
- #' * perc_beds_crit_covid- INSERT; default = 
- #' * perc_beds_not_covid- INSERT; default = 
- #' * perc_beds_sev_covid- INSERT; default = 
- #' * beds_covid- INSERT; default = 
- #' * severe_beds_covid- INSERT; default = 
- #' * crit_beds_covid- INSERT; default = 
- #' * mildI_proportion- INSERT; default = 
- #' * modI_proportion- INSERT; default = 
- #' * sevI_proportion- INSERT; default = 
- #' * critI_proportion- INSERT; default = 
- #' * stay_mild- INSERT; default = 
- #' * stay_mod- INSERT; default = 
- #' * stay_sev- INSERT; default = 
- #' * stay_crit- INSERT; default = 
- #' * IFR_sev- INSERT; default = 
- #' * IFR_crit- INSERT; default = 
- #' * perc_hcws_not_covid- INSERT; default = 
- #' * perc_hcws_treat_covid- INSERT; default = 
- #' * perc_hcws_screen_covid- INSERT; default = 
- #' * n_hosp_beds_per_care_unit- INSERT; default = 
- #' * ambulancews_per_bed- INSERT; default = 
- #' * bioengs_per_bed- INSERT; default = 
- #' * n_inf_caregivers_hosp- INSERT; default = 
- #' * n_inf_caregivers_isol- INSERT; default = 
- #' * cases_screened_per_hcw_per_day- INSERT; default = 
- #' * perc_crit_inv_mv- INSERT; default = 
- #' * perc_crit_noninv_mv- INSERT; default = 
- #' * o2_flow_sev- INSERT; default = 
- #' * o2_flow_crit_inv_mv- INSERT; default = 
- #' * o2_flow_crit_noninv_mv- INSERT; default = 
+#' * mild_patients_nocap - 
+#' * mod_patients_nocap - 
+#' * sev_patients_nocap - 
+#' * crit_patients_nocap - 
+#' * sev_beds_inuse - 
+#' * crit_beds_inuse - 
+#' * total_beds_inuse - 
+#' * hosp_facilities_inuse - 
+#' * rem_mild_patients - 
+#' * rem_mod_patients - 
+#' * rem_sev_patients - 
+#' * rem_crit_patients - 
+#' * discharged_sev_patients - 
+#' * discharged_crit_patients - 

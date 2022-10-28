@@ -8,10 +8,24 @@ user_input(overrides = list())
 }
 \arguments{
 \item{overrides}{a named list of parameter values to use instead of defaults
-The parameters are defined below.}
+The parameters are defined below, and are taken from the default values of
+the ESFT.
+
+misc user input parameters:
+
+* forecast_period - weeks from start date that you want to forecast from;
+default = 12
+* delivery_leadtime - time in weeks until shipment received (between 0-1).
+note - if this is set to 1, this pushed the forecast period out 1 week to
+factor in delivery time; default = 0
+* week1 - date from which the forecast starts (year-month-date);
+default = "2022-01-02"}
 }
 \description{
-Given that these are just three - don't know if these are useful.
-Basically this is what is in the input/user dashboard tab that isn't captured
-through other parameter-setting functions.
+Given that these are just three - don't know if these are
+useful. Basically this is what is in the input/user dashboard tab that isn't
+captured through other parameter-setting functions.
+Plus, there are no checks of type in this function, nor is it entirely clear
+where this leads into. So there's a potential to get rid of this one or
+consolidate it with another.
 }

@@ -10,7 +10,7 @@
 #'
 #' @param params Includes both estimates of beds and case severity proportions.
 #' @param data Specific country fit data, from the imperial model fits
-#' @param starting_date User specified, starting date of weekly summary
+#' @param starting_date User specified string of starting date of weekly summary
 #'
 #' @return Dataframe of weekly summary
 #' \describe{

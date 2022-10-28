@@ -154,7 +154,7 @@ afg_summary <- cases_weekly(params=params,
 # maybe add exists calls
 # finish documentsation
 sink("names.txt")
-cat(paste0("#'   \\item{",names(params), "}{xyz}\n"))
+cat(paste0("#'   \\item{",names(afg_params), "}{xyz}\n"))
 sink()
 
 #param definitions

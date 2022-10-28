@@ -1,12 +1,13 @@
 Package: esft
 Type: Package
-Title: What the Package Does (Title Case)
+Title: WHO ESFT Calculations
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Author: Ines Gerard-Ursin
+Maintainer: <ines.gerard-ursin20@imperial.ac.uk>
+Description: This package replicates what is available through WHO ESFT.
+    This repo also serves as documentation of the calculations and their
+    assumptions, so the user can employ them/reference them as they see fit.
+License: MIT License
 Encoding: UTF-8
 LazyData: true
 Depends: 

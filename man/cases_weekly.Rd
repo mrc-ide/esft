@@ -11,7 +11,7 @@ cases_weekly(params, data, starting_date = "2019-11-29")
 
 \item{data}{Specific country fit data, from the imperial model fits}
 
-\item{starting_date}{User specified, starting date of weekly summary}
+\item{starting_date}{User specified string of starting date of weekly summary}
 }
 \value{
 Dataframe of weekly summary

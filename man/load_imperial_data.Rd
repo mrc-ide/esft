@@ -4,23 +4,25 @@
 \alias{load_imperial_data}
 \title{Load imperial forecasts}
 \usage{
-load_imperial_data(warnings = FALSE, country.code = NULL, scenario = "Medium")
+load_imperial_data(warnings = FALSE, country_code = NULL, scenario = "Medium")
 }
 \arguments{
 \item{warnings}{Default is false. Whether to give warnings.}
 
-\item{country.code}{Country code of country/countries to load. Else will
+\item{country_code}{Country code of country/countries to load. Else will
 yield random sample of 5 countries.}
 
 \item{scenario}{Default is medium transmission, with an R(0) number or R(eff)
 number of 0.94. Other options include "Low", with an R(0) or R(eff) of 0.47,
-which simulates a 50 percent decrease in transmission, or "High", with an R(0) or
-R(eff) of 1.41, which simulates a 50 percent increase in transmission.}
+which simulates a 50 percent decrease in transmission, or "High", with an
+R(0) or R(eff) of 1.41, which simulates a 50 percent increase in
+transmission.}
 }
 \value{
 All of the imperial SEIR projections.
 }
 \description{
 Downloads the raw imperial data from the imperial fits repo.
-Do not use this function to mass download data, unless you have set up a Personal Access Token.
+Do not use this function to mass download data (only one url at a time
+please!), unless you have set up a Personal Access Token (PAT).
 }
