@@ -22,11 +22,12 @@
 #'   hospital beds in use}
 #' }
 #' @export
-hcw_caps_dynamic <- function(params, # includes specific bed counts
-                             hwfe, # from who sheet
-                             data,
-                             ambulanciers_per_bed = 0.06,
-                             bio_eng_per_bed = 0.02
+hcw_caps_dynamic<- function(params, # includes specific bed counts
+                hwfe, # from who sheet
+                data,
+                ambulanciers_per_bed = 0.06,
+                bio_eng_per_bed = 0.02
+
 ) {
 
   hygienists_per_sev_bed <- hwfe$patient_t24_sev[
@@ -37,9 +38,28 @@ hcw_caps_dynamic <- function(params, # includes specific bed counts
 
   hygienists_per_crit_bed <- hwfe$patient_t24_crit[
     hwfe$esft_group == "Cleaner"
-  ] / 8 * (data$crit_beds_inuse / data$total_beds_inuse) * 10
+  ] / 8 * (
+    data$crit_beds_inuse / data$total_beds_inuse
+  ) * 10
 
   hygienists_per_bed <- hygienists_per_sev_bed + hygienists_per_crit_bed
+
+
+  hcws_per_sev_bed <- sum(
+    hwfe$patient_t24_sev[
+    hwfe$esft_group == "HCW"
+  ] ) / 8 * (
+    sum(data$sev_beds_inuse) / sum(data$total_beds_inuse)
+  )
+
+  hcws_per_crit_bed <- sum(
+    hwfe$patient_t24_crit[
+    hwfe$esft_group == "HCW"
+  ] ) / 8 * (
+    sum(data$crit_beds_inuse) / sum(data$total_beds_inuse)
+  )
+
+  hcws_per_bed <- hcws_per_sev_bed + hcws_per_crit_bed
 
   if (is.null(params$n_hosp_beds)) {
     cleaners_inpatient_cap <- params$beds_covid * hygienists_per_bed
@@ -56,11 +76,15 @@ hcw_caps_dynamic <- function(params, # includes specific bed counts
     hygienists_per_bed = hygienists_per_bed,
     hygienists_per_crit_bed = hygienists_per_crit_bed,
     hygienists_per_sev_bed = hygienists_per_sev_bed,
+    hcws_per_bed = hcws_per_bed,
+    hcws_per_sev_bed = hcws_per_sev_bed,
+    hcws_per_crit_bed = hcws_per_crit_bed,
     cleaners_inpatient_cap = cleaners_inpatient_cap,
     inf_caregiver_inpatient_cap = inf_caregiver_inpatient_cap,
     amb_personnel_inpatient_cap = amb_personnel_inpatient_cap,
     bio_eng_inpatient_cap = bio_eng_inpatient_cap
   )
+
   return(hcw_caps)
 }
 
@@ -93,7 +117,6 @@ hcw_caps_dynamic <- function(params, # includes specific bed counts
 #' }
 #' @export
 hcws_weekly <- function(params, # includes specific bed counts
-                        hwfe, # from who sheet
                         data,
                         diagnostics_weekly,
                         hcw_caps # static and dynamic
@@ -103,8 +126,24 @@ hcws_weekly <- function(params, # includes specific bed counts
   # inf_caregiver_isolation # again depends on testing
   # cleaners_lab_capped <- total_labs*hygienists_per_lab # also depends on diagnostics
 
+dynhcw <- hcw_caps
 
-  # screening_hcw_uncap = screening_hcw_uncap,
+hcw_caps <- merge(dynhcw, hcw_caps_static)
+# hcw_caps right now are the dynamic ones
+
+df <- cbind(data, hcw_caps)
+
+df <- df %>%
+  mutate(hcws_inpatient_uncapped = total_beds_inuse*hcws_per_bed,
+         hcws_inpatient_capped = min(total_beds_inuse*hcws_per_bed,
+                                     hcws_inpatient_cap),
+         cleaners_inpatient_capped = min(total_beds_inuse*hygienists_per_bed,
+                                         cleaners_inpatient_cap),
+         amb_personnel_inpatient_capped = amb_personnel_inpatient_cap,
+         bio_eng_inpatient_capped = bio_eng_inpatient_cap
+  )
+
+# screening_hcw_uncap = screening_hcw_uncap,
   # screening_hcw_cap = screening_hcw_cap,
   # inf_caregiver_isolation = inf_caregiver_isolation,
   # cleaners_lab_cap = cleaners_lab_cap
