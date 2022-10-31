@@ -1,20 +1,38 @@
 rm(list=ls())
 library(magrittr)
-# let's test out functions
-source("R/country_capacity.R")
+
+# let's first pull params as they are written
 source("R/parameters.R")
-source("R/load_imperial_data.R")
-source("R/cases_weekly.R")
-source("R/user_input.R")
-source("R/utils.R")
-source("R/extra.R")
 source("R/diagnostic_parameters.R")
+source("R/country_capacity.R")
+source("R/cases_weekly.R")
+
+params <- get_parameters()
+# goal is to figure out hcw caps and cases:
+source("drafts/hcws_weekly.R")
 
 load("data/who.rda")
 load("data/population.rda")
 load("data/hwfe.rda")
 
 all <- readRDS("data-raw/all.Rds")
+
+
+afg_params <- get_country_capacity(iso3c="AFG")
+params <- get_parameters()
+afg_data<-subset(all, all$iso3c == "AFG")
+
+params <- merge(afg_params, params)
+
+# no real dependencies
+input <- user_input()
+test_params <- set_testing_strategy()
+# dealing with structuring commodities forecast
+
+# cases weekly needs this to becalled - wrapper function potential?
+params <- append(params, input)
+params <- append(params, test_params)
+
 
 
 ##### COUNTRY CAPACITY -----------------
@@ -88,6 +106,9 @@ get_country_capacity <- function(country = NULL,
   perc_beds_crit_covid <- perc_beds_crit_covid/100
   perc_beds_not_covid <- 0.4
   perc_beds_sev_covid <- 1 - perc_beds_not_covid - perc_beds_crit_covid
+  beds_covid = round(n_hosp_beds*(1-perc_beds_not_covid))
+  severe_beds_covid = round(n_hosp_beds*perc_beds_sev_covid)
+  crit_beds_covid = round(n_hosp_beds*perc_beds_crit_covid)
 
   country_capacity <- list(
     country = country,
@@ -100,7 +121,10 @@ get_country_capacity <- function(country = NULL,
     n_hosp_beds = n_hosp_beds,
     perc_beds_crit_covid = perc_beds_crit_covid,
     perc_beds_not_covid = perc_beds_not_covid,
-    perc_beds_sev_covid = perc_beds_sev_covid
+    perc_beds_sev_covid = perc_beds_sev_covid,
+    beds_covid = beds_covid,
+    severe_beds_covid = severe_beds_covid,
+    crit_beds_covid = crit_beds_covid
   )
 
   # Override parameters with any client specified ones
@@ -129,26 +153,15 @@ get_country_capacity <- function(country = NULL,
 }
 
 
-afg_params <- get_country_capacity(iso3c="AFG")
-afg_beds <- get_beds(afg_params)
-afg_params <- merge(afg_params, afg_beds)
-params <- get_parameters()
 
-afg_data<-subset(all, all$iso3c == "AFG")
-
-params <- merge(afg_params, params)
-
-test_params <- set_testing_strategy()
-# dealing with structuring commodities forecast
-input <- user_input()
-
-params <- append(params, input)
-params <- append(params, test_params)
 
 ##### WEEKLY CASES ---------------------------
 afg_summary <- cases_weekly(params=params,
                               data=afg_data)
 
+# gives me beds in use
+afg_summary <- patients_weekly(params,
+                               afg_summary)
 # get rid of the tidyr and dplyr dependencies
 # do data processing and parameter setting before weekly summary
 # maybe add exists calls
@@ -176,66 +189,9 @@ load("data/diagnostics.rda")
 load("data/throughput.rda")
 load("data/hours_per_shift.rda")
 source("r/diagnostic_parameters.R")
-get_country_diagnostic_capacity <- function(country = NULL,
-                                            iso3c = NULL,
-                                            overrides = list()) {
 
-  if (!is.null(country) && !is.null(iso3c)) {
-    # check they are the same one using the countrycodes
-    iso3c_check <- countrycode::countrycode(country,
-                                            origin = "country.name",
-                                            destination = "iso3c"
-    )
-    country_check <- countrycode::countrycode(iso3c,
-                                              origin = "iso3c",
-                                              destination = "country.name"
-    )
-    if (iso3c_check != iso3c & country_check != country) {
-      stop("Iso3c country code and country name do not match. Please check
-           input/spelling and try again.")
-    }
-  }
-
-  ## country route
-  if (!is.null(country)) {
-    country <- as.character(country)
-
-    if (!country %in% unique(diagnostics$country_name)) {
-      stop("Country not found")
-    }
-
-    diagnostics <- subset(diagnostics, diagnostics$country_name == country)
-  }
-
-  # iso3c route
-  if (!is.null(iso3c)) {
-    iso3c <- as.character(iso3c)
-    if (!iso3c %in% unique(diagnostics$country_code)) {
-      stop("Iso3c not found")
-    }
-    diagnostics <- subset(diagnostics, diagnostics$country_code == iso3c)
-  }
-
-  diagnostics$hologic_panther_fusion <- 0
-
-  # Override parameters with any client specified ones
-  if (!is.list(overrides)) {
-    stop('overrides must be a list')
-  }
-
-  for (name in names(overrides)) {
-    if (!(name %in% names(diagnostics))) {
-      stop(paste('unknown parameter', name, sep=' '))
-    }
-    diagnostics[[name]] <- overrides[[name]]
-  }
-
-  return(diagnostics)
-}
-
-diagnostic_parameters<-get_diagnostic_parameters()
-afg_tests <- get_country_diagnostic_capacity(iso3c = "AFG") # country_diagnostic_parameters
-
+afg_tests <- get_country_test_capacity(iso3c="AFG")
+afg_capacity <- calc_diagnostic_capacity(afg_tests, throughput, hours_per_shift)
 ##### TRY TO CALCULATE diagnostic capacity -----------------
 library(tidyverse)
 # afg_tests <- afg_tests %>%

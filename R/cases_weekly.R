@@ -120,24 +120,24 @@ cases_weekly <- function(params, # includes both beds and case proportions
     dplyr::group_by(week_begins = cut(date, breaks = "week")) %>%
     dplyr::summarise(
       week_ends = data.table::last(date),
-      hospital_demand = max("hospital_demand", na.rm = TRUE),
-      ICU_demand = max("ICU_demand", na.rm = TRUE),
-      hospital_incidence = sum("hospital_incidence", na.rm = TRUE),
-      ICU_incidence = sum("ICU_incidence", na.rm = TRUE),
-      infections = data.table::last("infections"),
-      cumulative_infections = data.table::last("cumulative_infections")
+      hospital_demand = max(hospital_demand, na.rm = TRUE),
+      ICU_demand = max(ICU_demand, na.rm = TRUE),
+      hospital_incidence = sum(hospital_incidence, na.rm = TRUE),
+      ICU_incidence = sum(ICU_incidence, na.rm = TRUE),
+      infections = data.table::last(infections),
+      cumulative_infections = data.table::last(cumulative_infections)
     )
 
   data$week_begins <- as.Date(as.character(data$week_begins))
 
   data <- data %>%
     dplyr::mutate(
-      cum_severe_cases = cumsum("hospital_incidence"),
-      new_severe_cases = "hospital_incidence",
-      cum_critical_cases = cumsum("ICU_incidence"),
-      new_critical_cases = "ICU_incidence",
-      adm_severe_cases_nocap = "hospital_demand",
-      adm_critical_cases_nocap = "ICU_demand"
+      cum_severe_cases = cumsum(hospital_incidence),
+      new_severe_cases = hospital_incidence,
+      cum_critical_cases = cumsum(ICU_incidence),
+      new_critical_cases = ICU_incidence,
+      adm_severe_cases_nocap = hospital_demand,
+      adm_critical_cases_nocap = ICU_demand
     )
 
   data <- data %>%
@@ -153,19 +153,19 @@ cases_weekly <- function(params, # includes both beds and case proportions
       # moderate and mild cases, method in patient calcs:
       # why only severe and critical here, and not moderate?
       new_mild_cases = (new_severe_cases + new_critical_cases) *
-        params$mildI_proportion / (params$sevI_proportion
-                                   + params$critI_proportion),
+        params$mild_i_proportion / (params$sev_i_proportion
+                                   + params$crit_i_proportion),
       new_mod_cases = (new_severe_cases + new_critical_cases) *
-        params$modI_proportion / (params$sevI_proportion
-                                  + params$critI_proportion),
+        params$mod_i_proportion / (params$sev_i_proportion
+                                  + params$crit_i_proportion),
 
       # second method also in patient calcs:
       # second possible method - needs review
       # this results in MUCH fewer cases estimated btw
-      new_mild_cases_2 = infections * params$mildI_proportion,
-      new_mod_cases_2 = infections * params$modI_proportion,
-      new_severe_cases_2 = infections * params$sevI_proportion,
-      new_critical_cases_2 = infections * params$critI_proportion
+      new_mild_cases_2 = infections * params$mild_i_proportion,
+      new_mod_cases_2 = infections * params$mod_i_proportion,
+      new_severe_cases_2 = infections * params$sev_i_proportion,
+      new_critical_cases_2 = infections * params$crit_i_proportion
     )
 
 
