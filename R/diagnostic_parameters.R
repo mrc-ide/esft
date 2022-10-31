@@ -21,7 +21,12 @@ get_diagnostic_parameters <- function(overrides = list()) {
   parameters <- list(
     total_tests_mild_mod = 1,
     total_tests_sev_crit = 2,
-    perc_antigen_tests = 0.2
+    perc_antigen_tests = 0.2,
+    # option to instead code like testing scenario
+    tests_diagnosis_mild_mod = 1,
+    tests_diagnosis_sev_crit = 1,
+    tests_release_mild_mod = 0,
+    tests_release_sev_crit = 1
   )
 
   # Override parameters with any client specified ones

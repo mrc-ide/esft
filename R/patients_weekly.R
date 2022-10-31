@@ -185,7 +185,7 @@ patients_weekly <- function(params,
       rem_crit_patients = cum_rem_critical_cases -
         data.table::shift(cum_rem_critical_cases, n = 1)
     )
-
+# keep in mind: discharged means capping
   data <- data %>%
     dplyr::mutate(
       discharged_sev_patients = data.table::shift(adm_severe_cases_cap,

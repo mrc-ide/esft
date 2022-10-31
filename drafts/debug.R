@@ -6,10 +6,12 @@ source("R/parameters.R")
 source("R/diagnostic_parameters.R")
 source("R/country_capacity.R")
 source("R/cases_weekly.R")
-
+source("R/cases_weekly.R")
+source("R/utils.R")
+source("R/user_input.R")
 params <- get_parameters()
 # goal is to figure out hcw caps and cases:
-source("drafts/hcws_weekly.R")
+source("R/hcw_caps.R")
 
 load("data/who.rda")
 load("data/population.rda")
