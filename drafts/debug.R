@@ -1,5 +1,5 @@
 rm(list=ls())
-library(magrittr)
+library(tidyverse)
 
 # let's first pull params as they are written
 source("R/parameters.R")
@@ -192,6 +192,75 @@ load("data/throughput.rda")
 load("data/hours_per_shift.rda")
 source("r/diagnostic_parameters.R")
 
+######
+get_country_test_capacity <- function(country = NULL,
+                                      iso3c = NULL,
+                                      overrides = list()) {
+  if (!is.null(country) && !is.null(iso3c)) {
+    # check they are the same one using the countrycodes
+    iso3c_check <- countrycode::countrycode(country,
+                                            origin = "country.name",
+                                            destination = "iso3c"
+    )
+    country_check <- countrycode::countrycode(iso3c,
+                                              origin = "iso3c",
+                                              destination = "country.name"
+    )
+    if (iso3c_check != iso3c && country_check != country) {
+      stop("Iso3c country code and country name do not match. Please check
+           input/spelling and try again.")
+    }
+  }
+
+  ## country route
+  if (!is.null(country)) {
+    country <- as.character(country)
+
+    if (!country %in% unique(diagnostics$country_name)) {
+      stop("Country not found")
+    }
+
+    diagnostics <- subset(diagnostics,
+                          diagnostics$country_name == country)
+  }
+
+  # iso3c route
+  if (!is.null(iso3c)) {
+    iso3c <- as.character(iso3c)
+    if (!iso3c %in% unique(diagnostics$country_code)) {
+      stop("Iso3c not found")
+    }
+    diagnostics <- subset(diagnostics, diagnostics$country_code == iso3c)
+  }
+
+  # not specified in spreadsheet
+  diagnostics$hologic_panther_fusion <- 0
+
+  # Override parameters with any client specified ones
+  if (!is.list(overrides)) {
+    stop("overrides must be a list")
+  }
+
+  for (name in names(overrides)) {
+    if (!(name %in% names(diagnostics))) {
+      stop(paste("unknown parameter", name, sep = " "))
+    }
+    diagnostics[[name]] <- overrides[[name]]
+  }
+
+  diagnostics <- diagnostics %>%
+    tidyr::pivot_longer(
+      cols = c(
+        "roche_6800", "roche_8800", "abbott_m2000", "hologic_panther",
+        "hologic_panther_fusion", "genexpert", "manual"
+      ),
+      names_to = "platform_key",
+      values_to = "modules_activated"
+    )
+
+  return(diagnostics)
+}
+#####
 afg_tests <- get_country_test_capacity(iso3c="AFG")
 afg_capacity <- calc_diagnostic_capacity(afg_tests, throughput, hours_per_shift)
 ##### TRY TO CALCULATE diagnostic capacity -----------------

@@ -68,9 +68,8 @@ diagnostics_weekly <- function(params, # maybe this should already by a subsette
 #' the max number of tests per week and per day.
 #'
 #' @export
-max_tests_per_day <- function(throughput,
-                              diagnostic_capacity) # transformed
-  {
-
-
-                              }
+max_tests_per_day <- function(diagnostic_capacity) {
+  max_tests_per_week <- sum(diagnostic_capacity$covid_test_capacity)
+  max_tests_per_day <- max_tests_per_week/7
+  return(max_tests_per_day)
+}
