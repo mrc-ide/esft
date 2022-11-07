@@ -60,6 +60,7 @@ diagnostics_weekly <- function(params, # maybe this should already by a subsette
         sus_cases_but_negative*tests_diagnosis_mild_mod*perc_tested_mild_mod,
 
     )
+  # DEPENDING ON TESTING STRATEGY AND MAX TESTS PER DAY< GET SUMMARY
 }
 
 #' Max tests per day
@@ -72,4 +73,13 @@ max_tests_per_day <- function(diagnostic_capacity) {
   max_tests_per_week <- sum(diagnostic_capacity$covid_test_capacity)
   max_tests_per_day <- max_tests_per_week/7
   return(max_tests_per_day)
+}
+
+#' Summary diagnostics weekly
+#'
+#' @export
+diagnostics_summary <- function(diagnostics_weekly,
+                                testing_strategy,
+                                max_tests_per_day) {
+
 }
