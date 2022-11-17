@@ -144,7 +144,7 @@ get_country_test_capacity <- function(country = NULL,
       values_to = "modules_activated"
     )
 
-  return(diagnostics)
+   return(diagnostics)
 }
 
 #' @title Sets testing strategy and associated parameters

@@ -60,6 +60,7 @@ diagnostics_weekly <- function(params, # maybe this should already by a subsette
         sus_cases_but_negative*tests_diagnosis_mild_mod*perc_tested_mild_mod,
 
     )
+  return(data)
   # DEPENDING ON TESTING STRATEGY AND MAX TESTS PER DAY< GET SUMMARY
 }
 

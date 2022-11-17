@@ -6,7 +6,7 @@ source("R/parameters.R")
 source("R/diagnostic_parameters.R")
 source("R/country_capacity.R")
 source("R/cases_weekly.R")
-source("R/cases_weekly.R")
+source("R/patients_weekly.R")
 source("R/utils.R")
 source("R/user_input.R")
 params <- get_parameters()
@@ -168,24 +168,24 @@ afg_summary <- patients_weekly(params,
 # do data processing and parameter setting before weekly summary
 # maybe add exists calls
 # finish documentsation
-sink("names.txt")
-cat(paste0("#'   \\item{",names(afg_params), "}{xyz}\n"))
-sink()
+# sink("names.txt")
+# cat(paste0("#'   \\item{",names(afg_params), "}{xyz}\n"))
+# sink()
 
 #param definitions
-sink("names.txt")
-cat(paste0("#' * ",names(params), "- INSERT; default = \n"))
-sink()
+# sink("names.txt")
+# cat(paste0("#' * ",names(params), "- INSERT; default = \n"))
+# sink()
 
 # maybe have the actual sequence be that the user themselves subset amount by starttime, etc
 # might also need different reusability multiplier params per category
 
-source("r/patients_weekly.R")
+# source("r/patients_weekly.R")
 
 afg_patients <- patients_weekly(params, data = afg_summary)
-sink("mylist.txt")
-cat(paste0("#'   \\item{",names(afg_patients), "}{xyz}\n"))
-sink()
+# sink("mylist.txt")
+# cat(paste0("#'   \\item{",names(afg_patients), "}{xyz}\n"))
+# sink()
 
 load("data/diagnostics.rda")
 load("data/throughput.rda")
@@ -262,7 +262,9 @@ get_country_test_capacity <- function(country = NULL,
 }
 #####
 afg_tests <- get_country_test_capacity(iso3c="AFG")
-afg_capacity <- calc_diagnostic_capacity(afg_tests, throughput, hours_per_shift)
+afg_capacity <- calc_diagnostic_capacity(country_diagnostic_capacity=afg_tests,
+                                         throughput=throughput,
+                                         hours_per_shift=hours_per_shift)
 ##### TRY TO CALCULATE diagnostic capacity -----------------
 library(tidyverse)
 # afg_tests <- afg_tests %>%
@@ -273,9 +275,21 @@ library(tidyverse)
 #
 #
 # # colnames(throughput)[3:5]<-str_extract_all(names(throughput[,c(3:5)]), '[0-9]+')
+afg_test_params <- get_diagnostic_parameters()
+tests_weekly <- diagnostics_weekly(params=params, hwfe=hwfe, data=afg_patients,
+                                   diagnostic_capacity = afg_capacity,
+                                   diagnostic_parameters = afg_test_params)
+
+hcw_static<- hcw_caps_static(params = params, throughput = throughput)
+hcw_dyn <- hcw_caps_dynamic(params, hwfe, data=afg_patients)
+
+hcw_caps <- merge(hcw_static, hcw_dyn)
 
 
+afg_hcws <- hcws_weekly(params, data=afg_patients,
+                        diagnostics_weekly = tests_weekly, hcw_caps = hcw_caps)
 
+###########################
 capacity <- merge(throughput, afg_tests)
 capacity <- merge(capacity, hours_per_shift, by.x = "shifts_day", by.y = "shifts")
 
