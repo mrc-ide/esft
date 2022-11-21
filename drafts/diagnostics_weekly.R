@@ -24,8 +24,9 @@ diagnostics_weekly <- function(params, # maybe this should already by a subsette
                         hwfe,
                         data, # from patients weekly
                         diagnostic_capacity, # from calc_diagnostic_capacity
-                        diagnostic_parameters, # get_diagnostic_parameters
-                        cap_lab_staff = FALSE # option to cap lab staff by diagnostic machine capacity
+                        diagnostic_parameters,# get_diagnostic_parameters
+                        testing_strategy = "all"
+                        # cap_lab_staff = FALSE # option to cap lab staff by diagnostic machine capacity
                         # available in early iterations of esft, not in late ones
 )
 {
@@ -48,18 +49,34 @@ diagnostics_weekly <- function(params, # maybe this should already by a subsette
         discharged_sev_patients*(
           1 - ifr_sev)*tests_release_sev_crit +
            discharged_crit_patients*(
-             1 - ifr_crit)*tests_release_sev_crit,
-      tests_all_mild = new_mild_cases*tests_diagnosis_mild_mod,
-      tests_all_mod = new_mod_cases*tests_diagnosis_mild_mod,
-      tests_all_suspected = sus_cases_but_negative*tests_diagnosis_mild_mod,
-      tests_targeted_mild =
-        new_mild_cases*tests_diagnosis_mild_mod*perc_tested_mild_mod,
-      tests_targeted_mod =
-        new_mod_cases*tests_diagnosis_mild_mod*perc_tested_mild_mod,
-      tests_targeted_suspected =
-        sus_cases_but_negative*tests_diagnosis_mild_mod*perc_tested_mild_mod,
-
+             1 - ifr_crit)*tests_release_sev_crit
     )
+  if(!(is.null(testing_strategy))){
+    if(testing_strategy =="all"){
+      data <- data %>%
+        mutate(
+          tests_mild = new_mild_cases*tests_diagnosis_mild_mod,
+          tests_mod = new_mod_cases*tests_diagnosis_mild_mod,
+          tests_suspected = sus_cases_but_negative*tests_diagnosis_mild_mod,
+          testing_strategy = testing_strategy
+        )
+    } else if (testing_strategy=="targeted"){
+      data <- data %>%
+        mutate(
+          tests_mild =
+            new_mild_cases*tests_diagnosis_mild_mod*perc_tested_mild_mod,
+          tests_mod =
+            new_mod_cases*tests_diagnosis_mild_mod*perc_tested_mild_mod,
+          tests_suspected =
+            sus_cases_but_negative*tests_diagnosis_mild_mod*perc_tested_mild_mod,
+          testing_strategy = testing_strategy
+        )
+    } else {
+      stop("Please specify either strategy: all or targeted.")
+    }
+  }
+
+
   return(data)
   # DEPENDING ON TESTING STRATEGY AND MAX TESTS PER DAY< GET SUMMARY
 }

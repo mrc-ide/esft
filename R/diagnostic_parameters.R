@@ -80,8 +80,8 @@ get_diagnostic_parameters <- function(overrides = list()) {
 #'
 #' @export
 get_country_test_capacity <- function(country = NULL,
-                                            iso3c = NULL,
-                                            overrides = list()) {
+                                      iso3c = NULL,
+                                      overrides = list()) {
   if (!is.null(country) && !is.null(iso3c)) {
     # check they are the same one using the countrycodes
     iso3c_check <- countrycode::countrycode(country,
@@ -206,6 +206,7 @@ set_testing_strategy <- function(strategy = "all",
         perc_tested_mild_mod <- 0.1
       }
       # else take user specification
+      # perc_tested_mild_mod = perc_tested_mild_mod
     }
   } else {
     strategy <- "all"
@@ -345,4 +346,27 @@ calc_diagnostic_capacity <- function(country_diagnostic_capacity,
 
 
   return(capacity)
+}
+
+#' @title Calculates max total labs that could be available for COVID
+#'
+#' @param capacity From get_diagnostic_capacity. Or
+#' calculate_diagnostic_capacity. Only thing is, we need the country capacity.
+#'
+#'
+#' @export
+total_labs <- function(capacity) {
+  labs <- sum(
+    capacity$modules_activated[capacity$platform_key == "roche_6800"],
+    capacity$modules_activated[capacity$platform_key == "roche_8800"],
+    capacity$modules_activated[capacity$platform_key == "abbott_m2000"],
+    capacity$modules_activated[capacity$platform_key == "hologic_panther"],
+    capacity$modules_activated[capacity$platform_key == "hologic_panther_fusion"],
+    capacity$modules_activated[capacity$platform_key == "manual"]
+  ) / 3 +
+    capacity$modules_activated[capacity$platform_key == "genexpert"] / 4
+
+  labs <- round(labs)
+
+  return(labs)
 }

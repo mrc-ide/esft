@@ -312,10 +312,6 @@ capacity$covid_test_capacify <- capacity$total_test_capacity*capacity$covid_capa
 source("drafts/hcws_weekly.R")
 source("R/patients_weekly.R")
 lab_params <- get_lab_parameters()
-hcws <- hcw_caps(params = params, # maybe this should already by a subsetted country vector of params?
-                     hwfe = hwfe,
-                     data = afg_patients,
-                     country_capacity,
-                     diagnostic_parameters,
-                     lab_params)
+
+params <- merge(params, lab_params)
 # ok so here it shows the last 4 are data dependent - how do we reduce this? are flctuating caps

@@ -5,8 +5,8 @@
 #' This will then be used in some sort of capacity mapping/forecasting.
 #'
 #' @param params From get_country_capacity
-#' @param data From patients_weekly
-#' @param diagnostics_weekly From diagnostics_weekly
+#' @param data From diagnostics_weekly
+#' @param total_labs From total_labs
 #' @param hcw_caps Merged from both dynamic and static hcw caps
 #'
 #' @return Dataframe of summary
@@ -15,9 +15,9 @@
 #'   \item{hygienists_per_crit_bed}{Date the week summarized ends}
 #' }
 #' @export
-hcws_weekly <- function(params, # includes specific bed counts
-                        data,
-                        diagnostics_weekly,
+hcws_weekly <- function(params, # includes specific bed counts and lab parameters
+                        data,# diagnostics_weekly
+                        total_labs,
                         hcw_caps # static and dynamic
 ) {
   # screening_hcw_uncapped # this depends on testing
@@ -25,7 +25,7 @@ hcws_weekly <- function(params, # includes specific bed counts
   # inf_caregiver_isolation # again depends on testing
   # cleaners_lab_capped <- total_labs*hygienists_per_lab # also depends on diagnostics
 
-  df <- cbind(data, hcw_caps)
+  df <- cbind(data, hcw_caps, total_labs)
 
   df <- df %>%
     mutate(
@@ -39,7 +39,12 @@ hcws_weekly <- function(params, # includes specific bed counts
         cleaners_inpatient_cap
       ),
       amb_personnel_inpatient_capped = amb_personnel_inpatient_cap,
-      bio_eng_inpatient_capped = bio_eng_inpatient_cap
+      bio_eng_inpatient_capped = bio_eng_inpatient_cap,
+      # it's basically calculated this way i think to accomodate for mild
+      # + mod testing in outpatient setting
+      inf_caregivers_isol_uncapped = (tests_mild+tests_mod)*n_inf_caregivers_isol,
+      # for the all testing strategy, capped by testing capacity (confusing - needs simplificaiton)
+      lab_staff_capped = min(total_labs*lab_staff_per_lab, lab)
     )
 
   return(df)
