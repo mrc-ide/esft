@@ -2,4 +2,4 @@
 
 Translating the WHO Essential Supplies Forecasting Tool into code.
 
- <embed src="esft_dependency_diagram.pdf" width="600" height="500">.
+<img src="esft_dependency_diagram.pdf" align="center" style = "border: none; float: center;" width = "600px">
