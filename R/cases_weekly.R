@@ -9,6 +9,8 @@
 #' these categories will be the same.
 #'
 #' @param params Includes both estimates of beds and case severity proportions.
+#' @param capacity
+#' @param test_strategy_params
 #' @param data Specific country fit data, from the imperial model fits
 #' @param starting_date User specified string of starting date of weekly summary
 #'
@@ -90,9 +92,14 @@
 #' @importFrom magrittr %>%
 #'
 #' @export
-cases_weekly <- function(params, # includes both beds and case proportions
+cases_weekly <- function(params, # from get_parameters
+                         capacity, # country capacity, from get_country_capacity
+                         test_strategy_params, # from set_testing_strategy
                          data, # imperial fit data
                          starting_date = "2019-11-29") {
+
+  params <- merge(params, capacity)
+  params <- merge(params, test_strategy_params)
 
   # add exists part here
   data$date <- as.Date(data$date)

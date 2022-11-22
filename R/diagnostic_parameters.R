@@ -297,6 +297,7 @@ get_lab_parameters <- function(overrides = list()) {
 
 #' @title Given specified parameters, calculates diagnostic country capacity.
 #'
+#' @details
 #' As of right now, need to increase hours per shift in throughput data in order
 #' to up the capacity.
 #'
@@ -350,7 +351,7 @@ calc_diagnostic_capacity <- function(country_diagnostic_capacity,
 
 #' @title Calculates max total labs that could be available for COVID
 #'
-#' @param capacity From get_diagnostic_capacity. Or
+#' @param capacity From get_country_test_capacity or
 #' calculate_diagnostic_capacity. Only thing is, we need the country capacity.
 #'
 #'
