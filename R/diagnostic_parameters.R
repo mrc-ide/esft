@@ -21,7 +21,12 @@ get_diagnostic_parameters <- function(overrides = list()) {
   parameters <- list(
     total_tests_mild_mod = 1,
     total_tests_sev_crit = 2,
-    perc_antigen_tests = 0.2
+    perc_antigen_tests = 0.2,
+    # option to instead code like testing scenario
+    tests_diagnosis_mild_mod = 1,
+    tests_diagnosis_sev_crit = 1,
+    tests_release_mild_mod = 0,
+    tests_release_sev_crit = 1
   )
 
   # Override parameters with any client specified ones
@@ -75,8 +80,8 @@ get_diagnostic_parameters <- function(overrides = list()) {
 #'
 #' @export
 get_country_test_capacity <- function(country = NULL,
-                                            iso3c = NULL,
-                                            overrides = list()) {
+                                      iso3c = NULL,
+                                      overrides = list()) {
   if (!is.null(country) && !is.null(iso3c)) {
     # check they are the same one using the countrycodes
     iso3c_check <- countrycode::countrycode(country,
@@ -139,7 +144,7 @@ get_country_test_capacity <- function(country = NULL,
       values_to = "modules_activated"
     )
 
-  return(diagnostics)
+   return(diagnostics)
 }
 
 #' @title Sets testing strategy and associated parameters
@@ -201,6 +206,7 @@ set_testing_strategy <- function(strategy = "all",
         perc_tested_mild_mod <- 0.1
       }
       # else take user specification
+      # perc_tested_mild_mod = perc_tested_mild_mod
     }
   } else {
     strategy <- "all"
@@ -287,4 +293,80 @@ get_lab_parameters <- function(overrides = list()) {
     parameters[[name]] <- overrides[[name]]
   }
   parameters
+}
+
+#' @title Given specified parameters, calculates diagnostic country capacity.
+#'
+#' As of right now, need to increase hours per shift in throughput data in order
+#' to up the capacity.
+#'
+#' @param country_diagnostic_capacity Capacity called from the
+#' get_country_test_capacity function
+#' @param throughput Throughput data, loaded in package, from ESFT
+#' @param shifts_per_day Either single integer (1,2, or 3) or named vector of
+#' shifts per day ("shifts_day") for the specific machines ("platform_key").
+#' Important to get names right if go vector rought (easiest to copy paste from
+#' throughput), and shifts can only be 1, 2, or 3 (8, 12, 24 hrs).
+#' Default = NULL.
+#' @param hours_per_shift Hours per shift, default = 8
+#'
+#' @import dplyr
+#' @importFrom magrittr %>%
+#'
+#'
+#' @export
+calc_diagnostic_capacity <- function(country_diagnostic_capacity,
+                                     throughput,
+                                     shifts_per_day = NULL, # vector
+                                     hours_per_shift) {
+  if(!(is.null(shifts_per_day))){
+    if(length(shifts_per_day) == 1) {
+      shifts_per_day$platform_key <- throughput$platform_key
+      shifts_per_day$shifts_day <- rep(shifts_per_day,
+                                       length(throughput$platform_key))
+    }
+    throughput <- merge(throughput, shifts_per_day, by="platform_key")
+  }
+  capacity <- merge(throughput, country_diagnostic_capacity)
+  capacity <- merge(capacity, hours_per_shift, by.x = "shifts_day",
+                    by.y = "shifts")
+
+  capacity <- capacity %>%
+    mutate(throughput_per_day = case_when(
+      hours == 8 ~ throughput_8hrs,
+      hours == 16 ~ throughput_16hrs,
+      hours == 24 ~ throughput_24hrs,
+      TRUE ~ NA_real_
+    )) %>%
+    select(-c(throughput_8hrs, throughput_16hrs, throughput_24hrs))
+
+  # calculate the testing capacity available - max, and covid
+  capacity$total_test_capacity <- capacity$modules_activated * capacity$days_week * capacity$throughput_per_day
+  capacity$covid_test_capacity <- capacity$total_test_capacity * capacity$covid_capacity
+
+
+  return(capacity)
+}
+
+#' @title Calculates max total labs that could be available for COVID
+#'
+#' @param capacity From get_diagnostic_capacity. Or
+#' calculate_diagnostic_capacity. Only thing is, we need the country capacity.
+#'
+#'
+#' @export
+total_labs <- function(capacity) {
+  labs <- sum(
+    capacity$modules_activated[capacity$platform_key == "roche_6800"],
+    capacity$modules_activated[capacity$platform_key == "roche_8800"],
+    capacity$modules_activated[capacity$platform_key == "abbott_m2000"],
+    capacity$modules_activated[capacity$platform_key == "hologic_panther"],
+    capacity$modules_activated[capacity$platform_key == "hologic_panther_fusion"],
+    capacity$modules_activated[capacity$platform_key == "manual"]
+  ) / 3 +
+    capacity$modules_activated[capacity$platform_key == "genexpert"] / 4
+
+  labs <- round(labs)
+
+  return(labs)
 }
