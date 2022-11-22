@@ -2,11 +2,15 @@
 % Please edit documentation in R/diagnostic_parameters.R
 \name{calc_diagnostic_capacity}
 \alias{calc_diagnostic_capacity}
-\title{Given specified parameters, calculates diagnostic country capacity.}
+\title{Given specified parameters, calculates diagnostic country capacity.
+
+As of right now, need to increase hours per shift in throughput data in order
+to up the capacity.}
 \usage{
 calc_diagnostic_capacity(
   country_diagnostic_capacity,
   throughput,
+  shifts_per_day = NULL,
   hours_per_shift
 )
 }
@@ -16,8 +20,17 @@ get_country_test_capacity function}
 
 \item{throughput}{Throughput data, loaded in package, from ESFT}
 
+\item{shifts_per_day}{Either single integer (1,2, or 3) or named vector of
+shifts per day ("shifts_day") for the specific machines ("platform_key").
+Important to get names right if go vector rought (easiest to copy paste from
+throughput), and shifts can only be 1, 2, or 3 (8, 12, 24 hrs).
+Default = NULL.}
+
 \item{hours_per_shift}{Hours per shift, default = 8}
 }
 \description{
 Given specified parameters, calculates diagnostic country capacity.
+
+As of right now, need to increase hours per shift in throughput data in order
+to up the capacity.
 }

@@ -41,7 +41,5 @@ Dataframe of weekly summary
 }
 }
 \description{
-This function calculates some of the dynamic HCW caps found in
-the `Weekly Summary` tab in the ESFT. These caps depend on weekly cases, and
-so change with time.
+Dynamic HCW caps
 }

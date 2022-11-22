@@ -33,7 +33,8 @@
 #' * discharged_crit_patients - admitted critical patients shifted back by avg.
 #' length of hospital stay
 #'
-#' @param params Includes country_capacity params and get_parameters params
+#' @param params From get_parameters
+#' @param country_capacity From get_country_capacity
 #' @param data Weekly summary dataframe - from cases_weekly
 #'
 #' @return Dataframe of weekly summary
@@ -72,6 +73,7 @@
 #'
 #' @export
 patients_weekly <- function(params,
+                            country_capacity, # from get country capacity
                             data) {
   # add exists part here
   # the total bed capacity was calculated in the input excel sheet
