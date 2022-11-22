@@ -4,7 +4,6 @@ library(tidyverse)
 # let's first pull params as they are written
 source("R/parameters.R")
 source("R/diagnostic_parameters.R")
-source("R/country_capacity.R")
 source("R/cases_weekly.R")
 source("R/patients_weekly.R")
 source("R/utils.R")
@@ -18,23 +17,6 @@ load("data/population.rda")
 load("data/hwfe.rda")
 
 all <- readRDS("data-raw/all.Rds")
-
-
-afg_params <- get_country_capacity(iso3c="AFG")
-params <- get_parameters()
-afg_data<-subset(all, all$iso3c == "AFG")
-
-params <- merge(afg_params, params)
-
-# no real dependencies
-input <- user_input()
-test_params <- set_testing_strategy()
-# dealing with structuring commodities forecast
-
-# cases weekly needs this to becalled - wrapper function potential?
-params <- append(params, input)
-params <- append(params, test_params)
-
 
 
 ##### COUNTRY CAPACITY -----------------
@@ -155,15 +137,34 @@ get_country_capacity <- function(country = NULL,
 }
 
 
+afg_params <- get_country_capacity(iso3c="AFG")
+params <- get_parameters()
+afg_data<-subset(all, all$iso3c == "AFG")
+
+params <- merge(afg_params, params)
+
+# no real dependencies
+input <- user_input()
+test_strategy_params <- set_testing_strategy()
+# dealing with structuring commodities forecast
+
+# cases weekly needs this to becalled - wrapper function potential?
+params <- append(params, input)
+params <- append(params, test_strategy_params)
+
+
+
+
+
 
 
 ##### WEEKLY CASES ---------------------------
-afg_summary <- cases_weekly(params=params,
+afg_cases <- cases_weekly(params=params,
                               data=afg_data)
 
 # gives me beds in use
-afg_summary <- patients_weekly(params,
-                               afg_summary)
+afg_patients <- patients_weekly(params,
+                               afg_cases)
 # get rid of the tidyr and dplyr dependencies
 # do data processing and parameter setting before weekly summary
 # maybe add exists calls
@@ -180,11 +181,9 @@ afg_summary <- patients_weekly(params,
 # maybe have the actual sequence be that the user themselves subset amount by starttime, etc
 # might also need different reusability multiplier params per category
 
-# source("r/patients_weekly.R")
-
-afg_patients <- patients_weekly(params, data = afg_summary)
+#
 # sink("mylist.txt")
-# cat(paste0("#'   \\item{",names(afg_patients), "}{xyz}\n"))
+# cat(paste0("#'   \\item{",names(afg_hcws), "}{xyz}\n"))
 # sink()
 
 load("data/diagnostics.rda")
@@ -267,27 +266,30 @@ afg_capacity <- calc_diagnostic_capacity(country_diagnostic_capacity=afg_tests,
                                          hours_per_shift=hours_per_shift)
 ##### TRY TO CALCULATE diagnostic capacity -----------------
 library(tidyverse)
-# afg_tests <- afg_tests %>%
-#   pivot_longer(cols = c(roche_6800, roche_8800, abbott_m2000, hologic_panther,
-#                         hologic_panther_fusion, genexpert, manual),
-#                names_to = "platform_key",
-#                values_to = "modules_activated")
-#
-#
-# # colnames(throughput)[3:5]<-str_extract_all(names(throughput[,c(3:5)]), '[0-9]+')
+
+source("drafts/diagnostics_weekly.R")
 afg_test_params <- get_diagnostic_parameters()
-tests_weekly <- diagnostics_weekly(params=params, hwfe=hwfe, data=afg_patients,
-                                   diagnostic_capacity = afg_capacity,
-                                   diagnostic_parameters = afg_test_params)
+tests_weekly <- diagnostics_weekly(params = params, # maybe this should already by a subsetted country vector of params?
+                                   patients = afg_patients, # from patients weekly
+                                   cases = afg_cases, # from cases weekly
+                                   diagnostic_parameters=afg_test_params, # get_diagnostic_parameters
+                                   testing_strategy = "all")
 
 hcw_static<- hcw_caps_static(params = params, throughput = throughput)
 hcw_dyn <- hcw_caps_dynamic(params, hwfe, data=afg_patients)
 
-hcw_caps <- merge(hcw_static, hcw_dyn)
-
-
-afg_hcws <- hcws_weekly(params, data=afg_patients,
-                        diagnostics_weekly = tests_weekly, hcw_caps = hcw_caps)
+# hcw_caps <- merge(hcw_static, hcw_dyn)
+labs <- get_lab_parameters()
+t_labs <- total_labs(afg_capacity)
+# params <- merge(params, labs)
+source("R/hcws_weekly.R")
+afg_hcws <- hcws_weekly(params,
+                        lab_params = lab_params, # get_lab_parameters
+                        tests = tests_weekly,
+                        patients = afg_patients, # diagnostics_weekly
+                        t_labs = t_labs, # total_labs
+                        hcw_dyn_caps,
+                        hcw_stat_caps)
 
 ###########################
 capacity <- merge(throughput, afg_tests)

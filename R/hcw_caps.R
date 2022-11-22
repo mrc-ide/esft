@@ -134,6 +134,8 @@ hcw_caps_dynamic <- function(params, # includes specific bed counts
   bio_eng_inpatient_cap <- data$total_beds_inuse * bio_eng_per_bed
 
   hcw_caps <- data.frame(
+    week_begins = data$week_begins,
+    week_ends = data$week_ends,
     hygienists_per_bed = hygienists_per_bed,
     hygienists_per_crit_bed = hygienists_per_crit_bed,
     hygienists_per_sev_bed = hygienists_per_sev_bed,
