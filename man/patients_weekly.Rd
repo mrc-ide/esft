@@ -4,10 +4,12 @@
 \alias{patients_weekly}
 \title{Produce Weekly Summary of Patients}
 \usage{
-patients_weekly(params, data)
+patients_weekly(params, country_capacity, data)
 }
 \arguments{
-\item{params}{Includes country_capacity params and get_parameters params}
+\item{params}{From get_parameters}
+
+\item{country_capacity}{From get_country_capacity}
 
 \item{data}{Weekly summary dataframe - from cases_weekly}
 }

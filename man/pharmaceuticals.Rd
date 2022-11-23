@@ -7,7 +7,8 @@
 \format{
 A data frame with 147 rows and 23 variables:
 \describe{
-  \item{covid_specific}{Whether or not the drug is specific to COVID-19 treatment - TRUE if COVID-19 specific, FALSE if not.}
+  \item{covid_specific}{Whether or not the drug is specific to COVID-19
+  treatment - TRUE if COVID-19 specific, FALSE if not.}
   \item{drug}{Drug product}
   \item{classification}{Drug family to which the drug product belongs}
   \item{concentration}{Dosage and drug form}
@@ -15,21 +16,33 @@ A data frame with 147 rows and 23 variables:
   \item{units}{Unit in which the dosage is measured}
   \item{drug_form}{Formulation in which the drug is packages (i.e. tablet)}
   \item{price_usd}{Price per unit of drug product}
-  \item{perc_crit_patients_receiving_treatment}{Percentage of critical patients receiving this treatment}
-  \item{crit_days_per_treatment_course}{Number of days per treatment course for critical patients}
+  \item{perc_crit_patients_receiving_treatment}{Percentage of critical
+  patients receiving this treatment}
+  \item{crit_days_per_treatment_course}{Number of days per treatment course
+  for critical patients}
   \item{crit_daily_amount}{Daily amount for critical patients}
-  \item{crit_vol_per_treatment_course}{Total volume of drug per treatment course}
-  \item{crit_drug_form_per_treatment_course}{Total drug form per treatment course per critical patients}
-  \item{perc_sev_patients_receiving_treatment}{Percentage of severe patients receiving this treatment}
-  \item{sev_days_per_treatment_course}{Number of days per treatment course for severe patients}
+  \item{crit_vol_per_treatment_course}{Total volume of drug per treatment
+  course}
+  \item{crit_drug_form_per_treatment_course}{Total drug form per treatment
+  course per critical patients}
+  \item{perc_sev_patients_receiving_treatment}{Percentage of severe patients
+  receiving this treatment}
+  \item{sev_days_per_treatment_course}{Number of days per treatment course
+  for severe patients}
   \item{sev_daily_amount}{Daily amount for severe patients}
-  \item{sev_vol_per_treatment_course}{Total volume of drug per treatment course}
-  \item{sev_drug_form_per_treatment_course}{Total drug form per treatment course per severe patients}
-  \item{perc_mod_patients_receiving_treatment}{Percentage of moderate patients receiving this treatment}
-  \item{mod_days_per_treatment_course}{Number of days per treatment course for moderate patients}
+  \item{sev_vol_per_treatment_course}{Total volume of drug per treatment
+  course}
+  \item{sev_drug_form_per_treatment_course}{Total drug form per treatment
+  course per severe patients}
+  \item{perc_mod_patients_receiving_treatment}{Percentage of moderate
+  patients receiving this treatment}
+  \item{mod_days_per_treatment_course}{Number of days per treatment course
+  for moderate patients}
   \item{mod_daily_amount}{Daily amount for moderate patients}
-  \item{mod_vol_per_treatment_course}{Total volume of drug per treatment course}
-  \item{mod_drug_form_per_treatment_course}{Total drug form per treatment course per moderate patients}
+  \item{mod_vol_per_treatment_course}{Total volume of drug per treatment
+  course}
+  \item{mod_drug_form_per_treatment_course}{Total drug form per treatment
+  course per moderate patients}
 }
 }
 \source{
@@ -39,8 +52,9 @@ A data frame with 147 rows and 23 variables:
 pharmaceuticals
 }
 \description{
-Data frame of all pharmaceutical commodities that are included in the
-forecast. The items included are based on bundles recommended by the WHO and
-estimates are generated from scenario patient volumes by patient type.
+Data frame of all pharmaceutical commodities that are included
+in the forecast. The items included are based on bundles recommended by the
+WHO and estimates are generated from scenario patient volumes by patient
+type.
 }
 \keyword{datasets}

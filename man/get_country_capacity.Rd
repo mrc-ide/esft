@@ -10,16 +10,15 @@
 
 \url{https://data.worldbank.org/indicator/SH.MED.BEDS.ZS}
 
-Imperial College, Report 12: The Global Impact of COVID-19 and Strategies for Mitigation and Suppression
+Imperial College, Report 12: The Global Impact of COVID-19 and
+Strategies for Mitigation and Suppression
 
 \url{https://www.researchgate.net/figure/Health-Workforce-Estimator-HWFE-tool-applies-the-WISN-approach-to-caring-for-COVID_fig3_358174845}
 }
 \usage{
-get_country_capacity(country = NULL, iso3c = NULL, overrides = list())
+get_country_capacity(iso3c = NULL, overrides = list())
 }
 \arguments{
-\item{country}{Country name (in conventional capitalized format)}
-
 \item{iso3c}{Country code, in iso3c format (in all capital letters)}
 
 \item{overrides}{a named list of parameter values to use instead of defaults}
@@ -48,6 +47,5 @@ List of country capacity parameters.
 }
 }
 \description{
-Note: put either country name or country code, and follow the
-countrycode package convention on capitalization.
+Gets country capacity.
 }

@@ -4,7 +4,7 @@
 \alias{approx_sum}
 \title{written by giovanni, taken from malariasimulation}
 \usage{
-approx_sum(X, n)
+approx_sum(x, n)
 }
 \description{
 written by giovanni, taken from malariasimulation

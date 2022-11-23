@@ -6,6 +6,7 @@
 \usage{
 hcws_weekly(
   params,
+  capacity,
   lab_params,
   tests,
   patients,
@@ -15,6 +16,10 @@ hcws_weekly(
 )
 }
 \arguments{
+\item{params}{from get_parameters}
+
+\item{capacity}{from get_country_capacity}
+
 \item{lab_params}{get_lab_parameters}
 
 \item{tests}{diagnostics_weekly}
@@ -30,20 +35,31 @@ hcws_weekly(
 \value{
 Dataframe of summary
 \describe{
-  \item{week_ends}{xyz}
-  \item{week_begins}{xyz}
-  \item{hcws_inpatient_capped}{xyz}
-  \item{hcws_inpatient_uncapped}{xyz}
-  \item{cleaners_inpatient_capped}{xyz}
-  \item{amb_personnel_inpatient_capped}{xyz}
-  \item{bio_eng_inpatient_capped}{xyz}
-  \item{inf_caregivers_isol_uncapped}{xyz}
-  \item{lab_staff_capped}{xyz}
-  \item{cleaners_lab}{xyz}
+  \item{week_begins}{Date the week summarized begins}
+  \item{week_ends}{Date the week summarized ends}
+  \item{hcws_inpatient_capped}{HCWs for inpatients, capped by reported HCWs}
+  \item{hcws_inpatient_uncapped}{HCWs for inpatients, uncapped - total beds
+  in use times number of HCWs per bed}
+  \item{cleaners_inpatient_capped}{Cleaners for inpatients, i.e. number of
+  beds available for COVID-19 (or if unavaiable, just number of beds) times
+  ideal number of cleaners ber bed}
+  \item{amb_personnel_inpatient_capped}{Total ambulance personnel for
+  inpatients - number of beds in use per week times ambulanciers per bed}
+  \item{bio_eng_inpatient_capped}{Total biomedical engineers for inpatients -
+  number of beds in use per week times biomedical engineers per bed}
+  \item{inf_caregivers_isol_uncapped}{Total uncapped informal caregivers for
+  isolating cases - total mild and moderate tested times number of
+  informal caregivers per quarantining or isolating case}
+  \item{lab_staff_capped}{Capped total lab staff - so total labs times staff
+  per lab, capped by number of lab staff reported y country}
+  \item{cleaners_lab}{Total cleaners for labs  - so total labs times cleaners
+  per lab}
 }
 }
 \description{
 This function takes some of the HCW cap options and calculates
-the section in the `Weekly Summary` tab marked HCW and staff.
+the section in the `Weekly Summary` tab marked HCW and staff (except for
+the screening/triage section, which depends on diagnostics_weekly and is
+calculated separately in screening_hcws_weekly).
 This will then be used in some sort of capacity mapping/forecasting.
 }

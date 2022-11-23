@@ -23,20 +23,17 @@ A data frame with 21 rows and 7 variables:
 hwfe
 }
 \description{
-HWFE tool methodology, combined with LMIC-specific inputs from consultations,
-e.g., with Ethiopian clinical leads. Shows patient time per 24 hours by severity type.
+HWFE tool methodology, combined with LMIC-specific inputs from
+consultations, e.g., with Ethiopian clinical leads. Shows patient time per
+24 hours by severity type.
 }
 \details{
-Also uses adappt tool: \url{https://www.euro.who.int/en/health-topics/Health-systems/pages/strengthening-the-health-system-response-to-covid-19/surge-planning-tools/adaptt-surge-planning-support-tool}
-
-These tools yield different outputs based on different focus + models.
-
-Note ESFT has SEIR models, other tools use simplified projections/epi models.
-
+Also uses adaptt tool:
+\url{https://www.euro.who.int/en/health-topics/Health-systems/pages/strengthening-the-health-system-response-to-covid-19/surge-planning-tools/adaptt-surge-planning-support-tool}
+These tools yield different outputs based on different focus + models. Note
+ESFT has SEIR models, other tools use simplified projections/epi models.
 These are simplified groups from HWC Need worksheet (external). Patient time
-
 is given across different settings, according to staff skills and scope of
-
 practice. Note that only hours/day is used in the calculations.
 }
 \keyword{datasets}

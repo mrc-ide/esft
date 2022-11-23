@@ -6,7 +6,7 @@
 #' The parameters are defined below, and are taken from the default settings in
 #' the ESFT.
 #'
-#' total tests and percent antigen:
+#' Total tests and percent antigen:
 #'
 #' * total_tests_mild_mod - total tests, used for diagnosis only; default = 1
 #' * total_tests_sev_crit - total tests, used for diagnosis and release;
@@ -106,8 +106,10 @@ get_country_test_capacity <- function(country = NULL,
       stop("Country not found")
     }
 
-    diagnostics <- subset(esft::diagnostics,
-                          diagnostics$country_name == country)
+    diagnostics <- subset(
+      esft::diagnostics,
+      diagnostics$country_name == country
+    )
   }
 
   # iso3c route
@@ -144,7 +146,7 @@ get_country_test_capacity <- function(country = NULL,
       values_to = "modules_activated"
     )
 
-   return(diagnostics)
+  return(diagnostics)
 }
 
 #' @title Sets testing strategy and associated parameters
@@ -205,8 +207,6 @@ set_testing_strategy <- function(strategy = "all",
       if (is.null(perc_tested_mild_mod)) {
         perc_tested_mild_mod <- 0.1
       }
-      # else take user specification
-      # perc_tested_mild_mod = perc_tested_mild_mod
     }
   } else {
     strategy <- "all"
@@ -239,7 +239,7 @@ set_testing_strategy <- function(strategy = "all",
   if (parameters$perc_tested_mild_mod > 1 ||
     parameters$perc_contacts_tested > 1) {
     stop("All percentage values must be less than or equal to 1.")
-    }
+  }
 
   if (parameters$perc_tested_mild_mod < 0 ||
     parameters$perc_contacts_tested < 0) {
@@ -313,38 +313,46 @@ get_lab_parameters <- function(overrides = list()) {
 #'
 #' @import dplyr
 #' @importFrom magrittr %>%
-#'
+#' @importFrom rlang .data
 #'
 #' @export
 calc_diagnostic_capacity <- function(country_diagnostic_capacity,
                                      throughput,
                                      shifts_per_day = NULL, # vector
                                      hours_per_shift) {
-  if(!(is.null(shifts_per_day))){
-    if(length(shifts_per_day) == 1) {
+  if (!(is.null(shifts_per_day))) {
+    if (length(shifts_per_day) == 1) {
       shifts_per_day$platform_key <- throughput$platform_key
-      shifts_per_day$shifts_day <- rep(shifts_per_day,
-                                       length(throughput$platform_key))
+      shifts_per_day$shifts_day <- rep(
+        shifts_per_day,
+        length(throughput$platform_key)
+      )
     }
-    throughput <- merge(throughput, shifts_per_day, by="platform_key")
+    throughput <- merge(throughput, shifts_per_day, by = "platform_key")
   }
   capacity <- merge(throughput, country_diagnostic_capacity)
-  capacity <- merge(capacity, hours_per_shift, by.x = "shifts_day",
-                    by.y = "shifts")
+  capacity <- merge(capacity, hours_per_shift,
+    by.x = "shifts_day",
+    by.y = "shifts"
+  )
 
   capacity <- capacity %>%
-    mutate(throughput_per_day = case_when(
-      hours == 8 ~ throughput_8hrs,
-      hours == 16 ~ throughput_16hrs,
-      hours == 24 ~ throughput_24hrs,
+    dplyr::mutate(throughput_per_day = case_when(
+      .data$hours == 8 ~ .data$throughput_8hrs,
+      .data$hours == 16 ~ .data$throughput_16hrs,
+      .data$hours == 24 ~ .data$throughput_24hrs,
       TRUE ~ NA_real_
     )) %>%
-    select(-c(throughput_8hrs, throughput_16hrs, throughput_24hrs))
+    dplyr::select(-c(
+      .data$throughput_8hrs, .data$throughput_16hrs,
+      .data$throughput_24hrs
+    ))
 
   # calculate the testing capacity available - max, and covid
-  capacity$total_test_capacity <- capacity$modules_activated * capacity$days_week * capacity$throughput_per_day
-  capacity$covid_test_capacity <- capacity$total_test_capacity * capacity$covid_capacity
-
+  capacity$total_test_capacity <- capacity$modules_activated *
+    capacity$days_week * capacity$throughput_per_day
+  capacity$covid_test_capacity <- capacity$total_test_capacity *
+    capacity$covid_capacity
 
   return(capacity)
 }
@@ -354,7 +362,6 @@ calc_diagnostic_capacity <- function(country_diagnostic_capacity,
 #' @param capacity From get_country_test_capacity or
 #' calculate_diagnostic_capacity. Only thing is, we need the country capacity.
 #'
-#'
 #' @export
 total_labs <- function(capacity) {
   labs <- sum(
@@ -362,7 +369,8 @@ total_labs <- function(capacity) {
     capacity$modules_activated[capacity$platform_key == "roche_8800"],
     capacity$modules_activated[capacity$platform_key == "abbott_m2000"],
     capacity$modules_activated[capacity$platform_key == "hologic_panther"],
-    capacity$modules_activated[capacity$platform_key == "hologic_panther_fusion"],
+    capacity$modules_activated[capacity$platform_key ==
+                                 "hologic_panther_fusion"],
     capacity$modules_activated[capacity$platform_key == "manual"]
   ) / 3 +
     capacity$modules_activated[capacity$platform_key == "genexpert"] / 4

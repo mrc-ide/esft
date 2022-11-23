@@ -8,18 +8,21 @@
 A data frame with 5 rows and 3 variables:
 \describe{
   \item{income_group}{Income group}
-  \item{perc_crit_proxy}{Average percentage of beds allocated to critical care}
+  \item{perc_crit_proxy}{Average percentage of beds allocated to critical
+  care}
   \item{source}{Source of estimate}
 }
 }
 \source{
-Imperial College, Report 12: The Global Impact of COVID-19 and Strategies for Mitigation and Suppression
+Imperial College, Report 12: The Global Impact of COVID-19 and
+Strategies for Mitigation and Suppression
 }
 \usage{
 bed_perc_crit_proxy
 }
 \description{
-Imperial College estimates of the percentage of hospitals allocated to critical care, by country income level.
-Used as proxy for when country level data not available.
+Imperial College estimates of the percentage of hospitals
+allocated to critical care, by country income level. Used as proxy for when
+country level data not available.
 }
 \keyword{datasets}

@@ -19,7 +19,8 @@ A data frame with 5 rows and 3 variables:
 bed_nr_proxy
 }
 \description{
-Average number of hospital beds per 1,000 people in a country population based on income group.
-used as proxy numbers for when country level data not available.
+Average number of hospital beds per 1,000 people in a country
+population based on income group. Used as proxy numbers for when country
+level data not available.
 }
 \keyword{datasets}

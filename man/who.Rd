@@ -36,14 +36,14 @@ A data frame with 265 rows and 18 variables:
 who
 }
 \description{
-Summary of estimates of healthcare workforce and hospital bed indicators
-provided by the WHO. Compiled from the GHO, WB, and UNDP datasets.
+Summary of estimates of healthcare workforce and hospital bed
+indicators provided by the WHO. Compiled from the GHO, WB, and UNDP datasets.
 }
 \details{
-For healthcare workforce estimates, the average YoY population growth rate
-was applied to either the latest known number of healthcare workers within
-a specific category, or the product of the income group average and the
-population. Similar calculations were performed to estimate the number of
-beds and percentage of beds allocated to the ICU.
+For healthcare workforce estimates, the average YoY population
+growth rate was applied to either the latest known number of healthcare
+workers within a specific category, or the product of the income group
+average and the population. Similar calculations were performed to estimate
+the number of beds and percentage of beds allocated to the ICU.
 }
 \keyword{datasets}

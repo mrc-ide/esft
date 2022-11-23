@@ -31,12 +31,12 @@ user_input <- function(overrides = list()) {
   )
   # Override parameters with any client specified ones
   if (!is.list(overrides)) {
-    stop('overrides must be a list')
+    stop("overrides must be a list")
   }
 
   for (name in names(overrides)) {
     if (!(name %in% names(input))) {
-      stop(paste('unknown input parameter', name, sep=' '))
+      stop(paste("unknown input parameter", name, sep =" "))
     }
     input[[name]] <- overrides[[name]]
   }
