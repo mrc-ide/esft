@@ -11,7 +11,7 @@ get_diagnostic_parameters(overrides = list())
 The parameters are defined below, and are taken from the default settings in
 the ESFT.
 
-total tests and percent antigen:
+Total tests and percent antigen:
 
 * total_tests_mild_mod - total tests, used for diagnosis only; default = 1
 * total_tests_sev_crit - total tests, used for diagnosis and release;

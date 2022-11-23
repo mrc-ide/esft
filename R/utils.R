@@ -1,2 +1,2 @@
 #' written by giovanni, taken from malariasimulation
-approx_sum <- function(X, n) abs(sum(X) - n) < sqrt(.Machine$double.eps)
+approx_sum <- function(x, n) abs(sum(x) - n) < sqrt(.Machine$double.eps)

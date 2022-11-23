@@ -7,7 +7,7 @@
 total_labs(capacity)
 }
 \arguments{
-\item{capacity}{From get_diagnostic_capacity. Or
+\item{capacity}{From get_country_test_capacity or
 calculate_diagnostic_capacity. Only thing is, we need the country capacity.}
 }
 \description{

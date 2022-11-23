@@ -8,10 +8,13 @@
 A data frame with 3 rows and 5 variables:
 \describe{
   \item{imperial_scenario}{Scenario as given in the ESFT tool.}
-  \item{label_death_calibrated}{Label of the scenario in the death calibrated fits.}
-  \item{label_not_death_calibrated}{Label of the scenario in the non death calibrated fits.}
+  \item{label_death_calibrated}{Label of the scenario in the death calibrated
+  fits.}
+  \item{label_not_death_calibrated}{Label of the scenario in the non death
+  calibrated fits.}
   \item{R}{R number associated with transmission scenarios.}
-  \item{imperial_category_labels}{Scenario labels as used in imperial model fits.}
+  \item{imperial_category_labels}{Scenario labels as used in imperial model
+  fits.}
 }
 }
 \source{

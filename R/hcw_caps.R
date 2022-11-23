@@ -20,11 +20,7 @@
 #' @export
 hcw_caps_static <- function(params,
                             throughput,
-                            cap_lab_staff = FALSE
-                            # option to cap lab staff by percent allocated to covid
-                            # percent allocated to covid is the average of the percent
-                            # machine type allocation to covid testing
-) {
+                            cap_lab_staff = FALSE) {
   # add exists part here
 
   hcws_inpatients_cap <- params$perc_hcws_treat_covid * params$n_hcws
@@ -150,4 +146,3 @@ hcw_caps_dynamic <- function(params, # includes specific bed counts
 
   return(hcw_caps)
 }
-

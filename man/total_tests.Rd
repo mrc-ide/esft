@@ -7,14 +7,24 @@
 total_tests(tests_weekly, additional_tests, max_tests)
 }
 \arguments{
-\item{max_tests}{}
+\item{tests_weekly}{From diagnostics_weekly}
+
+\item{additional_tests}{From additional_testing}
+
+\item{max_tests}{From max_tests_per_day, which depends on diagnostic capacity
+and percent allocated to COVID-19 testing.}
 }
 \value{
 Total tests
 \describe{
-  \item{week_ends}{xyz}
-  \item{week_begins}{xyz}
-  \item{tests_tests_capped}{xyz}
+  \item{week_begins}{Date the week summarized begins}
+  \item{week_ends}{Date the week summarized ends}
+  \item{total_tests_capped}{Total tests per week, given a specific testing
+  strategy, capped by max tests possible given equipment available and
+  allocated to COVID-19 testing. Can modify this % by modifying dataframe
+  produced by get_country_test_capacity and changing the values for
+  covid_capacity before passing it into calc_diagnostic_capacity and then
+  max_tests_per_day.}
 }
 }
 \description{

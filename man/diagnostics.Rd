@@ -12,8 +12,10 @@ A data frame with 220 rows and 9 variables:
   \item{income_group}{Income group}
   \item{roche_6800}{Number of Roche 6800 machines estimated to be in country}
   \item{roche_8800}{Number of Roche 8800 machines estimated to be in country}
-  \item{abbott_m2000}{Number of Abbott m2000 machines estimated to be in country}
-  \item{hologic_panther}{Number of Hologic Panther machines estimated to be in country}
+  \item{abbott_m2000}{Number of Abbott m2000 machines estimated to be in
+  country}
+  \item{hologic_panther}{Number of Hologic Panther machines estimated to be
+  in country}
   \item{genexpert}{Number of GeneXpert machines estimated to be in country}
   \item{manual}{Number of manual machines estimated to be in country}
 }
@@ -25,18 +27,18 @@ A data frame with 220 rows and 9 variables:
 diagnostics
 }
 \description{
-According to the WHo ESFT: "the reference values for the module were taken from an assessment of
-available equipment and are based on a number of factors including population
-size, HIV burden (as many machines were initially purchased for HIV testing),
-and testing platforms known to the WHO. Please note that the reference values
-are estimates and may not exactly match the number of platforms in each
-country."
+According to the WHo ESFT: "the reference values for the module
+were taken from an assessment of available equipment and are based on a
+number of factors including population size, HIV burden (as many machines
+were initially purchased for HIV testing), and testing platforms known to the
+WHO. Please note that the reference values are estimates and may not exactly
+match the number of platforms in each country."
 }
 \details{
-The high-throughput conventional machines are the Roche 6800, Roche 8800,
-Abbott m2000, and the Hologic Panthers. These are also used for HIV testing.
-GeneXpert machines are near-patient PCR processing machines, that provide on
-the spot diagnostics for patients. Manual real time PCR platforms are slower
-but also provide PCR processing.
+The high-throughput conventional machines are the Roche 6800, Roche
+8800, Abbott m2000, and the Hologic Panthers. These are also used for HIV
+testing. GeneXpert machines are near-patient PCR processing machines, that
+provide on the spot diagnostics for patients. Manual real time PCR platforms
+are slower but also provide PCR processing.
 }
 \keyword{datasets}

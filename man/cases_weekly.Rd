@@ -4,10 +4,20 @@
 \alias{cases_weekly}
 \title{Produce Weekly Summary of Cases}
 \usage{
-cases_weekly(params, data, starting_date = "2019-11-29")
+cases_weekly(
+  params,
+  capacity,
+  test_strategy_params,
+  data,
+  starting_date = "2019-11-29"
+)
 }
 \arguments{
 \item{params}{Includes both estimates of beds and case severity proportions.}
+
+\item{capacity}{From get_country_capacity}
+
+\item{test_strategy_params}{From set_testing_strategy}
 
 \item{data}{Specific country fit data, from the imperial model fits}
 

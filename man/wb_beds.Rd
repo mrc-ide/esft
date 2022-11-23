@@ -24,7 +24,7 @@ A data frame with 264 rows and 65 variables:
 wb_beds
 }
 \description{
-Number of hospital beds per 1,000 people by country by year.The most recent
-year of data varies across countries.
+Number of hospital beds per 1,000 people by country by year. The
+most recent year of data varies across countries.
 }
 \keyword{datasets}

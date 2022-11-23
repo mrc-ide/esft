@@ -7,30 +7,50 @@
 \format{
 A data frame with 53 rows and 24 variables:
 \describe{
-  \item{category}{Equipment type category: testing, infection prevention & control (IPC), case management - biomedical equipment, or case management - accessories & consumables.}
+  \item{category}{Equipment type category: testing, infection prevention &
+  control (IPC), case management - biomedical equipment, or case management
+  - accessories & consumables.}
   \item{group}{Sub-categories of groups within each category.}
   \item{item}{Item name, with details}
   \item{unit}{Unit of measurement of the item}
   \item{reusable}{TRUE/FALSE: Is this item reusable or not.}
   \item{supplied_with}{Other equipment this item is supplied with.}
-  \item{price}{Price per unit of the item, in USD. Updated with each iteration of the ESFT, most recently in April 2022.}
-  \item{amount_per_inpatient_hcw_per_day}{Amount per healthcare worker per day in an inpatient setting.}
-  \item{amount_per_inpatient_cleaner_per_day}{Amount per cleaner per day in an inpatient setting.}
-  \item{amount_per_inpatient_inf_caregiver_per_day}{Amount per informal caregiver per day in an inpatient setting.}
-  \item{amount_per_inpatient_ambworker_per_day}{Amount per ambulance personnel per day in an inpatient setting.}
-  \item{amount_per_inpatient_biomed_eng_per_day}{Amount per biomedical engineer per day in an inpatient setting.}
-  \item{amount_per_inpatient_sev_patient_per_day}{Amount per severe patient per day in an inpatient setting.}
-  \item{amount_per_inpatient_crit_patient_per_day}{Amount per critical patient per day in an inpatient setting.}
-  \item{amount_per_inpatient_sev_crit_patient_per_day}{Amount per severe and critical patient per day in an inpatient setting.}
-  \item{amount_per_inpatient_sev_bed_per_day}{Amount per severe bed per day in an inpatient setting.}
-  \item{amount_per_inpatient_crit_bed_per_day}{Amount per critical bed per day in an inpatient setting.}
-  \item{amount_per_inpatient_sev_crit_bed_per_day}{Amount per severe and critical bed per day in an inpatient setting.}
-  \item{amount_per_isolation_inf_caregiver_per_day}{Amount per informal caregiver per day in an isolation setting.}
-  \item{amount_per_isolation_patient_per_day}{Amount per mild or moderate patient per day in an isolation setting.}
-  \item{amount_per_screening_hcw_per_day}{Amount per healthcare worker per day in a screening/triage setting.}
-  \item{amount_per_screening_patient_per_day}{Amount per patient per day in a screening/triage setting.}
-  \item{amount_per_lab_tech_per_day}{Amount per cleaner per day in a laboratory setting.}
-  \item{amount_per_lab_cleaner_per_day}{Amount per cleaner per day in a laboratory setting.}
+  \item{price}{Price per unit of the item, in USD. Updated with each
+  iteration of the ESFT, most recently in April 2022.}
+  \item{amount_per_inpatient_hcw_per_day}{Amount per healthcare worker per
+  day in an inpatient setting.}
+  \item{amount_per_inpatient_cleaner_per_day}{Amount per cleaner per day in
+  an inpatient setting.}
+  \item{amount_per_inpatient_inf_caregiver_per_day}{Amount per informal
+  caregiver per day in an inpatient setting.}
+  \item{amount_per_inpatient_ambworker_per_day}{Amount per ambulance
+  personnel per day in an inpatient setting.}
+  \item{amount_per_inpatient_biomed_eng_per_day}{Amount per biomedical
+  engineer per day in an inpatient setting.}
+  \item{amount_per_inpatient_sev_patient_per_day}{Amount per severe patient
+  per day in an inpatient setting.}
+  \item{amount_per_inpatient_crit_patient_per_day}{Amount per critical
+  patient per day in an inpatient setting.}
+  \item{amount_per_inpatient_sev_crit_patient_per_day}{Amount per severe and
+  critical patient per day in an inpatient setting.}
+  \item{amount_per_inpatient_sev_bed_per_day}{Amount per severe bed per day
+  in an inpatient setting.}
+  \item{amount_per_inpatient_crit_bed_per_day}{Amount per critical bed per
+  day in an inpatient setting.}
+  \item{amount_per_inpatient_sev_crit_bed_per_day}{Amount per severe and
+  critical bed per day in an inpatient setting.}
+  \item{amount_per_isolation_inf_caregiver_per_day}{Amount per informal
+  caregiver per day in an isolation setting.}
+  \item{amount_per_isolation_patient_per_day}{Amount per mild or moderate
+  patient per day in an isolation setting.}
+  \item{amount_per_screening_hcw_per_day}{Amount per healthcare worker per
+  day in a screening/triage setting.}
+  \item{amount_per_screening_patient_per_day}{Amount per patient per day in
+  a screening/triage setting.}
+  \item{amount_per_lab_tech_per_day}{Amount per cleaner per day in a
+  laboratory setting.}
+  \item{amount_per_lab_cleaner_per_day}{Amount per cleaner per day in a
+  laboratory setting.}
 }
 }
 \source{
@@ -40,31 +60,40 @@ A data frame with 53 rows and 24 variables:
 equipment
 }
 \description{
-This dataframe contains inputs/assumptions for the commodities forecasted
-across care settings (e.g., inpatient, screening/triage, and isolation) and
-end users (e.g., HCW, patients).
+This dataframe contains inputs/assumptions for the commodities
+forecasted across care settings (e.g., inpatient, screening/triage, and
+isolation) and end users (e.g., HCW, patients).
 }
 \details{
-Here is the description of care settings and personnel as outlined in the ESFT
-tool:
+Here is the description of care settings and personnel as outlined in the
+ESFT tool:
 
 ### Care Setting Descriptions:
 Inpatient: Inpatient care for severe and critical patients
-Screening/triage: Screening and triaging all suspected COVID-19 patients at first point of contact with the health care system (including those who ultimately test negative)
-Isolation: Typically care provided at home or in a community facility (e.g., stadiums, gymnasiums, hotels) for mild/moderate patients
+Screening/triage: Screening and triaging all suspected COVID-19 patients at
+first point of contact with the health care system (including those who
+ultimately test negative)
+Isolation: Typically care provided at home or in a community facility (e.g.,
+stadiums, gymnasiums, hotels) for mild/moderate patients
 Laboratories: Labs where testing is conducted/processed
 
-### Personnel Descriptions (these definitions and ILO ISCO codes are in use in all tabs of the tool):
-HCW: medical practitioners, including physicians, nursing professionals, and paramedical practitioners (ILO ISCO codes 2240, 2211, 2212, 2221, 3221, 5321, 3256)
+### Personnel Descriptions (these definitions and ILO ISCO codes are in use
+### in all tabs of the tool):
+HCW: medical practitioners, including physicians, nursing professionals,
+and paramedical practitioners (ILO ISCO codes 2240, 2211, 2212, 2221, 3221,
+5321, 3256)
 Cleaners: cleaners and helpers (ILO ISCO code 9112)
 Caregiver: patient carers such as parent, spouse, partner, etc.
 Ambulancier: emergency paramedics and drivers (ILO ISCO codes 8322, 3258)
-Patient: suspected case or person diagnosed with COVID-19 (can be further defined as a severe or critical or applicable to both)
-Bed: equipment needed per patient bed (can be further defined as a severe or critical or applicable to both)
+Patient: suspected case or person diagnosed with COVID-19 (can be further
+defined as a severe or critical or applicable to both)
+Bed: equipment needed per patient bed (can be further defined as a severe or
+critical or applicable to both)
 
-Note: It may appear as if there is double counting, especially when it comes to inpatient patients and beds.
-This is not the case - if there is a value for one (either bed or patient), there is no value for the other.
-Furthermore, if there are singular values for severe and critical, there will not be values in the both severe
-and critical cell.
+Note: It may appear as if there is double counting, especially when it comes
+to inpatient patients and beds. This is not the case - if there is a value
+for one (either bed or patient), there is no value for the other.
+Furthermore, if there are singular values for severe and critical, there will
+not be values in the both severe and critical cell.
 }
 \keyword{datasets}

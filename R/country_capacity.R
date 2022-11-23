@@ -1,9 +1,5 @@
 #' @title Gets country capacity.
 #'
-#' @description Note: put either country name or country code, and follow the
-#' countrycode package convention on capitalization.
-#'
-#' @param country Country name (in conventional capitalized format)
 #' @param iso3c Country code, in iso3c format (in all capital letters)
 #' @param overrides a named list of parameter values to use instead of defaults
 #'
@@ -32,52 +28,12 @@
 #' @source \url{https://population.un.org/wup/Download/}
 #' @source \url{https://www.who.int/publications/i/item/WHO-2019-nCoV-Tools-Essential_forecasting-2022.1}
 #' @source \url{https://data.worldbank.org/indicator/SH.MED.BEDS.ZS}
-#' @source Imperial College, Report 12: The Global Impact of COVID-19 and Strategies for Mitigation and Suppression
+#' @source Imperial College, Report 12: The Global Impact of COVID-19 and
+#' Strategies for Mitigation and Suppression
 #' @source \url{https://www.researchgate.net/figure/Health-Workforce-Estimator-HWFE-tool-applies-the-WISN-approach-to-caring-for-COVID_fig3_358174845}
 #' @export
-get_country_capacity <- function(country = NULL,
-                                 iso3c = NULL,
+get_country_capacity <- function(iso3c = NULL,
                                  overrides = list()) {
-
-  if (!is.null(country) && !is.null(iso3c)) {
-    # check they are the same one using the countrycodes
-    iso3c_check <- countrycode::countrycode(country,
-                                            origin = "country.name",
-                                            destination = "iso3c"
-    )
-    country_check <- countrycode::countrycode(iso3c,
-                                              origin = "iso3c",
-                                              destination = "country.name"
-    )
-    if (iso3c_check != iso3c & country_check != country) {
-      stop("Iso3c country code and country name do not match. Please check
-           input/spelling and try again.")
-    }
-  }
-
-  ## country route
-  if (!is.null(country)) {
-    country <- as.character(country)
-    if (!country %in% unique(esft::who$country_name)) {
-      stop("Country not found")
-    }
-
-    pop <- esft::who$population[esft::who$country_name == country]
-    yoy_growth <- esft::population$yoy[esft::population$country_wb == country]
-    income_group <- esft::who$income_group[esft::who$country_name == country]
-
-    n_hcws <- esft::who$doctors[esft::who$country_name == country] +
-      esft::who$nurses[esft::who$country_name == country]
-    n_labs <- esft::who$labs[esft::who$country_name == iso3c]
-
-    n_hosp_beds <- esft::who$beds_total[esft::who$country_name == country]
-    perc_beds_crit_covid <- esft::who$perc_icu_beds[esft::who$country_name == country]
-
-    iso3c <- countrycode::countrycode(country,
-                                      origin = "country.name",
-                                      destination = "iso3c"
-    )
-  }
 
   # iso3c route
   if (!is.null(iso3c)) {
@@ -85,30 +41,32 @@ get_country_capacity <- function(country = NULL,
     if (!iso3c %in% unique(esft::who$country_code)) {
       stop("Iso3c not found")
     }
-    pop <- esft::who$population[esft::who$country_code == iso3c]
-    yoy_growth <- esft::population$yoy[esft::population$country_code == iso3c]
-    income_group <- esft::who$income_group[esft::who$country_code == iso3c]
-
-    n_hcws <- esft::who$doctors[esft::who$country_code == iso3c] +
-      esft::who$nurses[esft::who$country_code == iso3c]
-    n_labs <- esft::who$labs[esft::who$country_code == iso3c]
-
-    n_hosp_beds <- esft::who$beds_total[esft::who$country_code == iso3c]
-    perc_beds_crit_covid <- esft::who$perc_icu_beds[esft::who$country_code == iso3c]
-
     country <- countrycode::countrycode(iso3c,
-                                        origin = "iso3c",
-                                        destination = "country.name"
+      origin = "iso3c",
+      destination = "country.name"
     )
   }
 
-  perc_beds_crit_covid <- perc_beds_crit_covid/100
+  pop <- esft::who$population[esft::who$country_code == iso3c]
+  yoy_growth <- esft::population$yoy[esft::population$country_code == iso3c]
+  income_group <- esft::who$income_group[esft::who$country_code == iso3c]
+
+  n_hcws <- esft::who$doctors[esft::who$country_code == iso3c] +
+    esft::who$nurses[esft::who$country_code == iso3c]
+  n_labs <- esft::who$labs[esft::who$country_code == iso3c]
+
+  n_hosp_beds <- esft::who$beds_total[esft::who$country_code == iso3c]
+  perc_beds_crit_covid <- esft::who$perc_icu_beds[
+    esft::who$country_code == iso3c
+  ]
+
+  perc_beds_crit_covid <- perc_beds_crit_covid / 100
   perc_beds_not_covid <- 0.4
   perc_beds_sev_covid <- 1 - perc_beds_not_covid - perc_beds_crit_covid
 
-  beds_covid = round(n_hosp_beds*(1-perc_beds_not_covid))
-  severe_beds_covid = round(n_hosp_beds*perc_beds_sev_covid)
-  crit_beds_covid = round(n_hosp_beds*perc_beds_crit_covid)
+  beds_covid <- round(n_hosp_beds * (1 - perc_beds_not_covid))
+  severe_beds_covid <- round(n_hosp_beds * perc_beds_sev_covid)
+  crit_beds_covid <- round(n_hosp_beds * perc_beds_crit_covid)
 
   country_capacity <- list(
     country = country,
@@ -129,12 +87,12 @@ get_country_capacity <- function(country = NULL,
 
   # Override parameters with any client specified ones
   if (!is.list(overrides)) {
-    stop('overrides must be a list')
+    stop("overrides must be a list")
   }
 
   for (name in names(overrides)) {
     if (!(name %in% names(country_capacity))) {
-      stop(paste('unknown parameter', name, sep=' '))
+      stop(paste("unknown parameter", name, sep = " "))
     }
     country_capacity[[name]] <- overrides[[name]]
   }

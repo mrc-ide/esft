@@ -2,10 +2,7 @@
 % Please edit documentation in R/diagnostic_parameters.R
 \name{calc_diagnostic_capacity}
 \alias{calc_diagnostic_capacity}
-\title{Given specified parameters, calculates diagnostic country capacity.
-
-As of right now, need to increase hours per shift in throughput data in order
-to up the capacity.}
+\title{Given specified parameters, calculates diagnostic country capacity.}
 \usage{
 calc_diagnostic_capacity(
   country_diagnostic_capacity,
@@ -30,7 +27,8 @@ Default = NULL.}
 }
 \description{
 Given specified parameters, calculates diagnostic country capacity.
-
+}
+\details{
 As of right now, need to increase hours per shift in throughput data in order
 to up the capacity.
 }

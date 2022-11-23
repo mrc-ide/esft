@@ -4,18 +4,34 @@
 \alias{additional_testing}
 \title{Additional testing}
 \usage{
-additional_testing(hcws, screening_hcws, params, tests_weekly)
+additional_testing(
+  hcws,
+  screening_hcws,
+  params,
+  testing_strategy,
+  tests_weekly
+)
 }
 \arguments{
-\item{tests_weekly}{}
+\item{hcws}{From hcws_weekly}
+
+\item{screening_hcws}{From screening_hcws_weekly}
+
+\item{params}{From get_parameters}
+
+\item{testing_strategy}{From set_testing_strategy}
+
+\item{tests_weekly}{From diagnostics_weekly}
 }
 \value{
 Dataframe of additional testing
 \describe{
-  \item{week_ends}{xyz}
-  \item{week_begins}{xyz}
-  \item{tests_hcw_weekly}{xyz}
-  \item{tests_contacts_weekly}{xyz}
+  \item{week_begins}{Date the week summarized begins}
+  \item{week_ends}{Date the week summarized ends}
+  \item{tests_hcw_weekly}{Tests for all HCWs, weekly}
+  \item{tests_contacts_weekly}{Tests for all contacts, weekly, if testing
+  contacts of positive cases or contact tracing. Can be specified in
+  set_testing_strategy}
 }
 }
 \description{

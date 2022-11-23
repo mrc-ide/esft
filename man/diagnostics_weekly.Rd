@@ -13,21 +13,40 @@ diagnostics_weekly(
 )
 }
 \arguments{
-\item{testing_strategy}{}
+\item{params}{From get_parameters}
+
+\item{patients}{From patients_weekly}
+
+\item{cases}{From cases_weekly}
+
+\item{diagnostic_parameters}{From get_diagnostic_parameters}
+
+\item{testing_strategy}{String - either "all" or "targeted". For percent
+tested in targeted, set the percent tested in get_parameters.}
 }
 \value{
 Dataframe of weekly summary
 \describe{
-  \item{week_begins}{xyz}
-  \item{week_ends}{xyz}
-  \item{tests_diagnosis_uncapped_sev_crit}{xyz}
-  \item{tests_release_uncapped_sev_crit}{xyz}
-  \item{tests_diagnosis_capped_sev_crit}{xyz}
-  \item{tests_release_capped_sev_crit}{xyz}
-  \item{tests_mild}{xyz}
-  \item{tests_mod}{xyz}
-  \item{tests_suspected}{xyz}
-  \item{testing_strategy}{xyz}
+  \item{week_begins}{Date the week summarized begins}
+  \item{week_ends}{Date the week summarized ends}
+  \item{tests_diagnosis_uncapped_sev_crit}{Tests required if all severe and
+  critical patients tested for diagnosis, regardless of capacity limits.
+  Number of tests required per case specified in diagnostic_parameters.}
+  \item{tests_release_uncapped_sev_crit}{Tests performed if all severe and
+  critical patients tested for release, regardless of capacity limits.
+  Number of tests per case specified in diagnostic_parameters.}
+  \item{tests_diagnosis_capped_sev_crit}{Tests for diagnosis for severe
+  and critical patients capped by hospital capacity/number of severe and
+  critical patients admitted to hospital}
+  \item{tests_release_capped_sev_crit}{Tests for release for severe and
+  critical patients capped by hospital capacity and IFR/number of severe and
+  critical patients discharged from hospital}
+  \item{tests_mild}{Number of tests for mild patient diagnosis, given testing
+  strategy}
+  \item{tests_mod}{Number of tests for moderate patient diagnosis, given
+  testing strategy}
+  \item{tests_suspected}{Number of tests for suspected but negative cases}
+  \item{testing_strategy}{Testing strategy, string}
 }
 }
 \description{

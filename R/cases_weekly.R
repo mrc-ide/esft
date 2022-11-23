@@ -9,8 +9,8 @@
 #' these categories will be the same.
 #'
 #' @param params Includes both estimates of beds and case severity proportions.
-#' @param capacity
-#' @param test_strategy_params
+#' @param capacity From get_country_capacity
+#' @param test_strategy_params From set_testing_strategy
 #' @param data Specific country fit data, from the imperial model fits
 #' @param starting_date User specified string of starting date of weekly summary
 #'
@@ -86,10 +86,12 @@
 #'   \item{sus_cases_but_negative}{Sum of all new cases multiplied by the
 #'   number of negative tests per positive case}
 #' }
+#'
 #' @import dplyr
 #' @import data.table
 #' @import countrycode
 #' @importFrom magrittr %>%
+#' @importFrom rlang .data
 #'
 #' @export
 cases_weekly <- function(params, # from get_parameters
@@ -97,7 +99,6 @@ cases_weekly <- function(params, # from get_parameters
                          test_strategy_params, # from set_testing_strategy
                          data, # imperial fit data
                          starting_date = "2019-11-29") {
-
   params <- merge(params, capacity)
   params <- merge(params, test_strategy_params)
 
@@ -124,93 +125,96 @@ cases_weekly <- function(params, # from get_parameters
     )
 
   data <- data %>%
-    dplyr::group_by(week_begins = cut(date, breaks = "week")) %>%
+    dplyr::group_by(week_begins = cut(.data$date, breaks = "week")) %>%
     dplyr::summarise(
-      week_ends = data.table::last(date),
-      hospital_demand = max(hospital_demand, na.rm = TRUE),
-      ICU_demand = max(ICU_demand, na.rm = TRUE),
-      hospital_incidence = sum(hospital_incidence, na.rm = TRUE),
-      ICU_incidence = sum(ICU_incidence, na.rm = TRUE),
-      infections = data.table::last(infections),
-      cumulative_infections = data.table::last(cumulative_infections)
+      week_ends = data.table::last(.data$date),
+      hospital_demand = max(.data$hospital_demand, na.rm = TRUE),
+      ICU_demand = max(.data$ICU_demand, na.rm = TRUE),
+      hospital_incidence = sum(.data$hospital_incidence, na.rm = TRUE),
+      ICU_incidence = sum(.data$ICU_incidence, na.rm = TRUE),
+      infections = data.table::last(.data$infections),
+      cumulative_infections = data.table::last(.data$cumulative_infections)
     )
 
   data$week_begins <- as.Date(as.character(data$week_begins))
 
   data <- data %>%
     dplyr::mutate(
-      cum_severe_cases = cumsum(hospital_incidence),
-      new_severe_cases = hospital_incidence,
-      cum_critical_cases = cumsum(ICU_incidence),
-      new_critical_cases = ICU_incidence,
-      adm_severe_cases_nocap = hospital_demand,
-      adm_critical_cases_nocap = ICU_demand
+      cum_severe_cases = cumsum(.data$hospital_incidence),
+      new_severe_cases = .data$hospital_incidence,
+      cum_critical_cases = cumsum(.data$ICU_incidence),
+      new_critical_cases = .data$ICU_incidence,
+      adm_severe_cases_nocap = .data$hospital_demand,
+      adm_critical_cases_nocap = .data$ICU_demand
     )
 
   data <- data %>%
     dplyr::mutate(
       adm_severe_cases_cap =
-        ifelse(hospital_incidence < params$severe_beds_covid,
-        hospital_incidence, params$severe_beds_covid
-      ),
-      adm_critical_cases_cap = ifelse(ICU_incidence < params$crit_beds_covid,
-        ICU_incidence, params$crit_beds_covid
+        ifelse(.data$hospital_incidence < params$severe_beds_covid,
+          .data$hospital_incidence, params$severe_beds_covid
+        ),
+      adm_critical_cases_cap = ifelse(
+        .data$ICU_incidence < params$crit_beds_covid,
+        .data$ICU_incidence, params$crit_beds_covid
       ),
 
       # moderate and mild cases, method in patient calcs:
       # why only severe and critical here, and not moderate?
-      new_mild_cases = (new_severe_cases + new_critical_cases) *
+      new_mild_cases = (.data$new_severe_cases + .data$new_critical_cases) *
         params$mild_i_proportion / (params$sev_i_proportion
-                                   + params$crit_i_proportion),
-      new_mod_cases = (new_severe_cases + new_critical_cases) *
+          + params$crit_i_proportion),
+      new_mod_cases = (.data$new_severe_cases + .data$new_critical_cases) *
         params$mod_i_proportion / (params$sev_i_proportion
-                                  + params$crit_i_proportion),
+          + params$crit_i_proportion),
 
       # second method also in patient calcs:
       # second possible method - needs review
       # this results in MUCH fewer cases estimated btw
-      new_mild_cases_2 = infections * params$mild_i_proportion,
-      new_mod_cases_2 = infections * params$mod_i_proportion,
-      new_severe_cases_2 = infections * params$sev_i_proportion,
-      new_critical_cases_2 = infections * params$crit_i_proportion
+      new_mild_cases_2 = .data$infections * params$mild_i_proportion,
+      new_mod_cases_2 = .data$infections * params$mod_i_proportion,
+      new_severe_cases_2 = .data$infections * params$sev_i_proportion,
+      new_critical_cases_2 = .data$infections * params$crit_i_proportion
     )
 
 
   data <- data %>%
     dplyr::mutate(
-      cum_mild_cases = cumsum(new_mild_cases),
-      cum_mod_cases = cumsum(new_mod_cases),
-      rem_mild_cases = data.table::shift(new_mild_cases,
+      cum_mild_cases = cumsum(.data$new_mild_cases),
+      cum_mod_cases = cumsum(.data$new_mod_cases),
+      rem_mild_cases = data.table::shift(.data$new_mild_cases,
         n = params$stay_mild
       ),
-      rem_mod_cases = data.table::shift(new_mod_cases,
+      rem_mod_cases = data.table::shift(.data$new_mod_cases,
         n = params$stay_mod
       ),
-      rem_severe_cases = data.table::shift(new_severe_cases,
+      rem_severe_cases = data.table::shift(.data$new_severe_cases,
         n = params$stay_sev
       ),
-      rem_critical_cases = data.table::shift(new_critical_cases,
+      rem_critical_cases = data.table::shift(.data$new_critical_cases,
         n = params$stay_crit
       )
     )
 
   data <- data %>%
     dplyr::mutate(
-      cum_rem_mild_cases = data.table::shift(cum_mild_cases,
+      cum_rem_mild_cases = data.table::shift(.data$cum_mild_cases,
         n = params$stay_mild
       ),
-      cum_rem_mod_cases = data.table::shift(cum_mod_cases,
+      cum_rem_mod_cases = data.table::shift(.data$cum_mod_cases,
         n = params$stay_mod
       ),
-      cum_rem_severe_cases = cum_severe_cases - adm_severe_cases_nocap,
-      cum_rem_critical_cases = cum_critical_cases - adm_critical_cases_nocap
+      cum_rem_severe_cases = .data$cum_severe_cases -
+        .data$adm_severe_cases_nocap,
+      cum_rem_critical_cases = .data$cum_critical_cases -
+        .data$adm_critical_cases_nocap
     )
 
   data <- data %>%
-    dplyr::mutate(sus_cases_but_negative = (new_mild_cases
-    + new_mod_cases
-      + new_severe_cases
-      + new_critical_cases) * params$num_neg_per_pos_test)
+    dplyr::mutate(sus_cases_but_negative = (.data$new_mild_cases
+      + .data$new_mod_cases
+      + .data$new_severe_cases
+      + .data$new_critical_cases) * params$num_neg_per_pos_test)
   data[is.na(data)] <- 0
 
   return(data)
