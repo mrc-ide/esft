@@ -99,12 +99,12 @@ diagnostics_weekly <- function(params,
 
   data <- data %>%
     dplyr::select(c(
-      .data$week_begins, .data$week_ends,
-      .data$tests_diagnosis_uncapped_sev_crit,
-      .data$tests_release_uncapped_sev_crit,
-      .data$tests_diagnosis_capped_sev_crit,
-      .data$tests_release_capped_sev_crit, .data$tests_mild, .data$tests_mod,
-      .data$tests_suspected, .data$testing_strategy
+      week_begins, week_ends,
+      tests_diagnosis_uncapped_sev_crit,
+      tests_release_uncapped_sev_crit,
+      tests_diagnosis_capped_sev_crit,
+      tests_release_capped_sev_crit, tests_mild, tests_mod,
+      tests_suspected, testing_strategy
     ))
 
   return(data)

@@ -82,11 +82,11 @@ hcws_weekly <- function(params, # from get_parameters
       cleaners_lab = t_labs * lab_params$hygienists_per_lab
     ) %>%
     dplyr::select(c(
-      .data$week_ends, .data$week_begins, .data$hcws_inpatient_capped,
-      .data$hcws_inpatient_uncapped, .data$cleaners_inpatient_capped,
-      .data$amb_personnel_inpatient_capped, .data$bio_eng_inpatient_capped,
-      .data$inf_caregivers_isol_uncapped, .data$lab_staff_capped,
-      .data$cleaners_lab
+      week_ends, week_begins, hcws_inpatient_capped,
+      hcws_inpatient_uncapped, cleaners_inpatient_capped,
+      amb_personnel_inpatient_capped, bio_eng_inpatient_capped,
+      inf_caregivers_isol_uncapped, lab_staff_capped,
+      cleaners_lab
     ))
 
   return(data)

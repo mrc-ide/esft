@@ -54,7 +54,6 @@ get_diagnostic_parameters <- function(overrides = list()) {
 #' @description Using country name or country code, return baseline estimates of
 #' diagnostic testing capacity provided in the WHO ESFT.
 #'
-#' @param country Country name.
 #' @param iso3c Country code, in iso3c format.
 #' @param overrides a named list of parameter values to use instead of defaults.
 #' Notably might include hologic_panther_fusion counts.
@@ -79,38 +78,9 @@ get_diagnostic_parameters <- function(overrides = list()) {
 #' reviewed by diagnostics tehcnical experts at the WHO.
 #'
 #' @export
-get_country_test_capacity <- function(country = NULL,
-                                      iso3c = NULL,
+get_country_test_capacity <- function(iso3c = NULL,
                                       overrides = list()) {
-  if (!is.null(country) && !is.null(iso3c)) {
-    # check they are the same one using the countrycodes
-    iso3c_check <- countrycode::countrycode(country,
-      origin = "country.name",
-      destination = "iso3c"
-    )
-    country_check <- countrycode::countrycode(iso3c,
-      origin = "iso3c",
-      destination = "country.name"
-    )
-    if (iso3c_check != iso3c && country_check != country) {
-      stop("Iso3c country code and country name do not match. Please check
-           input/spelling and try again.")
-    }
-  }
 
-  ## country route
-  if (!is.null(country)) {
-    country <- as.character(country)
-
-    if (!country %in% unique(esft::diagnostics$country_name)) {
-      stop("Country not found")
-    }
-
-    diagnostics <- subset(
-      esft::diagnostics,
-      diagnostics$country_name == country
-    )
-  }
 
   # iso3c route
   if (!is.null(iso3c)) {
@@ -322,13 +292,12 @@ calc_diagnostic_capacity <- function(country_diagnostic_capacity,
                                      hours_per_shift) {
   if (!(is.null(shifts_per_day))) {
     if (length(shifts_per_day) == 1) {
+      shifts_per_day <- data.frame(shifts_day = rep(shifts_per_day,
+                                                    length(throughput$platform_key)))
       shifts_per_day$platform_key <- throughput$platform_key
-      shifts_per_day$shifts_day <- rep(
-        shifts_per_day,
-        length(throughput$platform_key)
-      )
     }
-    throughput <- merge(throughput, shifts_per_day, by = "platform_key")
+    throughput <- merge(throughput, shifts_per_day, by = c("platform_key",
+                                                           "shifts_day"))
   }
   capacity <- merge(throughput, country_diagnostic_capacity)
   capacity <- merge(capacity, hours_per_shift,
@@ -338,9 +307,9 @@ calc_diagnostic_capacity <- function(country_diagnostic_capacity,
 
   capacity <- capacity %>%
     dplyr::mutate(throughput_per_day = case_when(
-      .data$hours == 8 ~ .data$throughput_8hrs,
-      .data$hours == 16 ~ .data$throughput_16hrs,
-      .data$hours == 24 ~ .data$throughput_24hrs,
+      .data$hours == 8 ~ throughput_8hrs,
+      .data$hours == 16 ~ throughput_16hrs,
+      .data$hours == 24 ~ throughput_24hrs,
       TRUE ~ NA_real_
     )) %>%
     dplyr::select(-c(

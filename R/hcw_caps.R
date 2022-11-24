@@ -60,7 +60,7 @@ hcw_caps_static <- function(params,
 #'
 #' @param params From get_country_capacity
 #' @param hwfe From WHO ESFT sheet
-#' @param data From patients_weekly
+#' @param patients From patients_weekly
 #' @param ambulanciers_per_bed Assumes 1 ambulance per 100 bed hospital w 2
 #' operators at all times (3x8 hour shifts) = (2/100)*3 = 0.06, taken from ESFT
 #' @param bio_eng_per_bed Assumes 2 biomed engineers on 8 hr shifts per 100 bed
@@ -82,19 +82,19 @@ hcw_caps_static <- function(params,
 #' @export
 hcw_caps_dynamic <- function(params, # includes specific bed counts
                              hwfe, # from who sheet
-                             data,
+                             patients,
                              ambulanciers_per_bed = 0.06,
                              bio_eng_per_bed = 0.02) {
   hygienists_per_sev_bed <- hwfe$patient_t24_sev[
     hwfe$esft_group == "Cleaner"
   ] / 8 * (
-    data$sev_beds_inuse / data$total_beds_inuse
+    patients$sev_beds_inuse / patients$total_beds_inuse
   ) * 10
 
   hygienists_per_crit_bed <- hwfe$patient_t24_crit[
     hwfe$esft_group == "Cleaner"
   ] / 8 * (
-    data$crit_beds_inuse / data$total_beds_inuse
+    patients$crit_beds_inuse / patients$total_beds_inuse
   ) * 10
 
   hygienists_per_bed <- hygienists_per_sev_bed + hygienists_per_crit_bed
@@ -105,7 +105,7 @@ hcw_caps_dynamic <- function(params, # includes specific bed counts
       hwfe$esft_group == "HCW"
     ]
   ) / 8 * (
-    sum(data$sev_beds_inuse) / sum(data$total_beds_inuse)
+    sum(patients$sev_beds_inuse) / sum(patients$total_beds_inuse)
   )
 
   hcws_per_crit_bed <- sum(
@@ -113,7 +113,7 @@ hcw_caps_dynamic <- function(params, # includes specific bed counts
       hwfe$esft_group == "HCW"
     ]
   ) / 8 * (
-    sum(data$crit_beds_inuse) / sum(data$total_beds_inuse)
+    sum(patients$crit_beds_inuse) / sum(patients$total_beds_inuse)
   )
 
   hcws_per_bed <- hcws_per_sev_bed + hcws_per_crit_bed
@@ -124,14 +124,14 @@ hcw_caps_dynamic <- function(params, # includes specific bed counts
     cleaners_inpatient_cap <- params$n_hosp_beds * hygienists_per_bed
   }
 
-  inf_caregiver_inpatient_cap <- data$total_beds_inuse *
+  inf_caregiver_inpatient_cap <- patients$total_beds_inuse *
     params$n_inf_caregivers_hosp
-  amb_personnel_inpatient_cap <- data$total_beds_inuse * ambulanciers_per_bed
-  bio_eng_inpatient_cap <- data$total_beds_inuse * bio_eng_per_bed
+  amb_personnel_inpatient_cap <- patients$total_beds_inuse * ambulanciers_per_bed
+  bio_eng_inpatient_cap <- patients$total_beds_inuse * bio_eng_per_bed
 
   hcw_caps <- data.frame(
-    week_begins = data$week_begins,
-    week_ends = data$week_ends,
+    week_begins = patients$week_begins,
+    week_ends = patients$week_ends,
     hygienists_per_bed = hygienists_per_bed,
     hygienists_per_crit_bed = hygienists_per_crit_bed,
     hygienists_per_sev_bed = hygienists_per_sev_bed,

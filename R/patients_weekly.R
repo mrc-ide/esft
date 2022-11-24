@@ -81,6 +81,7 @@ patients_weekly <- function(params,
   # basically here you take the min of the new cases by severity/num beds avail
   # and theoretically the control for time spent in bed (removal) should have
   # already been done
+  params <- merge(params, country_capacity)
 
   data <- data %>%
     dplyr::mutate(
@@ -135,14 +136,14 @@ patients_weekly <- function(params,
     )
 
   data <- data %>% dplyr::select(c(
-    .data$week_begins, .data$week_ends, .data$mild_patients_nocap,
-    .data$mod_patients_nocap, .data$sev_patients_nocap,
-    .data$crit_patients_nocap, .data$sev_beds_inuse,
-    .data$crit_beds_inuse, .data$total_beds_inuse,
-    .data$hosp_facilities_inuse, .data$rem_mild_patients,
-    .data$rem_mod_patients, .data$rem_sev_patients,
-    .data$rem_crit_patients, .data$discharged_sev_patients,
-    .data$discharged_crit_patients
+    week_begins, week_ends, mild_patients_nocap,
+    mod_patients_nocap, sev_patients_nocap,
+    crit_patients_nocap, sev_beds_inuse,
+    crit_beds_inuse, total_beds_inuse,
+    hosp_facilities_inuse, rem_mild_patients,
+    rem_mod_patients, rem_sev_patients,
+    rem_crit_patients, discharged_sev_patients,
+    discharged_crit_patients
   ))
   data[is.na(data)] <- 0
 
