@@ -1,4 +1,4 @@
-#' Load imperial forecasts
+#' @title Load imperial forecasts
 #'
 #' @description Downloads the raw imperial data from the imperial fits repo.
 #' Do not use this function to mass download data (only one url at a time
@@ -63,7 +63,7 @@ load_imperial_data <- function(warnings = FALSE, country_code = NULL,
   return(all_data)
 }
 
-#' Reads RDS files from urls
+#' @title Reads RDS files from urls
 #'
 #' @param url The url of the Rds file of the country fit from github.
 #'

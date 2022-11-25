@@ -7,7 +7,7 @@
 hcw_caps_dynamic(
   params,
   hwfe,
-  data,
+  patients,
   ambulanciers_per_bed = 0.06,
   bio_eng_per_bed = 0.02
 )
@@ -17,7 +17,7 @@ hcw_caps_dynamic(
 
 \item{hwfe}{From WHO ESFT sheet}
 
-\item{data}{From patients_weekly}
+\item{patients}{From patients_weekly}
 
 \item{ambulanciers_per_bed}{Assumes 1 ambulance per 100 bed hospital w 2
 operators at all times (3x8 hour shifts) = (2/100)*3 = 0.06, taken from ESFT}

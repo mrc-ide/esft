@@ -22,6 +22,8 @@
 #'   \item{hcws_inpatient_capped}{HCWs for inpatients, capped by reported HCWs}
 #'   \item{hcws_inpatient_uncapped}{HCWs for inpatients, uncapped - total beds
 #'   in use times number of HCWs per bed}
+#'   \item{inf_caregivers_hosp_uncapped}{Informal caregivers for hospitalized
+#'   inpatients.}
 #'   \item{cleaners_inpatient_capped}{Cleaners for inpatients, i.e. number of
 #'   beds available for COVID-19 (or if unavaiable, just number of beds) times
 #'   ideal number of cleaners ber bed}
@@ -64,6 +66,8 @@ hcws_weekly <- function(params, # from get_parameters
         .data$total_beds_inuse * .data$hcws_per_bed,
         hcw_stat_caps$hcws_inpatients_cap
       ),
+      inf_caregivers_hosp_uncapped = .data$total_beds_inuse *
+         params$n_inf_caregivers_hosp,
       cleaners_inpatient_capped = min(
         .data$total_beds_inuse * .data$hygienists_per_bed,
         .data$cleaners_inpatient_cap
@@ -83,9 +87,9 @@ hcws_weekly <- function(params, # from get_parameters
     ) %>%
     dplyr::select(c(
       week_ends, week_begins, hcws_inpatient_capped,
-      hcws_inpatient_uncapped, cleaners_inpatient_capped,
-      amb_personnel_inpatient_capped, bio_eng_inpatient_capped,
-      inf_caregivers_isol_uncapped, lab_staff_capped,
+      hcws_inpatient_uncapped, inf_caregivers_hosp_uncapped,
+      cleaners_inpatient_capped, amb_personnel_inpatient_capped,
+      bio_eng_inpatient_capped, inf_caregivers_isol_uncapped, lab_staff_capped,
       cleaners_lab
     ))
 

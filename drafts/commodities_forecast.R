@@ -2,7 +2,7 @@
 #' plus gives total
 #' maybe i should add in total cost here?
 #'
-#'I want to add in leadtime some other way. I think
+#' I want to add in leadtime some other way. I think
 #'
 #' @description
 #' Theres the issue now that I think the amount left depends on reusability
@@ -20,13 +20,14 @@ commodities_weekly <- function(params, equipment, weekly_summary) {
   # and get period for which forecasted for
   # like subset weekly summary here ?
 
-  case_management_weekly <- case_management_forecast(params, equipment, weekly_summary)
-  hygiene_weekly <- hygiene_forecast(params, equipment, weekly_summary)
-  ppe_weekly <- ppe_forecast(params, equipment, weekly_summary)
-  diagnostics_weekly <- diagnostics_forecast(params, equipment, weekly_summary)
+  case_management <- case_management_weekly(params, equipment, weekly_summary)
+  hygiene <- hygiene_weekly(equipment, hcws, patients, cases, tests,
+                                    screening_hcws)
+  ppe <- ppe_weekly(params, equipment, weekly_summary)
+  diagnostic_supplies <- diagnostic_supplies_weekly(params, equipment, weekly_summary)
 
   # maybe, get totals?
-  commodities <- rbind(case_management_weekly, hygiene_weekly, ppe_weekly, diagnostics_weekly)
+  commodities <- rbind(case_management, hygiene, ppe, diagnostics_supplies)
 }
 
 #' @title Case management weekly: accessories, consumables, and biomedical equipment
@@ -48,47 +49,89 @@ case_management_forecast <- function(params, equipment, weekly_summary) {
 #'
 #' @description
 #'
-#' @param input User input
 #' @param equipment This should be the data frame of equipment need
-#' @param weekly_summary This should be a weekly summary data.frame, containing
-#' the requisite columns
+#' @param hcws HCWs_weekly
+#' @param patients patients_weekly
+#' @param cases cases_weekly
+#' @param tests diagnostics_weekly
+#' @param screening_hcws screening_hcws_weekly
 #'
-#'
+#' @import dplyr
 #' @export
-hygiene_weekly<- function(input, equipment, hcws) {
+hygiene_weekly <- function(equipment, hcws, patients, cases, tests,
+                           screening_hcws) {
+
+  equipment <- equipment %>%
+    dplyr::mutate(
+      across(where(is.numeric), ~ replace_na(.x, 0))
+    )
   # unnecessary, but helps me think
   hygiene <- subset(equipment, equipment$group == "Hygiene")
 
-  # check for reusability - if reusable, only need one per week (?) - what it
-  # says in ESFT vs if not, need 7 per week
   reusable_multiplier <- ifelse(hygiene$reusable == TRUE, 1, 7)
 
 
-  hygiene[,c(8:24)] <- hygiene[,c(8:24)]*reusable_multiplier
-  # need to first get HCW caps into weekly summary
-  # then I can pass the HCW caps here
-  list2env(setNames(split(as.matrix(hygiene[,c(3,8:12)]),
-                          row(hygiene[,c(3,8:12)])), paste0("Row",1:4)), envir=.GlobalEnv)
+  hygiene[, c(8:24)] <- hygiene[, c(8:24)] * reusable_multiplier
 
+  amounts <- merge(hcws, hygiene)
+  amounts <- merge(amounts, tests)
+  amounts <- merge(amounts, patients)
+  amounts <- merge(amounts, screening_hcws)
 
-  chlorine <- hcws[,c("cleaners_inpatient_capped",
-                      "amb_personnel_inpatient_capped",
-                      "bio_eng_inpatient_capped")
-                   ] * t(inpatient_hcw_needs[1,c(3,5,6)])
+  amounts <- amounts %>%
+    dplyr::group_by(item) %>%
+    dplyr::mutate(
+      amount_inpatient_hcw = hcws_inpatient_capped * amount_per_inpatient_hcw_per_day +
+        cleaners_inpatient_capped * amount_per_inpatient_cleaner_per_day +
+        inf_caregivers_hosp_uncapped * amount_per_inpatient_inf_caregiver_per_day +
+        amb_personnel_inpatient_capped * amount_per_inpatient_ambworker_per_day +
+        bio_eng_inpatient_capped * amount_per_inpatient_biomed_eng_per_day,
+      amount_inpatient_patient = total_beds_inuse * amount_per_inpatient_sev_crit_patient_per_day +
+        sev_beds_inuse * amount_per_inpatient_sev_patient_per_day +
+        crit_beds_inuse * amount_per_inpatient_crit_patient_per_day,
+      amount_isolation = ifelse(
+        reusable == TRUE,
+        inf_caregivers_isol_uncapped * params$stay_mild +
+          tests_mild * params$stay_mild +
+          tests_mod * params$stay_mod,
+        inf_caregivers_isol_uncapped * amount_per_isolation_inf_caregiver_per_day * params$stay_mild +
+          tests_mild * params$stay_mild * amount_per_isolation_patient_per_day +
+          tests_mod * params$stay_mod * amount_per_isolation_patient_per_day
+      ),
+      amount_screening_hcw = ifelse(
+        reusable == TRUE,
+        (ifelse(amount_per_screening_hcw_per_day > 0,
+          screening_hcw_capped, 0
+        ) +
+          ifelse(amount_per_screening_patient_per_day > 0,
+            tests_mild + tests_mod
+          )),
+        (screening_hcw_capped * amount_per_screening_hcw_per_day +
+          tests_mod * amount_per_screening_patient_per_day * params$stay_mod +
+          tests_mild * amount_per_screening_patient_per_day * params$stay_mild
+        )
+      ),
+      amount_lab = ifelse(
+        reusable == TRUE,
+        (ifelse(amount_per_lab_tech_per_day > 0,
+                lab_staff_capped, 0) +
+           ifelse(amount_per_lab_cleaner_per_day > 0,
+                  cleaners_lab, 0)),
+        (lab_staff_capped*amount_per_lab_tech_per_day +
+           cleaners_lab*amount_per_lab_cleaner_per_day)
+      )
+      ) %>%
+    dplyr::select(c(item, week_begins, week_ends, amount_inpatient_hcw,
+             amount_inpatient_patient,amount_isolation, amount_screening_hcw,
+             amount_lab
+             ))
 
-  chlorine$total <- rowSums(chlorine, na.rm = TRUE)
-  inpatient_hcw_needs <- as.data.frame(t(hygiene[,c(3,8:12)]))
-  names(inpatient_hcw_needs) <- inpatient_hcw_needs[1,]
-  inpatient_hcw_needs <- inpatient_hcw_needs[-1,]
-  # per hcw in hospital
-    # amount per hcw or per bed per day
-    # times number of capped hcws
-    # times either reusable or non reusable multiplier
-  # per patient in hospital
+  amounts$total_amount <- rowSums(amounts[,c(4:8)])
+  amounts$category <- "hygiene"
 
-  # for isolating case
-
+  return(amounts)
 }
+
 #' @title PPE need weekly
 #'
 #' @description
@@ -101,7 +144,7 @@ hygiene_weekly<- function(input, equipment, hcws) {
 #'
 #' @export
 ppe_forecast <- function(params, equipment, weekly_summary) {
-  ppe <- subset(equipment, equipment$group== "PPE")
+  ppe <- subset(equipment, equipment$group == "PPE")
 }
 #' @title Diagnostics week
 #'
