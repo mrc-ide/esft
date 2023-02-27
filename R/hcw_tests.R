@@ -38,8 +38,8 @@ screening_hcws_weekly <- function(diagnostics_weekly,
       )
     ) %>%
     dplyr::select(c(
-      .data$week_begins, .data$week_ends, .data$screening_hcw_uncapped,
-      .data$screening_hcw_capped
+      week_begins, week_ends, screening_hcw_uncapped,
+      screening_hcw_capped
     ))
 
   return(data)
@@ -92,8 +92,8 @@ additional_testing <- function(hcws, # from hcws_weekly
       )
     ) %>%
     dplyr::select(c(
-      .data$week_begins, .data$week_ends, .data$tests_hcws_weekly,
-      .data$tests_contacts_weekly
+      week_begins, week_ends, tests_hcws_weekly,
+      tests_contacts_weekly
     ))
   return(data)
 }
@@ -138,8 +138,8 @@ total_tests <- function(tests_weekly,
       total_tests_capped = min(.data$total_tests_uncapped, max_tests * 7),
     ) %>%
     dplyr::select(c(
-      .data$week_begins, .data$week_ends,
-      .data$total_tests_capped
+      week_begins, week_ends,
+      total_tests_capped
     ))
   return(data)
 }

@@ -8,11 +8,9 @@ Estimates provided by the WHO Operations, Supply & Logistics Team and
 reviewed by diagnostics tehcnical experts at the WHO.
 }
 \usage{
-get_country_test_capacity(country = NULL, iso3c = NULL, overrides = list())
+get_country_test_capacity(iso3c = NULL, overrides = list())
 }
 \arguments{
-\item{country}{Country name.}
-
 \item{iso3c}{Country code, in iso3c format.}
 
 \item{overrides}{a named list of parameter values to use instead of defaults.

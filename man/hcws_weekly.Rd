@@ -40,6 +40,8 @@ Dataframe of summary
   \item{hcws_inpatient_capped}{HCWs for inpatients, capped by reported HCWs}
   \item{hcws_inpatient_uncapped}{HCWs for inpatients, uncapped - total beds
   in use times number of HCWs per bed}
+  \item{inf_caregivers_hosp_uncapped}{Informal caregivers for hospitalized
+  inpatients.}
   \item{cleaners_inpatient_capped}{Cleaners for inpatients, i.e. number of
   beds available for COVID-19 (or if unavaiable, just number of beds) times
   ideal number of cleaners ber bed}
