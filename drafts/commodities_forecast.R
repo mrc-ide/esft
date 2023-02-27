@@ -140,7 +140,7 @@ hygiene_weekly <- function(equipment, hcws, patients, cases, tests,
 #'
 #'
 #' @export
-case_management_forecast <- function(params, equipment, cases) {
+case_management_forecast <- function(params, equipment, patients) {
 
   equipment <- equipment %>%
     dplyr::mutate(
@@ -154,23 +154,70 @@ case_management_forecast <- function(params, equipment, cases) {
 
   case[, c(8:24)] <- case[, c(8:24)] * reusable_multiplier
 
-  amounts <- merge(hcws, hygiene)
-  # amounts <- merge(amounts, tests)
-  # amounts <- merge(amounts, patients)
-  # amounts <- merge(amounts, screening_hcws)
-  # I need:
-  # - severe patients admitted w bed caps
-  # - critical patients admitted w bed caps
-  # - sum of sev & crit patients admitted w bed caps -> only here if there is no distinct sev & crit params
-  # - severe beds in use with bed caps
-  # - crit beds in use w bed caps
-  # - sum of both beds in use w bed caps
-  # ----> now beds in use and admitted severe or critical patients capped are the SAME CALCULATION
-  # ----> essentially this will double count - but inr eality, there are only parameters for
-  # EITHER beds OR patients, not both
-  # - these are each multiplied by respective parameters
+  amounts <- merge(case, patients[,c("week_begins", "week_ends", "sev_beds_inuse",
+                                    "crit_beds_inuse", "total_beds_inuse")])
+
+  # although this looks like it will double count, in actuality,
+  # there are only parameters for either patients or beds, not both
+  amounts <- amounts %>%
+    dplyr::group_by(item) %>%
+    dplyr::mutate(
+      demand_sev_patient = sev_beds_inuse*amount_per_inpatient_sev_patient_per_day +
+          sev_beds_inuse*amount_per_inpatient_sev_bed_per_day,
+      demand_crit_patient = crit_beds_inuse*amount_per_inpatient_crit_patient_per_day +
+        crit_beds_inuse*amount_per_inpatient_crit_bed_per_day,
+      demand_sev_crit_patient = total_beds_inuse*amount_per_inpatient_sev_crit_patient_per_day +
+        total_beds_inuse*amount_per_inpatient_sev_crit_bed_per_day
+      )
+
+  # order by item and week begins, for the cumulative function
+  # amounts <- amounts[
+  #   with(amounts, order(item, week_begins)),
+  # ]
+
+  # need to add part about first week here -
+  first_amounts <- amounts %>%
+    arrange(item, week_begins) %>%
+    group_by(item) %>%
+    slice(which.min(week_begins))
+
+  first_amounts <- first_amounts %>%
+    mutate(amount_sev_patient = ceiling(demand_sev_patient),
+           amount_crit_patient = ceiling(demand_crit_patient),
+           amount_sev_crit_patient = ceiling(demand_sev_crit_patient))
+
+  amounts <- subset(amounts, amounts$week_begins != min(first_amounts$week_begins))
+  amounts <- full_join(first_amounts, amounts)
+  amounts <- amounts[
+      with(amounts, order(item, week_begins)),
+    ]
+
+  # this has to be a row wise operation
+  # of if reusable, this weeks amount = demand - previous demand
+  amounts$cum_demand_sev_patient <- ave(amounts$demand_sev_patient, amounts$item, FUN=cumsum)
+  amounts$cum_demand_crit_patient <- ave(amounts$demand_crit_patient, amounts$item, FUN=cumsum)
+  amounts$cum_demand_sev_crit_patient <- ave(amounts$demand_sev_crit_patient, amounts$item, FUN=cumsum)
+
+   amounts <- amounts %>%
+    dplyr::group_by(item) %>%
+    dplyr::mutate(
+      amount_sev_patient = ifelse(
+        reusable == TRUE & week_begins != min(week_begins),
+        max((demand_sev_patient - cum_demand_sev_patient), 0),
+        demand_sev_patient),
+      amount_crit_patient = ifelse(
+        reusable == TRUE & week_begins != min(week_begins),
+        max((demand_crit_patient - cum_demand_crit_patient), 0),
+        demand_crit_patient),
+      amount_sev_crit_patient = ifelse(
+        reusable == TRUE & week_begins != min(week_begins),
+        max((demand_sev_crit_patient - cum_demand_sev_crit_patient),0),
+        demand_sev_crit_patient)
+    )# %>%
+
+   # there is a max term in here, a max of
   # if reusable:
-  # and then find the max of 0 and the sum of items required - sum of items so far supplied
+  # and then find the max of 0 and the demand - sum of demand so far
   # if not reusable: just take the sumsof the above
 }
 
