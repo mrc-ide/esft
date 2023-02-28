@@ -132,11 +132,11 @@ hygiene_weekly <- function(equipment, hcws, patients, cases, tests,
 
 #' @title Case management weekly: accessories, consumables, and biomedical equipment
 #'
-#' @description
+#' @description in O(N^2) time. Next iteration should get rid of for loops.
 #'
 #' @param params I think this needs to be the user dashboard/input activity
 #' @param equipment This should be the data frame of equipment need
-#' @param cases I'm not sure whether to use the patients or cases dataframe
+#' @param patients
 #'
 #'
 #' @export
@@ -146,11 +146,10 @@ case_management_forecast <- function(params, equipment, patients) {
     dplyr::mutate(
       across(where(is.numeric), ~ replace_na(.x, 0))
     )
-  # unnecessary, but helps me think
+
   case <- subset(equipment, startsWith(equipment$category,"Case management"))
 
   reusable_multiplier <- ifelse(case$reusable == TRUE, 1, 7)
-
 
   case[, c(8:24)] <- case[, c(8:24)] * reusable_multiplier
 
@@ -170,12 +169,6 @@ case_management_forecast <- function(params, equipment, patients) {
         total_beds_inuse*amount_per_inpatient_sev_crit_bed_per_day
       )
 
-  # order by item and week begins, for the cumulative function
-  # amounts <- amounts[
-  #   with(amounts, order(item, week_begins)),
-  # ]
-
-  # need to add part about first week here -
   first_amounts <- amounts %>%
     arrange(item, week_begins) %>%
     group_by(item) %>%
@@ -192,33 +185,41 @@ case_management_forecast <- function(params, equipment, patients) {
       with(amounts, order(item, week_begins)),
     ]
 
-  # this has to be a row wise operation
-  # of if reusable, this weeks amount = demand - previous demand
-  amounts$cum_demand_sev_patient <- ave(amounts$demand_sev_patient, amounts$item, FUN=cumsum)
-  amounts$cum_demand_crit_patient <- ave(amounts$demand_crit_patient, amounts$item, FUN=cumsum)
-  amounts$cum_demand_sev_crit_patient <- ave(amounts$demand_sev_crit_patient, amounts$item, FUN=cumsum)
-
-   amounts <- amounts %>%
-    dplyr::group_by(item) %>%
-    dplyr::mutate(
-      amount_sev_patient = ifelse(
-        reusable == TRUE & week_begins != min(week_begins),
-        max((demand_sev_patient - cum_demand_sev_patient), 0),
-        demand_sev_patient),
-      amount_crit_patient = ifelse(
-        reusable == TRUE & week_begins != min(week_begins),
-        max((demand_crit_patient - cum_demand_crit_patient), 0),
-        demand_crit_patient),
-      amount_sev_crit_patient = ifelse(
-        reusable == TRUE & week_begins != min(week_begins),
-        max((demand_sev_crit_patient - cum_demand_sev_crit_patient),0),
-        demand_sev_crit_patient)
-    )# %>%
-
-   # there is a max term in here, a max of
-  # if reusable:
-  # and then find the max of 0 and the demand - sum of demand so far
-  # if not reusable: just take the sumsof the above
+  res <- data.frame()
+  items <- unique(amounts$item)
+  for(i in 1:length(items)){
+    df <- subset(amounts, amounts$item == items[i])
+    for(n in 1:nrow(df)){
+      amount_sev <- df$amount_sev_patient[n]
+      demand_sev <- df$demand_sev_patient[n]
+      amount_crit <- df$amount_crit_patient[n]
+      demand_crit <- df$demand_crit_patient[n]
+      amount_sev_crit <- df$amount_sev_crit_patient[n]
+      demand_sev_crit <- df$demand_sev_crit_patient[n]
+      if(is.na(amount_crit)){
+        if(df$reusable[n] == T){
+          sum_sev <- sum(df$amount_sev_patient[1:n-1])
+          amount_sev_replace <- max(ceiling(demand_sev -
+                                               sum_sev), 0)
+          sum_crit <- sum(df$amount_crit_patient[1:n-1])
+          amount_crit_replace <- max(ceiling(demand_crit -
+                                               sum_crit), 0)
+          sum_sev_crit <- sum(df$amount_sev_crit_patient[1:n-1])
+          amount_sev_crit_replace <- max(ceiling(demand_sev_crit -
+                                               sum_sev_crit), 0)
+        } else {
+          amount_sev_replace <- ceiling(demand_sev)
+          amount_crit_replace <- ceiling(demand_crit)
+          amount_sev_crit_replace <- ceiling(demand_sev_crit)
+        }
+        df$amount_sev_patient[n] <- amount_sev_replace
+        df$amount_crit_patient[n] <- amount_crit_replace
+        df$amount_sev_crit_patient[n] <- amount_sev_crit_replace
+      }
+    }
+    res <- rbind(res, df)
+  }
+  return(res)
 }
 
 #' @title PPE need weekly
