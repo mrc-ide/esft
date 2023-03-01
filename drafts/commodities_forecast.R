@@ -133,6 +133,8 @@ hygiene_weekly <- function(equipment, hcws, patients, cases, tests,
 #' @title Case management weekly: accessories, consumables, and biomedical equipment
 #'
 #' @description in O(N^2) time. Next iteration should get rid of for loops.
+#' To do: get rid of for loop for non reusable items.
+#' Can also experiment with Reduce.
 #'
 #' @param params I think this needs to be the user dashboard/input activity
 #' @param equipment This should be the data frame of equipment need
@@ -187,6 +189,7 @@ case_management_forecast <- function(params, equipment, patients) {
 
   res <- data.frame()
   items <- unique(amounts$item)
+  # split and run this only on reusable items
   for(i in 1:length(items)){
     df <- subset(amounts, amounts$item == items[i])
     for(n in 1:nrow(df)){
