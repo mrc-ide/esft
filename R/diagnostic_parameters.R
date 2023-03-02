@@ -239,6 +239,8 @@ set_testing_strategy <- function(strategy = "all",
 #' default = 4
 #' * perc_wastage_manual_test_kits - percentage wastage, only of manual test
 #' kits; default = 10 %
+#' * num_tests_manual_test_kits - number of tests in an RT-PCR manual test kit;
+#' default = 100
 #'
 #'
 #' @export
@@ -248,7 +250,8 @@ get_lab_parameters <- function(overrides = list()) {
     hygienists_per_lab = 1,
     safety_boxes_per_unit_week = 8,
     triple_packaging_per_unit = 4,
-    perc_wastage_manual_test_kits = 0.1
+    perc_wastage_manual_test_kits = 0.1,
+    num_tests_manual_test_kits = 100
   )
 
   # Override parameters with any client specified ones
@@ -322,6 +325,33 @@ calc_diagnostic_capacity <- function(country_diagnostic_capacity,
     capacity$days_week * capacity$throughput_per_day
   capacity$covid_test_capacity <- capacity$total_test_capacity *
     capacity$covid_capacity
+
+  return(capacity)
+}
+
+#' @title Get diagnostic ratios
+#'
+#' @param capacity From calculate_diagnostic_capacity.
+#' @param diagnostic_params From get_diagnostic_parameters
+#'
+#' @import dplyr
+#' @importFrom magrittr %>%
+#'
+#' @export
+test_ratio <- function(capacity, diagnostic_params) {
+
+  capacity <- capacity %>%
+    dplyr::group_by(type) %>%
+    dplyr::mutate(covid_test_capacity = sum(covid_test_capacity)) %>%
+    dplyr::select(c(type, covid_test_capacity))
+
+  capacity <- capacity[!duplicated(capacity),]
+
+  capacity$ratio <- (1 - diagnostic_params$perc_antigen_tests) * (
+    capacity$covid_test_capacity) / sum(capacity$covid_test_capacity)
+
+  capacity[nrow(capacity) + 1,] <- c("antigen",
+                                     diagnostic_params$perc_antigen_tests)
 
   return(capacity)
 }

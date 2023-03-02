@@ -171,24 +171,32 @@ case_management_forecast <- function(params, equipment, patients) {
         total_beds_inuse*amount_per_inpatient_sev_crit_bed_per_day
       )
 
+  # calculate the amounts for the first week with supplies only
   first_amounts <- amounts %>%
     arrange(item, week_begins) %>%
     group_by(item) %>%
     slice(which.min(week_begins))
 
+  # round up supplies
   first_amounts <- first_amounts %>%
     mutate(amount_sev_patient = ceiling(demand_sev_patient),
            amount_crit_patient = ceiling(demand_crit_patient),
            amount_sev_crit_patient = ceiling(demand_sev_crit_patient))
 
+  # get rid of these rows within the overall amounts dataframe
   amounts <- subset(amounts, amounts$week_begins != min(first_amounts$week_begins))
+  # substitute these rows back in
   amounts <- full_join(first_amounts, amounts)
+  # order by date and item
   amounts <- amounts[
       with(amounts, order(item, week_begins)),
     ]
 
-  res <- data.frame()
-  items <- unique(amounts$item)
+  # benchmark this
+  # df <- subset(amounts, amounts$reusable == T)
+  items <- unique(df$item)
+
+  #
   # split and run this only on reusable items
   for(i in 1:length(items)){
     df <- subset(amounts, amounts$item == items[i])
@@ -220,8 +228,16 @@ case_management_forecast <- function(params, equipment, patients) {
         df$amount_sev_crit_patient[n] <- amount_sev_crit_replace
       }
     }
-    res <- rbind(res, df)
+    res <- rbind(res, df) # this likely takes most time
   }
+
+  res <- res %>% dplyr::select(c(item, category, week_begins, week_ends, amount_sev_patient,
+                             amount_crit_patient, amount_sev_crit_patient))
+
+  res$total_amount <- rowSums(res[,c("amount_sev_patient",
+                                     "amount_crit_patient",
+                                     "amount_sev_crit_patient")])
+
   return(res)
 }
 
@@ -229,27 +245,109 @@ case_management_forecast <- function(params, equipment, patients) {
 #'
 #' @description
 #'
-#' @param params I think this needs to be the user dashboard/input activity
 #' @param equipment This should be the data frame of equipment need
-#' @param weekly_summary This should be a weekly summary data.frame, containing
-#' the requisite columns
-#'
+#' @param hcws HCWs_weekly
+#' @param patients patients_weekly
+#' @param cases cases_weekly
+#' @param tests diagnostics_weekly
+#' @param screening_hcws screening_hcws_weekly
 #'
 #' @export
-ppe_forecast <- function(params, equipment, weekly_summary) {
+ppe_forecast <- function(equipment, hcws, patients, cases, tests,
+                         screening_hcws) {
+
+  equipment <- equipment %>%
+    dplyr::mutate(
+      across(where(is.numeric), ~ replace_na(.x, 0))
+    )
+  # unnecessary, but helps me think
   ppe <- subset(equipment, equipment$group == "PPE")
+
+  reusable_multiplier <- ifelse(ppe$reusable == TRUE, 1, 7)
+
+  ppe[, c(8:24)] <- ppe[, c(8:24)] * reusable_multiplier
+
+  amounts <- merge(hcws, ppe)
+  amounts <- merge(amounts, tests)
+  amounts <- merge(amounts, patients)
+  amounts <- merge(amounts, screening_hcws)
+
+  amounts <- amounts %>%
+    dplyr::group_by(item) %>%
+    dplyr::mutate(
+      amount_inpatient_hcw = hcws_inpatient_capped * amount_per_inpatient_hcw_per_day +
+        cleaners_inpatient_capped * amount_per_inpatient_cleaner_per_day +
+        inf_caregivers_hosp_uncapped * amount_per_inpatient_inf_caregiver_per_day +
+        amb_personnel_inpatient_capped * amount_per_inpatient_ambworker_per_day +
+        bio_eng_inpatient_capped * amount_per_inpatient_biomed_eng_per_day,
+      amount_inpatient_patient = total_beds_inuse * amount_per_inpatient_sev_crit_patient_per_day +
+        sev_beds_inuse * amount_per_inpatient_sev_patient_per_day +
+        crit_beds_inuse * amount_per_inpatient_crit_patient_per_day,
+      amount_isolation = ifelse(
+        reusable == TRUE,
+        inf_caregivers_isol_uncapped * params$stay_mild +
+          tests_mild * params$stay_mild +
+          tests_mod * params$stay_mod,
+        inf_caregivers_isol_uncapped * amount_per_isolation_inf_caregiver_per_day * params$stay_mild +
+          tests_mild * params$stay_mild * amount_per_isolation_patient_per_day +
+          tests_mod * params$stay_mod * amount_per_isolation_patient_per_day
+      ),
+      amount_screening_hcw = ifelse(
+        reusable == TRUE,
+        (ifelse(amount_per_screening_hcw_per_day > 0,
+                screening_hcw_capped, 0
+        ) +
+          ifelse(amount_per_screening_patient_per_day > 0,
+                 tests_mild + tests_mod
+          )),
+        (screening_hcw_capped * amount_per_screening_hcw_per_day +
+           tests_mod * amount_per_screening_patient_per_day * params$stay_mod +
+           tests_mild * amount_per_screening_patient_per_day * params$stay_mild
+        )
+      ),
+      amount_lab = ifelse(
+        reusable == TRUE,
+        (ifelse(amount_per_lab_tech_per_day > 0,
+                lab_staff_capped, 0) +
+           ifelse(amount_per_lab_cleaner_per_day > 0,
+                  cleaners_lab, 0)),
+        (lab_staff_capped*amount_per_lab_tech_per_day +
+           cleaners_lab*amount_per_lab_cleaner_per_day)
+      )
+    ) %>%
+    dplyr::select(c(item, week_begins, week_ends, amount_inpatient_hcw,
+                    amount_inpatient_patient,amount_isolation, amount_screening_hcw,
+                    amount_lab
+    ))
+
+  amounts$total_amount <- rowSums(amounts[,c(4:8)])
+  amounts$category <- "ppe"
+
+  return(amounts)
 }
-#' @title Diagnostics week
+
+#' @title Diagnostics weekly
 #'
 #' @description
 #'
-#' @param params I think this needs to be the user dashboard/input activity
+#' @param lab_params From lab parameters
 #' @param equipment This should be the data frame of equipment need
-#' @param weekly_summary This should be a weekly summary data.frame, containing
-#' the requisite columns
+#' @param test_ratios This should be from test ratios
+#' @param tests diagnostics_weekly
+#' @param patients patients_weekly - as this has the number of hospital facilities in use
 #'
+#'
+#' PLUS I NEED USEABLE QUANTITY
 #'
 #' @export
 diagnostics_forecast <- function(params, equipment, weekly_summary) {
+
+  equipment <- equipment %>%
+    dplyr::mutate(
+      across(where(is.numeric), ~ replace_na(.x, 0))
+    )
+
+  dx <- subset(equipment, equipment$group == "Diagnostics")
+  dx$total_amount[dx$item %like% "manual PCR"] <-
 
 }
