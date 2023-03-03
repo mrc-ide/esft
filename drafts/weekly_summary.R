@@ -177,7 +177,7 @@ screening_hcws <- screening_hcws_weekly(tests, params)
 added_tests <- additional_testing(hcws, screening_hcws, params, test_strat,
                                   tests)
 n_tests <- total_tests(tests, added_tests, max_tests)
-
+test_ratios <- test_ratio(diagnostic_capacity, test_params)
 load("data/equipment.rda")
 
 

@@ -333,14 +333,14 @@ ppe_forecast <- function(equipment, hcws, patients, cases, tests,
 #' @param lab_params From lab parameters
 #' @param equipment This should be the data frame of equipment need
 #' @param test_ratios This should be from test ratios
-#' @param tests diagnostics_weekly
+#' @param total_tests total_tests from that function
 #' @param patients patients_weekly - as this has the number of hospital facilities in use
 #'
 #'
-#' PLUS I NEED USEABLE QUANTITY
 #'
 #' @export
-diagnostics_forecast <- function(params, equipment, weekly_summary) {
+diagnostics_forecast <- function(lab_params, equipment, test_ratios,
+                                 total_tests, patients) {
 
   equipment <- equipment %>%
     dplyr::mutate(
@@ -348,6 +348,29 @@ diagnostics_forecast <- function(params, equipment, weekly_summary) {
     )
 
   dx <- subset(equipment, equipment$group == "Diagnostics")
-  dx$total_amount[dx$item %like% "manual PCR"] <-
+  dx <- merge(dx, n_tests)
+  dx <- merge(dx, patients)
+  dx$total_amount <- NA
 
+  # ignore warnings
+  dx$total_amount[grep("manual PCR", dx$item)] <- dx$total_tests_capped *
+    test_ratios$ratio[test_ratios$type == "manual"] / (
+      lab_params$perc_wastage_manual_test_kits *
+        lab_params$num_tests_manual_test_kits)
+  dx$total_amount[grep("Triple packaging", dx$item)] <- dx$hosp_facilities_inuse *
+    lab_params$triple_packaging_per_unit
+  dx$total_amount[grep("Swab and Viral", dx$item)] <- dx$total_tests_capped
+  dx$total_amount[grep("high-throughput", dx$item)] <- dx$total_tests_capped *
+    test_ratios$ratio[test_ratios$type == "high_throughput"]
+  dx$total_amount[grep("RT-PCR cartridge", dx$item)] <- dx$total_tests_capped *
+    test_ratios$ratio[test_ratios$type == "near_patient"]
+  dx$total_amount[grep("Antigen Rapid Diagnostic Tests", dx$item)] <- dx$total_tests_capped *
+    test_ratios$ratio[test_ratios$type == "antigen"]
+
+  # remove NAs (keep in mind, for some equipment items we did not have calculations to copy)
+  dx <- dx[complete.cases(dx),]
+  dx <- dx %>% select(c(item, week_begins, week_ends, total_amount))
+  dx$category <- "diagnostics"
+
+  return(dx)
 }
