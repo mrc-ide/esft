@@ -33,6 +33,11 @@ equipment <- readxl::read_excel("data-raw/who_summary_data.xlsx",
 equipment$reusable <- ifelse(equipment$reusable == "No", FALSE, TRUE)
 usethis::use_data(equipment, overwrite = TRUE, internal = FALSE)
 
+# Non-Covid Essentials by HCW cadre ---------------
+noncovid <- readxl::read_excel("data-raw/who_summary_data.xlsx",
+                                sheet = "noncovid_essentials")
+noncovid$reusable <- ifelse(noncovid$reusable == "No", FALSE, TRUE)
+usethis::use_data(noncovid, overwrite = TRUE, internal = FALSE)
 
 # Pharmaceuticals ---------------------
 pharmaceuticals <- readxl::read_excel("data-raw/who_summary_data.xlsx",

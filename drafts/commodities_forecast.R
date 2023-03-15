@@ -1,8 +1,5 @@
 #' @title Commodities by week - combination of diagnostics, ppe, hygiene, treatment by week
 #' plus gives total
-#' maybe i should add in total cost here?
-#'
-#' I want to add in leadtime some other way. I think
 #'
 #' @description
 #' Theres the issue now that I think the amount left depends on reusability
@@ -194,10 +191,11 @@ case_management_forecast <- function(params, equipment, patients) {
 
   # benchmark this
   # df <- subset(amounts, amounts$reusable == T)
-  items <- unique(df$item)
+  items <- unique(amounts$item)
 
   #
   # split and run this only on reusable items
+  # if you split - 1360 FALSE, 2641 TRUE - so reduce time by a third
   for(i in 1:length(items)){
     df <- subset(amounts, amounts$item == items[i])
     for(n in 1:nrow(df)){
@@ -335,7 +333,6 @@ ppe_forecast <- function(equipment, hcws, patients, cases, tests,
 #' @param test_ratios This should be from test ratios
 #' @param total_tests total_tests from that function
 #' @param patients patients_weekly - as this has the number of hospital facilities in use
-#'
 #'
 #'
 #' @export
