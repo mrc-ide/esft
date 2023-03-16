@@ -20,6 +20,7 @@ source("R/hcws_weekly.R")
 
 load("data/who.rda")
 load("data/population.rda")
+load("data/noncovid.rda")
 load("data/hwfe.rda")
 load("data/diagnostics.rda")
 load("data/throughput.rda")

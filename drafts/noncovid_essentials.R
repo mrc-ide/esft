@@ -64,24 +64,66 @@ reference_hcw <- function(iso3c = NULL, params, who, throughput,
 #' @title Non COVID essentials
 #'
 #' @description
-#' @param params I think this needs to be the user dashboard/input activity
 #' @param noncovid This should be the data frame of equipment need
 #' @param ref_hcws This should be a weekly summary data.frame, containing
 #' the requisite columns
+#' @param forecast_length Length of forecast, in number of weeks
 #' @param days_week Either take from throughput/diagnostic_capacity or set manual
 #'
 #'
 #' @export
-noncovid_essentials_weekly <- function(params, noncovid, ref_hcws, days_week = 5) {
+noncovid_essentials_weekly <- function(noncovid, ref_hcws,
+                                       forecast_length = 12,
+                                       days_week = 5) {
 
-  hygiene <- hygiene_weekly(equipment, hcws, patients, cases, tests,
-                            screening_hcws)
-
-  case_management <- case_management_weekly(params, equipment, weekly_summary)
-
-  ppe <- ppe_weekly(params, equipment, weekly_summary)
-  diagnostic_supplies <- diagnostic_supplies_weekly(params, equipment, weekly_summary)
-
-  # maybe, get totals?
-  commodities <- rbind(case_management, hygiene, ppe, diagnostics_supplies)
+  noncovid[is.na(noncovid)] <- 0
+  noncovid <- noncovid %>%
+    mutate(
+    amount_per_noncovid_doctor = ifelse(reusable==TRUE,
+      ref_hcws$n_docs,
+      ref_hcws$n_docs * amount_per_noncovid_doctor_per_day * days_week *
+        forecast_length
+    ),
+    amount_per_noncovid_nurse = ifelse(reusable==TRUE,
+      ref_hcws$n_nurses,
+      ref_hcws$n_nurses * amount_per_noncovid_nurse_per_day * days_week *
+        forecast_length
+    ),
+    amount_per_noncovid_lab_tech = ifelse(reusable==TRUE,
+      ref_hcws$n_labs,
+      ref_hcws$n_labs * amount_per_noncovid_lab_tech_per_day * days_week *
+        forecast_length
+    ),
+    amount_per_noncovid_midwife = ifelse(reusable==TRUE,
+      ref_hcws$n_midwives,
+      ref_hcws$n_midwives * amount_per_noncovid_midwife_per_day * days_week *
+        forecast_length
+    ),
+    amount_per_noncovid_dentist = ifelse(reusable==TRUE,
+      ref_hcws$n_dentists,
+      ref_hcws$n_dentists * amount_per_noncovid_dentist_per_day * days_week *
+        forecast_length
+    ),
+    amount_per_noncovid_physio = ifelse(reusable==TRUE,
+      ref_hcws$n_physiotherapists,
+      ref_hcws$n_physiotherapists * amount_per_noncovid_physio_per_day *
+        days_week * forecast_length
+    ),
+    amount_per_noncovid_trad_comp_med = ifelse(reusable==TRUE,
+      ref_hcws$n_trad_comp_med,
+      ref_hcws$n_trad_comp_med * amount_per_noncovid_traditional_compl_per_day *
+        days_week * forecast_length
+    ),
+    amount_per_noncovid_chws = ifelse(reusable==TRUE,
+      ref_hcws$n_chws,
+      ref_hcws$n_chws * amount_per_noncovid_chw_per_day * days_week *
+        forecast_length
+    ),
+    amount_per_noncovid_pharmacists = ifelse(reusable==TRUE,
+      ref_hcws$n_pharmacists,
+      ref_hcws$n_pharmacists * amount_per_noncovid_pharmacist_per_day *
+        days_week * forecast_length
+    )
+  )
+  return(noncovid)
 }
