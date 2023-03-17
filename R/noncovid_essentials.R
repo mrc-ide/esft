@@ -73,7 +73,7 @@ reference_hcw <- function(iso3c = NULL, params, who, throughput,
 #'
 #'
 #' @export
-noncovid_essentials_weekly <- function(noncovid, ref_hcws,
+noncovid_essentials <- function(noncovid, ref_hcws,
                                        forecast_length = 12,
                                        days_week = 5) {
   noncovid[is.na(noncovid)] <- 0
