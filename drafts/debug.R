@@ -43,3 +43,22 @@ diagnostic_capacity <- calc_diagnostic_capacity(country_diagnostic_capacity =
                                                 throughput, hours_per_shift =
                                                   hours_per_shift,
                                                 shifts_per_day = 1)
+
+
+# i'm saving my microbenchmark code cuz i'm proud of it
+mbm = microbenchmark(
+  base = replace(ref_hcws, is.na(ref_hcws),
+                 overrides[match(names(ref_hcws),
+                                 names(overrides))][is.na(ref_hcws)]),
+  utils = modifyList(ref_hcws, overrides[intersect(names(overrides),
+                                                   names(which(is.na(ref_hcws))))]),
+  times=100
+)
+mbm
+
+modifyList(ref_hcws, overrides[intersect(names(overrides), names(which(is.na(ref_hcws))))])
+l1 <- replace(ref_hcws, is.na(ref_hcws),
+              overrides[match(names(ref_hcws),
+                              names(overrides))][is.na(ref_hcws)])
+a=names(ref_hcws)%in%names(overrides)&is.na(ref_hcws)
+replace(ref_hcws, a, overrides[names(which(a))])

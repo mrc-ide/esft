@@ -350,7 +350,10 @@ test_ratio <- function(capacity, diagnostic_params) {
   capacity$ratio <- (1 - diagnostic_params$perc_antigen_tests) * (
     capacity$covid_test_capacity) / sum(capacity$covid_test_capacity)
 
-  capacity[nrow(capacity) + 1,] <- c("antigen",
+  # calculate num antigen tests
+  num_antigen <- sum(capacity$covid_test_capacity)/sum(capacity$ratio) -
+    sum(capacity$covid_test_capacity)
+  capacity[nrow(capacity) + 1,] <- list("antigen", num_antigen,
                                      diagnostic_params$perc_antigen_tests)
 
   return(capacity)

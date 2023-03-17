@@ -128,10 +128,10 @@ total_tests <- function(tests_weekly,
   data <- merge(tests_weekly, additional_tests)
   data <- data %>%
     dplyr::mutate(
-      total_tests_uncapped = .data$tests_diagnosis_capped_sev_crit +
+      total_tests_uncapped = ceiling(.data$tests_diagnosis_capped_sev_crit +
         .data$tests_release_capped_sev_crit + .data$tests_mild +
         .data$tests_mod + .data$tests_suspected + .data$tests_hcws_weekly +
-        .data$tests_contacts_weekly,
+        .data$tests_contacts_weekly),
     )
   data <- data %>%
     dplyr::mutate(
