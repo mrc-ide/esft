@@ -1,10 +1,23 @@
-#'   \item{week_ends}{xyz}
- #'   \item{week_begins}{xyz}
- #'   \item{hcws_inpatient_capped}{xyz}
- #'   \item{hcws_inpatient_uncapped}{xyz}
- #'   \item{cleaners_inpatient_capped}{xyz}
- #'   \item{amb_personnel_inpatient_capped}{xyz}
- #'   \item{bio_eng_inpatient_capped}{xyz}
- #'   \item{inf_caregivers_isol_uncapped}{xyz}
- #'   \item{lab_staff_capped}{xyz}
- #'   \item{cleaners_lab}{xyz}
+#'   \item{category}{}
+ #'   \item{group}{}
+ #'   \item{item}{}
+ #'   \item{unit}{}
+ #'   \item{reusable}{}
+ #'   \item{amount_per_noncovid_doctor_per_day}{}
+ #'   \item{amount_per_noncovid_nurse_per_day}{}
+ #'   \item{amount_per_noncovid_lab_tech_per_day}{}
+ #'   \item{amount_per_noncovid_midwife_per_day}{}
+ #'   \item{amount_per_noncovid_dentist_per_day}{}
+ #'   \item{amount_per_noncovid_physio_per_day}{}
+ #'   \item{amount_per_noncovid_traditional_compl_per_day}{}
+ #'   \item{amount_per_noncovid_chw_per_day}{}
+ #'   \item{amount_per_noncovid_pharmacist_per_day}{}
+ #'   \item{amount_per_noncovid_doctor}{}
+ #'   \item{amount_per_noncovid_nurse}{}
+ #'   \item{amount_per_noncovid_lab_tech}{}
+ #'   \item{amount_per_noncovid_midwife}{}
+ #'   \item{amount_per_noncovid_dentist}{}
+ #'   \item{amount_per_noncovid_physio}{}
+ #'   \item{amount_per_noncovid_trad_comp_med}{}
+ #'   \item{amount_per_noncovid_chws}{}
+ #'   \item{amount_per_noncovid_pharmacists}{}

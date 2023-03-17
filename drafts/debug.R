@@ -44,7 +44,10 @@ diagnostic_capacity <- calc_diagnostic_capacity(country_diagnostic_capacity =
                                                   hours_per_shift,
                                                 shifts_per_day = 1)
 
-
+# also saving the name code
+sink("mylist.txt")
+cat(paste0("#'   \\item{",names(noncovid), "}{}\n"))
+sink()
 # i'm saving my microbenchmark code cuz i'm proud of it
 mbm = microbenchmark(
   base = replace(ref_hcws, is.na(ref_hcws),
