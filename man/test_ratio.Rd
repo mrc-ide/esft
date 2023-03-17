@@ -2,7 +2,7 @@
 % Please edit documentation in R/diagnostic_parameters.R
 \name{test_ratio}
 \alias{test_ratio}
-\title{Set diagnostic ratio}
+\title{Get diagnostic ratios}
 \usage{
 test_ratio(capacity, diagnostic_params)
 }
@@ -12,5 +12,5 @@ test_ratio(capacity, diagnostic_params)
 \item{diagnostic_params}{From get_diagnostic_parameters}
 }
 \description{
-Set diagnostic ratio
+Get diagnostic ratios
 }

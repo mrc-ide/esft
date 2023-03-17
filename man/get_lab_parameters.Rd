@@ -22,7 +22,9 @@ default = 8
 * triple_packaging_per_unit - WHO recommendation for sample transport;
 default = 4
 * perc_wastage_manual_test_kits - percentage wastage, only of manual test
-kits; default = 10 %}
+kits; default = 10 %
+* num_tests_manual_test_kits - number of tests in an RT-PCR manual test kit;
+default = 100}
 }
 \description{
 Sets the baseline lab parameters.

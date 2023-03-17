@@ -5,7 +5,6 @@
 #' Unclear how to work out the price setting aspect.
 #'
 #'
-#'
 #' @import dplyr
 #' @importFrom tidyselect everything
 #' @importFrom magrittr %>%
