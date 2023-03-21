@@ -112,8 +112,8 @@ diagnostics_weekly <- function(params,
 
 #' Max tests per day
 #'
-#' @description Uses the diagnostic capacity data and throughput data to
-#' calculate the max number of tests per week and per day.
+#' @description Uses the country specific diagnostic capacity estimates to
+#' calculate the max number of tests per day.
 #'
 #' @param diagnostic_capacity from calc_diagnostic_capacity
 #'

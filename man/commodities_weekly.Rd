@@ -40,6 +40,5 @@ commodities_weekly(
 \item{params}{from get_parameters}
 }
 \description{
-Commodities by week - combination of diagnostics, ppe, hygiene, treatment by week
-plus gives total
+
 }

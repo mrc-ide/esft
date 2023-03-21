@@ -16,33 +16,34 @@ A data frame with 147 rows and 23 variables:
   \item{units}{Unit in which the dosage is measured}
   \item{drug_form}{Formulation in which the drug is packages (i.e. tablet)}
   \item{price_usd}{Price per unit of drug product}
-  \item{perc_crit_patients_receiving_treatment}{Percentage of critical
-  patients receiving this treatment}
-  \item{crit_days_per_treatment_course}{Number of days per treatment course
-  for critical patients}
-  \item{crit_daily_amount}{Daily amount for critical patients}
-  \item{crit_vol_per_treatment_course}{Total volume of drug per treatment
-  course}
-  \item{crit_drug_form_per_treatment_course}{Total drug form per treatment
-  course per critical patients}
-  \item{perc_sev_patients_receiving_treatment}{Percentage of severe patients
-  receiving this treatment}
-  \item{sev_days_per_treatment_course}{Number of days per treatment course
-  for severe patients}
-  \item{sev_daily_amount}{Daily amount for severe patients}
-  \item{sev_vol_per_treatment_course}{Total volume of drug per treatment
-  course}
-  \item{sev_drug_form_per_treatment_course}{Total drug form per treatment
-  course per severe patients}
-  \item{perc_mod_patients_receiving_treatment}{Percentage of moderate
-  patients receiving this treatment}
-  \item{mod_days_per_treatment_course}{Number of days per treatment course
-  for moderate patients}
-  \item{mod_daily_amount}{Daily amount for moderate patients}
-  \item{mod_vol_per_treatment_course}{Total volume of drug per treatment
-  course}
-  \item{mod_drug_form_per_treatment_course}{Total drug form per treatment
-  course per moderate patients}
+  \item{num_days_per_crit_treatment}{Number of days per treatment course for
+  critical patients}
+  \item{daily_amount_crit}{Daily amount for critical patients}
+  \item{form_per_crit_course}{Total drug form per treatment course per
+  critical patients}
+  \item{perc_crit_treated}{Percentage of critical patients receiving this
+  treatment}
+  \item{num_days_per_sev_treatment}{Number of days per treatment course for
+  severe patients}
+  \item{daily_amount_sev}{Daily amount for severe patients}
+  \item{form_per_sev_course}{Total drug form per treatment course per severe
+  patients}
+  \item{perc_sev_treated}{Percentage of severe patients receiving this
+  treatment}
+  \item{num_days_per_mod_treatment}{Number of days per treatment course for
+  moderate patients}
+  \item{daily_amount_mod}{Daily amount for moderate patients}
+  \item{form_per_mod_course}{Total drug form per treatment course per
+  moderate patients}
+  \item{perc_mod_treated}{Percentage of moderate patients receiving this
+  treatment}
+  \item{num_days_per_mild_treatment}{Number of days per treatment course for
+  mild patients}
+  \item{daily_amount_mild}{Daily amount for mild patients}
+  \item{form_per_mild_course}{Total drug form per treatment course per mild
+  patients}
+  \item{perc_mild_treated}{Percentage of mild patients receiving this
+  treatment}
 }
 }
 \source{

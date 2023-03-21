@@ -10,6 +10,6 @@ max_tests_per_day(diagnostic_capacity)
 \item{diagnostic_capacity}{from calc_diagnostic_capacity}
 }
 \description{
-Uses the diagnostic capacity data and throughput data to
-calculate the max number of tests per week and per day.
+Uses the country specific diagnostic capacity estimates to
+calculate the max number of tests per day.
 }

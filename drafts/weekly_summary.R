@@ -25,6 +25,7 @@ load("data/hwfe.rda")
 load("data/diagnostics.rda")
 load("data/throughput.rda")
 load("data/hours_per_shift.rda")
+load("data/pharmaceuticals.rda")
 
 all <- readRDS("data-raw/all.Rds")
 
@@ -150,7 +151,7 @@ get_country_test_capacity <- function(iso3c = NULL,
 test_strat <- set_testing_strategy()
 params <- get_parameters()
 test_params <- get_diagnostic_parameters()
-hcw_caps_stat <- hcw_caps_static(params, throughput)
+hcw_caps_stat <- hcw_caps_static(params, capacity, throughput)
 lab_params <- get_lab_parameters()
 
 # capacity functions

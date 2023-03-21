@@ -4,10 +4,12 @@
 \alias{hcw_caps_static}
 \title{Static HCW Caps}
 \usage{
-hcw_caps_static(params, throughput, cap_lab_staff = FALSE)
+hcw_caps_static(params, capacity, throughput, cap_lab_staff = FALSE)
 }
 \arguments{
-\item{params}{Country capacity params, get_country_capacity}
+\item{params}{From get_parameters}
+
+\item{capacity}{Country capacity, get_country_capacity}
 
 \item{throughput}{Throughput dataframe, from r data file - can be altered}
 
