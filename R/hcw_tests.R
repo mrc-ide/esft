@@ -139,7 +139,7 @@ total_tests <- function(tests_weekly,
     ) %>%
     dplyr::select(c(
       week_begins, week_ends,
-      total_tests_capped
+      total_tests_capped, total_tests_uncapped
     ))
   return(data)
 }

@@ -3,7 +3,8 @@
 #' @description This function calculates the static HCW caps found in the
 #' `Weekly Summary` in the ESFT.
 #'
-#' @param params Country capacity params, get_country_capacity
+#' @param params From get_parameters
+#' @param capacity Country capacity, get_country_capacity
 #' @param throughput Throughput dataframe, from r data file - can be altered
 #' @param cap_lab_staff TRUE/FALSE. Option to set a cap on lab staff based on
 #' percent of diagnostic machinery allocated to COVID
@@ -19,13 +20,14 @@
 #'
 #' @export
 hcw_caps_static <- function(params,
+                            capacity,
                             throughput,
                             cap_lab_staff = FALSE) {
   # add exists part here
 
-  hcws_inpatients_cap <- params$perc_hcws_treat_covid * params$n_hcws
+  hcws_inpatients_cap <- params$perc_hcws_treat_covid * capacity$n_hcws
   # n_hcws = num nurses + num doctors
-  hcws_screening_cap <- params$perc_hcws_screen_covid * params$n_hcws
+  hcws_screening_cap <- params$perc_hcws_screen_covid * capacity$n_hcws
 
   # calculating average covid capacity
   covid_capacity_high_throughput <- mean(
@@ -39,14 +41,14 @@ hcw_caps_static <- function(params,
   )
 
   if (cap_lab_staff == FALSE) {
-    lab_staff <- params$n_labs
+    lab_staff <- capacity$n_labs
   } else {
     lab_cap <- mean(
       covid_capacity_high_throughput,
       covid_capacity_near_patient,
       covid_capacity_manual
     )
-    lab_staff <- params$n_labs * lab_cap
+    lab_staff <- capacity$n_labs * lab_cap
   }
   hcw_lab_caps <- list(
     hcws_inpatients_cap = hcws_inpatients_cap,

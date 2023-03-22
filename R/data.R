@@ -181,33 +181,34 @@
 #'   \item{units}{Unit in which the dosage is measured}
 #'   \item{drug_form}{Formulation in which the drug is packages (i.e. tablet)}
 #'   \item{price_usd}{Price per unit of drug product}
-#'   \item{perc_crit_patients_receiving_treatment}{Percentage of critical
-#'   patients receiving this treatment}
-#'   \item{crit_days_per_treatment_course}{Number of days per treatment course
-#'   for critical patients}
-#'   \item{crit_daily_amount}{Daily amount for critical patients}
-#'   \item{crit_vol_per_treatment_course}{Total volume of drug per treatment
-#'   course}
-#'   \item{crit_drug_form_per_treatment_course}{Total drug form per treatment
-#'   course per critical patients}
-#'   \item{perc_sev_patients_receiving_treatment}{Percentage of severe patients
-#'   receiving this treatment}
-#'   \item{sev_days_per_treatment_course}{Number of days per treatment course
-#'   for severe patients}
-#'   \item{sev_daily_amount}{Daily amount for severe patients}
-#'   \item{sev_vol_per_treatment_course}{Total volume of drug per treatment
-#'   course}
-#'   \item{sev_drug_form_per_treatment_course}{Total drug form per treatment
-#'   course per severe patients}
-#'   \item{perc_mod_patients_receiving_treatment}{Percentage of moderate
-#'   patients receiving this treatment}
-#'   \item{mod_days_per_treatment_course}{Number of days per treatment course
-#'   for moderate patients}
-#'   \item{mod_daily_amount}{Daily amount for moderate patients}
-#'   \item{mod_vol_per_treatment_course}{Total volume of drug per treatment
-#'   course}
-#'   \item{mod_drug_form_per_treatment_course}{Total drug form per treatment
-#'   course per moderate patients}
+#'   \item{num_days_per_crit_treatment}{Number of days per treatment course for
+#'   critical patients}
+#'   \item{daily_amount_crit}{Daily amount for critical patients}
+#'   \item{form_per_crit_course}{Total drug form per treatment course per
+#'   critical patients}
+#'   \item{perc_crit_treated}{Percentage of critical patients receiving this
+#'   treatment}
+#'   \item{num_days_per_sev_treatment}{Number of days per treatment course for
+#'   severe patients}
+#'   \item{daily_amount_sev}{Daily amount for severe patients}
+#'   \item{form_per_sev_course}{Total drug form per treatment course per severe
+#'   patients}
+#'   \item{perc_sev_treated}{Percentage of severe patients receiving this
+#'   treatment}
+#'   \item{num_days_per_mod_treatment}{Number of days per treatment course for
+#'   moderate patients}
+#'   \item{daily_amount_mod}{Daily amount for moderate patients}
+#'   \item{form_per_mod_course}{Total drug form per treatment course per
+#'   moderate patients}
+#'   \item{perc_mod_treated}{Percentage of moderate patients receiving this
+#'   treatment}
+#'   \item{num_days_per_mild_treatment}{Number of days per treatment course for
+#'   mild patients}
+#'   \item{daily_amount_mild}{Daily amount for mild patients}
+#'   \item{form_per_mild_course}{Total drug form per treatment course per mild
+#'   patients}
+#'   \item{perc_mild_treated}{Percentage of mild patients receiving this
+#'   treatment}
 #' }
 #' @source \url{https://www.who.int/publications/i/item/WHO-2019-nCoV-Tools-Essential_forecasting-2022.1}
 "pharmaceuticals"
@@ -369,3 +370,36 @@
 #'   \item{covid_capacity}{Capacity per machine for covid cases}
 #' }
 "throughput"
+
+#' @title Non-COVID Essentials
+#'
+#' @format A data frame with 6 rows and 23 variables.
+#' \describe{
+#'   \item{category}{Equipment type category: testing, infection prevention &
+#'   control (IPC), case management - biomedical equipment, or case management
+#'   - accessories & consumables.}
+#'   \item{group}{Sub-categories of groups within each category.}
+#'   \item{item}{Item name, with details}
+#'   \item{unit}{Unit of measurement of the item}
+#'   \item{reusable}{TRUE/FALSE: Is this item reusable or not.}
+#'   \item{amount_per_noncovid_doctor_per_day}{Amount required per medical
+#'   doctor not associated with the COVID-19 response per day.}
+#'   \item{amount_per_noncovid_nurse_per_day}{Amount required per nurse
+#'   not associated with the COVID-19 response per day.}
+#'   \item{amount_per_noncovid_lab_tech_per_day}{Amount required per laboratory
+#'   scientist and/or technician not associated with the COVID-19 response per
+#'   day.}
+#'   \item{amount_per_noncovid_midwife_per_day}{Amount required per midwife per
+#'   day.}
+#'   \item{amount_per_noncovid_dentist_per_day}{Amount required per dentist per
+#'   day.}
+#'   \item{amount_per_noncovid_physio_per_day}{Amount required per
+#'   physiotherapist per day.}
+#'   \item{amount_per_noncovid_traditional_compl_per_day}{Amount required per
+#'   traditional and complementary medical personnel per day.}
+#'   \item{amount_per_noncovid_chw_per_day}{Amount required per community health
+#'   worker (CHW) per day.}
+#'   \item{amount_per_noncovid_pharmacist_per_day}{Amount required per
+#'   pharmacist per day.}
+#'}
+"noncovid"

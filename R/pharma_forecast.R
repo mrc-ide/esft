@@ -6,7 +6,6 @@
 #'
 #'
 #' @import dplyr
-#' @importFrom tidyselect everything
 #' @importFrom magrittr %>%
 #'
 #' @export
