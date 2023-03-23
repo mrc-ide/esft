@@ -67,7 +67,7 @@ hcws_weekly <- function(params, # from get_parameters
         hcw_stat_caps$hcws_inpatients_cap
       ),
       inf_caregivers_hosp_uncapped = .data$total_beds_inuse *
-         params$n_inf_caregivers_hosp,
+        params$n_inf_caregivers_hosp,
       cleaners_inpatient_capped = min(
         .data$total_beds_inuse * .data$hygienists_per_bed,
         .data$cleaners_inpatient_cap

@@ -44,8 +44,7 @@ diagnostics_weekly <- function(params,
                                patients, # from patients weekly
                                cases, # from cases weekly
                                diagnostic_parameters,
-                               testing_strategy = "all"
-) {
+                               testing_strategy = "all") {
   data <- merge(patients, cases)
   params <- merge(params, diagnostic_parameters)
 
@@ -83,13 +82,13 @@ diagnostics_weekly <- function(params,
         dplyr::mutate(
           tests_mild =
             .data$new_mild_cases * params$tests_diagnosis_mild_mod *
-            params$perc_tested_mild_mod,
+              params$perc_tested_mild_mod,
           tests_mod =
             .data$new_mod_cases * params$tests_diagnosis_mild_mod *
-            params$perc_tested_mild_mod,
+              params$perc_tested_mild_mod,
           tests_suspected =
             .data$sus_cases_but_negative * params$tests_diagnosis_mild_mod *
-            params$perc_tested_mild_mod,
+              params$perc_tested_mild_mod,
           testing_strategy = testing_strategy
         )
     } else {

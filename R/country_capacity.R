@@ -34,7 +34,6 @@
 #' @export
 get_country_capacity <- function(iso3c = NULL,
                                  overrides = list()) {
-
   # iso3c route
   if (!is.null(iso3c)) {
     iso3c <- as.character(iso3c)
