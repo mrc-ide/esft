@@ -1,5 +1,8 @@
 library(shiny)
 library(markdown)
+library(rstudioapi)
+library(esft)
+# devtools::install_github("mrc-ide/esft")
 
 navbarPage("ESFT",
            tabPanel("Inputs and Parameters",

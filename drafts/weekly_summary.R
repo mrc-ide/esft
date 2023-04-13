@@ -167,6 +167,10 @@ t_labs <- total_labs(diagnostic_capacity)
 max_tests <- max_tests_per_day(diagnostic_capacity)
 
 afg_data<-subset(all, all$iso3c == "AFG")
+afg_data <- subset(afg_data, afg_data$scenario == "Maintain Status Quo")
+
+
+afg_data <- subset(afg_data, afg_data$date >= as.Date("2022-01-02"))
 cases <- cases_weekly(params, capacity, test_strategy_params=test_strat,
                       data=afg_data)
 patients <- patients_weekly(params, capacity, data = cases)

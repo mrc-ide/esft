@@ -1,12 +1,10 @@
 #
-# This is the server logic of a Shiny web application. You can run the
-# application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
-load("../data/who.rda")
+# Current error: no package called esft
+# maybe have to build package first ?
+# changed the visibility that helps
+# but i would like to get rid of the dependencies, to make it actulaly easier
+# setwd(dirname(getActiveDocumentContext()$path))
+# load("../data/who.rda")
 
 function(input, output, session) {
   output$parameters <- renderUI({
