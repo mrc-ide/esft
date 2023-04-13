@@ -132,7 +132,7 @@ cases_weekly <- function(params, # from get_parameters
       ICU_demand = max(.data$ICU_demand, na.rm = TRUE),
       hospital_incidence = sum(.data$hospital_incidence, na.rm = TRUE),
       ICU_incidence = sum(.data$ICU_incidence, na.rm = TRUE),
-      infections = data.table::last(.data$infections),
+      infections = sum(.data$infections, na.rm=TRUE),
       cumulative_infections = data.table::last(.data$cumulative_infections)
     )
 
@@ -144,6 +144,7 @@ cases_weekly <- function(params, # from get_parameters
       new_severe_cases = .data$hospital_incidence,
       cum_critical_cases = cumsum(.data$ICU_incidence),
       new_critical_cases = .data$ICU_incidence,
+      # these are no longer fine
       adm_severe_cases_nocap = .data$hospital_demand,
       adm_critical_cases_nocap = .data$ICU_demand
     )
