@@ -24,7 +24,6 @@ reference_hcw <- function(iso3c = NULL, params, who, throughput,
                             n_chws = 245,
                             n_pharmacists = 818
                           )) {
-
   # iso3c route
   if (!is.null(iso3c)) {
     iso3c <- as.character(iso3c)
@@ -74,8 +73,8 @@ reference_hcw <- function(iso3c = NULL, params, who, throughput,
 #'
 #' @export
 noncovid_essentials <- function(noncovid, ref_hcws,
-                                       forecast_length = 12,
-                                       days_week = 5) {
+                                forecast_length = 12,
+                                days_week = 5) {
   noncovid[is.na(noncovid)] <- 0
   noncovid <- noncovid %>%
     dplyr::mutate(

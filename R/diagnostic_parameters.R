@@ -80,8 +80,6 @@ get_diagnostic_parameters <- function(overrides = list()) {
 #' @export
 get_country_test_capacity <- function(iso3c = NULL,
                                       overrides = list()) {
-
-
   # iso3c route
   if (!is.null(iso3c)) {
     iso3c <- as.character(iso3c)
@@ -295,12 +293,16 @@ calc_diagnostic_capacity <- function(country_diagnostic_capacity,
                                      hours_per_shift) {
   if (!(is.null(shifts_per_day))) {
     if (length(shifts_per_day) == 1) {
-      shifts_per_day <- data.frame(shifts_day = rep(shifts_per_day,
-                                                    length(throughput$platform_key)))
+      shifts_per_day <- data.frame(shifts_day = rep(
+        shifts_per_day,
+        length(throughput$platform_key)
+      ))
       shifts_per_day$platform_key <- throughput$platform_key
     }
-    throughput <- merge(throughput, shifts_per_day, by = c("platform_key",
-                                                           "shifts_day"))
+    throughput <- merge(throughput, shifts_per_day, by = c(
+      "platform_key",
+      "shifts_day"
+    ))
   }
   capacity <- merge(throughput, country_diagnostic_capacity)
   capacity <- merge(capacity, hours_per_shift,
@@ -339,22 +341,23 @@ calc_diagnostic_capacity <- function(country_diagnostic_capacity,
 #'
 #' @export
 test_ratio <- function(capacity, diagnostic_params) {
-
   capacity <- capacity %>%
     dplyr::group_by(type) %>%
     dplyr::mutate(covid_test_capacity = sum(covid_test_capacity)) %>%
     dplyr::select(c(type, covid_test_capacity))
 
-  capacity <- capacity[!duplicated(capacity),]
+  capacity <- capacity[!duplicated(capacity), ]
 
   capacity$ratio <- (1 - diagnostic_params$perc_antigen_tests) * (
     capacity$covid_test_capacity) / sum(capacity$covid_test_capacity)
 
   # calculate num antigen tests
-  num_antigen <- sum(capacity$covid_test_capacity)/sum(capacity$ratio) -
+  num_antigen <- sum(capacity$covid_test_capacity) / sum(capacity$ratio) -
     sum(capacity$covid_test_capacity)
-  capacity[nrow(capacity) + 1,] <- list("antigen", num_antigen,
-                                     diagnostic_params$perc_antigen_tests)
+  capacity[nrow(capacity) + 1, ] <- list(
+    "antigen", num_antigen,
+    diagnostic_params$perc_antigen_tests
+  )
 
   return(capacity)
 }
@@ -372,7 +375,7 @@ total_labs <- function(capacity) {
     capacity$modules_activated[capacity$platform_key == "abbott_m2000"],
     capacity$modules_activated[capacity$platform_key == "hologic_panther"],
     capacity$modules_activated[capacity$platform_key ==
-                                 "hologic_panther_fusion"],
+      "hologic_panther_fusion"],
     capacity$modules_activated[capacity$platform_key == "manual"]
   ) / 3 +
     capacity$modules_activated[capacity$platform_key == "genexpert"] / 4

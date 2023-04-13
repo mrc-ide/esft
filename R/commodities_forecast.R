@@ -78,9 +78,9 @@ hygiene_forecast <- function(equipment, hcws, patients, cases, tests,
         amount_per_inpatient_hcw_per_day +
         cleaners_inpatient_capped * amount_per_inpatient_cleaner_per_day +
         inf_caregivers_hosp_uncapped *
-        amount_per_inpatient_inf_caregiver_per_day +
+          amount_per_inpatient_inf_caregiver_per_day +
         amb_personnel_inpatient_capped *
-        amount_per_inpatient_ambworker_per_day +
+          amount_per_inpatient_ambworker_per_day +
         bio_eng_inpatient_capped * amount_per_inpatient_biomed_eng_per_day,
       amount_inpatient_patient = total_beds_inuse *
         amount_per_inpatient_sev_crit_patient_per_day +
@@ -193,8 +193,10 @@ case_management_forecast <- function(params, equipment, patients) {
     )
 
   # get rid of these rows within the overall amounts dataframe
-  amounts <- subset(amounts,
-                    amounts$week_begins != min(first_amounts$week_begins))
+  amounts <- subset(
+    amounts,
+    amounts$week_begins != min(first_amounts$week_begins)
+  )
   # substitute these rows back in
   amounts <- full_join(first_amounts, amounts)
   # order by date and item
@@ -293,9 +295,9 @@ ppe_forecast <- function(equipment, hcws, patients, cases, tests,
         amount_per_inpatient_hcw_per_day +
         cleaners_inpatient_capped * amount_per_inpatient_cleaner_per_day +
         inf_caregivers_hosp_uncapped *
-        amount_per_inpatient_inf_caregiver_per_day +
+          amount_per_inpatient_inf_caregiver_per_day +
         amb_personnel_inpatient_capped *
-        amount_per_inpatient_ambworker_per_day +
+          amount_per_inpatient_ambworker_per_day +
         bio_eng_inpatient_capped * amount_per_inpatient_biomed_eng_per_day,
       amount_inpatient_patient = total_beds_inuse *
         amount_per_inpatient_sev_crit_patient_per_day +
@@ -379,7 +381,7 @@ diagnostics_forecast <- function(lab_params, equipment, test_ratios,
         lab_params$num_tests_manual_test_kits)
   dx$total_amount[grep("Triple packaging", dx$item)] <-
     dx$hosp_facilities_inuse *
-    lab_params$triple_packaging_per_unit
+      lab_params$triple_packaging_per_unit
   dx$total_amount[grep("Swab and Viral", dx$item)] <- dx$total_tests_capped
   dx$total_amount[grep("high-throughput", dx$item)] <- dx$total_tests_capped *
     test_ratios$ratio[test_ratios$type == "high_throughput"]
@@ -387,7 +389,7 @@ diagnostics_forecast <- function(lab_params, equipment, test_ratios,
     test_ratios$ratio[test_ratios$type == "near_patient"]
   dx$total_amount[grep("Antigen Rapid Diagnostic Tests", dx$item)] <-
     dx$total_tests_capped *
-    test_ratios$ratio[test_ratios$type == "antigen"]
+      test_ratios$ratio[test_ratios$type == "antigen"]
 
   # remove NAs (keep in mind, for some equipment items we did not have calculations to copy)
   dx <- dx[complete.cases(dx), ]

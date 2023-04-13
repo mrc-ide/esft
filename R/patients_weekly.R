@@ -118,7 +118,8 @@ patients_weekly <- function(params,
         n = params$stay_mild
       ),
       rem_mod_patients = data.table::shift(.data$new_mod_cases,
-                                           n = params$stay_mod),
+        n = params$stay_mod
+      ),
       rem_sev_patients = .data$cum_rem_severe_cases -
         data.table::shift(.data$cum_rem_severe_cases, n = 1),
       rem_crit_patients = .data$cum_rem_critical_cases -

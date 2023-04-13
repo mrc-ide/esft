@@ -401,5 +401,5 @@
 #'   worker (CHW) per day.}
 #'   \item{amount_per_noncovid_pharmacist_per_day}{Amount required per
 #'   pharmacist per day.}
-#'}
+#' }
 "noncovid"

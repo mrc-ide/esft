@@ -36,10 +36,11 @@ user_input <- function(overrides = list()) {
 
   for (name in names(overrides)) {
     if (!(name %in% names(input))) {
-      stop(paste("unknown input parameter", name, sep =" "))
+      stop(paste("unknown input parameter", name, sep = " "))
     }
     input[[name]] <- overrides[[name]]
   }
 
   input
 }
+
