@@ -27,10 +27,10 @@
 #'   \item{tests_release_capped_sev_crit}{Tests for release for severe and
 #'   critical patients capped by hospital capacity and IFR/number of severe and
 #'   critical patients discharged from hospital}
-#'   \item{tests_mild}{Number of tests for mild patient diagnosis, given testing
-#'   strategy}
 #'   \item{tests_mod}{Number of tests for moderate patient diagnosis, given
 #'   testing strategy}
+#'   \item{tests_mild}{Number of tests for mild patient diagnosis, given testing
+#'   strategy}
 #'   \item{tests_suspected}{Number of tests for suspected but negative cases}
 #'   \item{testing_strategy}{Testing strategy, string}
 #' }
@@ -59,8 +59,8 @@ diagnostics_weekly <- function(params,
           .data$rem_crit_patients * (
             1 - params$ifr_crit) * params$tests_release_sev_crit,
       tests_diagnosis_capped_sev_crit =
-        (.data$adm_severe_cases_cap +
-          .data$adm_critical_cases_cap) * params$tests_diagnosis_sev_crit,
+        (.data$sev_beds_inuse +
+          .data$crit_beds_inuse) * params$tests_diagnosis_sev_crit,
       tests_release_capped_sev_crit =
         .data$discharged_sev_patients * (
           1 - params$ifr_sev) * params$tests_release_sev_crit +
@@ -102,7 +102,7 @@ diagnostics_weekly <- function(params,
       tests_diagnosis_uncapped_sev_crit,
       tests_release_uncapped_sev_crit,
       tests_diagnosis_capped_sev_crit,
-      tests_release_capped_sev_crit, tests_mild, tests_mod,
+      tests_release_capped_sev_crit, tests_mod, tests_mild,
       tests_suspected, testing_strategy
     ))
 

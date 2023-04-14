@@ -33,56 +33,32 @@
 #'   include those who already have access to a bed.}
 #'   \item{infections}{Estimated number of new infections, from model fits}
 #'   \item{cumulative_infections}{Cumulative number of infections}
-#'   \item{cum_severe_cases}{Cumulative severe cases per week as defined by the
-#'   ESFT: cumulative hospital incidence}
-#'   \item{new_severe_cases}{New severe cases per week as defined by the ESFT:
-#'   hospital incidence that week}
-#'   \item{cum_critical_cases}{Cumulative critical cases per week as defined by
-#'   the ESFT: cumulative ICU incidence}
 #'   \item{new_critical_cases}{New critical cases per week as defined by
 #'   the ESFT: new ICU incidence}
-#'   \item{adm_severe_cases_nocap}{Admitted severe cases per week = hospital
-#'   demand}
-#'   \item{adm_critical_cases_nocap}{Admitted critical cases per week - ICU
-#'   demand}
-#'   \item{adm_severe_cases_cap}{Hospital incidence, capped by severe bed
-#'   availability}
-#'   \item{adm_critical_cases_cap}{ICU incidence, capped by critical bed
-#'   availability}
-#'   \item{new_mild_cases}{New mild cases every week, found by doing a
-#'   transformation of the critical and severe cases and multiplying by the mild
-#'   case proportion}
+#'   \item{new_severe_cases}{New severe cases per week as defined by the ESFT:
+#'   hospital incidence that week}
 #'   \item{new_mod_cases}{New moderate cases every week, found by doing a
 #'   transformation of the critical and severe cases and multiplying by the
 #'   moderate case proportion}
-#'   \item{new_mild_cases_2}{New mild cases, alternative calculation. Multiplies
-#'   the infections per week times the mild proportion.}
-#'   \item{new_mod_cases_2}{New moderate cases, alternative calculation.
-#'   Multiplies the infections per week times the mild proportion.}
-#'   \item{new_severe_cases_2}{New severe cases, alternative calculation.
-#'   Multiplies the infections per week times the mild proportion.}
-#'   \item{new_critical_cases_2}{New critical cases, alternative calculation.
-#'   Multiplies the infections per week times the mild proportion.}
-#'   \item{cum_mild_cases}{Cumulative mild cases, using the first mild case
-#'   calculation}
+#'   \item{new_mild_cases}{New mild cases every week, found by doing a
+#'   transformation of the critical and severe cases and multiplying by the mild
+#'   case proportion}
+#'   \item{cum_critical_cases}{Cumulative critical cases per week as defined by
+#'   the ESFT: cumulative ICU incidence}
+#'   \item{cum_severe_cases}{Cumulative severe cases per week as defined by the
+#'   ESFT: cumulative hospital incidence}
 #'   \item{cum_mod_cases}{Cumulative moderate cases, using the first moderate
 #'   case calculation}
-#'   \item{rem_mild_cases}{Mild cases who have completed their isolation,
-#'   using the average length of stay for mild cases}
-#'   \item{rem_mod_cases}{Moderate cases who have completed their isolation,
-#'   using the average length of stay for moderate cases}
-#'   \item{rem_severe_cases}{Severe cases who have completed their hospital
-#'   stay, using the average length of stay for severe cases}
+#'   \item{cum_mild_cases}{Cumulative mild cases, using the first mild case
+#'   calculation}
 #'   \item{rem_critical_cases}{Critical cases who have completed their hospital
 #'   stay, using the average length of stay for critical cases}
-#'   \item{cum_rem_mild_cases}{Cumulative mild cases who have completed their
-#'   isolation using the average length of stay for mild cases}
-#'   \item{cum_rem_mod_cases}{Cumulative moderate cases who have completed their
-#'   isolation using the average length of stay for moderate cases}
-#'   \item{cum_rem_severe_cases}{Cumulative severe cases - admitted severe cases
-#'   per week with no cap}
-#'   \item{cum_rem_critical_cases}{Cumulative critical cases - admitted critical
-#'   cases per week with no cap}
+#'   \item{rem_severe_cases}{Severe cases who have completed their hospital
+#'   stay, using the average length of stay for severe cases}
+#'   \item{rem_mod_cases}{Moderate cases who have completed their isolation,
+#'   using the average length of stay for moderate cases}
+#'   \item{rem_mild_cases}{Mild cases who have completed their isolation,
+#'   using the average length of stay for mild cases}
 #'   \item{sus_cases_but_negative}{Sum of all new cases multiplied by the
 #'   number of negative tests per positive case}
 #' }
@@ -132,7 +108,7 @@ cases_weekly <- function(params, # from get_parameters
       ICU_demand = max(.data$ICU_demand, na.rm = TRUE),
       hospital_incidence = sum(.data$hospital_incidence, na.rm = TRUE),
       ICU_incidence = sum(.data$ICU_incidence, na.rm = TRUE),
-      infections = sum(.data$infections, na.rm=TRUE),
+      infections = sum(.data$infections, na.rm = TRUE),
       cumulative_infections = data.table::last(.data$cumulative_infections)
     )
 
@@ -140,75 +116,40 @@ cases_weekly <- function(params, # from get_parameters
 
   data <- data %>%
     dplyr::mutate(
-      cum_severe_cases = cumsum(.data$hospital_incidence),
-      new_severe_cases = .data$hospital_incidence,
-      cum_critical_cases = cumsum(.data$ICU_incidence),
       new_critical_cases = .data$ICU_incidence,
-      # these are no longer fine
-      adm_severe_cases_nocap = .data$hospital_demand,
-      adm_critical_cases_nocap = .data$ICU_demand
+      new_severe_cases = .data$hospital_incidence
     )
 
   data <- data %>%
     dplyr::mutate(
-      adm_severe_cases_cap =
-        ifelse(.data$hospital_incidence < params$severe_beds_covid,
-          .data$hospital_incidence, params$severe_beds_covid
-        ),
-      adm_critical_cases_cap = ifelse(
-        .data$ICU_incidence < params$crit_beds_covid,
-        .data$ICU_incidence, params$crit_beds_covid
-      ),
-
       # moderate and mild cases, method in patient calcs:
       # why only severe and critical here, and not moderate?
-      new_mild_cases = (.data$new_severe_cases + .data$new_critical_cases) *
-        params$mild_i_proportion / (params$sev_i_proportion
-          + params$crit_i_proportion),
       new_mod_cases = (.data$new_severe_cases + .data$new_critical_cases) *
         params$mod_i_proportion / (params$sev_i_proportion
           + params$crit_i_proportion),
-
-      # second method also in patient calcs:
-      # second possible method - needs review
-      # this results in MUCH fewer cases estimated btw
-      new_mild_cases_2 = .data$infections * params$mild_i_proportion,
-      new_mod_cases_2 = .data$infections * params$mod_i_proportion,
-      new_severe_cases_2 = .data$infections * params$sev_i_proportion,
-      new_critical_cases_2 = .data$infections * params$crit_i_proportion
+      new_mild_cases = (.data$new_severe_cases + .data$new_critical_cases) *
+        params$mild_i_proportion / (params$sev_i_proportion
+          + params$crit_i_proportion)
     )
-
 
   data <- data %>%
     dplyr::mutate(
-      cum_mild_cases = cumsum(.data$new_mild_cases),
+      cum_critical_cases = cumsum(.data$ICU_incidence),
+      cum_severe_cases = cumsum(.data$hospital_incidence),
       cum_mod_cases = cumsum(.data$new_mod_cases),
-      rem_mild_cases = data.table::shift(.data$new_mild_cases,
-        n = params$stay_mild
-      ),
-      rem_mod_cases = data.table::shift(.data$new_mod_cases,
-        n = params$stay_mod
+      cum_mild_cases = cumsum(.data$new_mild_cases),
+      rem_critical_cases = data.table::shift(.data$new_critical_cases,
+        n = params$stay_crit
       ),
       rem_severe_cases = data.table::shift(.data$new_severe_cases,
         n = params$stay_sev
       ),
-      rem_critical_cases = data.table::shift(.data$new_critical_cases,
-        n = params$stay_crit
-      )
-    )
-
-  data <- data %>%
-    dplyr::mutate(
-      cum_rem_mild_cases = data.table::shift(.data$cum_mild_cases,
-        n = params$stay_mild
-      ),
-      cum_rem_mod_cases = data.table::shift(.data$cum_mod_cases,
+      rem_mod_cases = data.table::shift(.data$new_mod_cases,
         n = params$stay_mod
       ),
-      cum_rem_severe_cases = .data$cum_severe_cases -
-        .data$adm_severe_cases_nocap,
-      cum_rem_critical_cases = .data$cum_critical_cases -
-        .data$adm_critical_cases_nocap
+      rem_mild_cases = data.table::shift(.data$new_mild_cases,
+        n = params$stay_mild
+      )
     )
 
   data <- data %>%
