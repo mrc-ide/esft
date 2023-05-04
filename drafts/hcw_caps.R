@@ -27,9 +27,54 @@ hcw_caps_static <- function(params,
                             cap_lab_staff = FALSE) {
   # add exists part here
 
+  # BACK CALCULATIONS - - - -
+  # back calculations C30, 31
   hcws_inpatients_cap <- params$perc_hcws_treat_covid * capacity$n_hcws
   # n_hcws = num nurses + num doctors
   hcws_screening_cap <- params$perc_hcws_screen_covid * capacity$n_hcws
+
+  # back calculations, c32
+  lab_staff <- capacity$n_labs
+  # c19 bed cap = I67 in inputs tab
+  bed_cap <- capacity$n_hosp_beds # this has already been calculated in country capacity
+
+  # BACK CALCULATIONS - DEPENDENT ON TOTAL FORECAST ------
+
+  # INPUTS - - - - - - - - -
+  # num hygienists per bed, I73 - DEPENDS ON OUTPUT - patients
+  hygienists_per_sev_bed <- hwfe$patient_t24_sev[
+    hwfe$esft_group == "Cleaner"
+  ] / 8 * (
+    round(sum(patients$sev_beds_inuse) / sum(patients$total_beds_inuse))
+  ) * 10
+
+  hygienists_per_crit_bed <- hwfe$patient_t24_crit[
+    hwfe$esft_group == "Cleaner"
+  ] / 8 * (
+    round(sum(patients$crit_beds_inuse) / sum(patients$total_beds_inuse))
+  ) * 10
+
+  hygienists_per_bed <- hygienists_per_sev_bed + hygienists_per_crit_bed
+
+  # INPUTS - num hcws per bed, I72 - DEPENDS ON OUTPUT - patients
+  hcws_per_sev_bed <- sum(
+    hwfe$patient_t24_sev[
+      hwfe$esft_group == "HCW"
+    ]
+  ) / 8 * (
+    round(sum(patients$sev_beds_inuse) / sum(patients$total_beds_inuse))
+  )
+
+  hcws_per_crit_bed <- sum(
+    hwfe$patient_t24_crit[
+      hwfe$esft_group == "HCW"
+    ]
+  ) / 8 * (
+    round(sum(patients$crit_beds_inuse) / sum(patients$total_beds_inuse))
+  )
+
+  hcws_per_bed <- hcws_per_sev_bed + hcws_per_crit_bed
+
 
   # calculating average covid capacity
   covid_capacity_high_throughput <- mean(
@@ -41,55 +86,49 @@ hcw_caps_static <- function(params,
   covid_capacity_manual <- mean(
     throughput$covid_capacity[throughput$type == "manual"]
   )
-
-  if (cap_lab_staff == FALSE) {
-    lab_staff <- capacity$n_labs
-  } else {
-    lab_cap <- mean(
-      covid_capacity_high_throughput,
-      covid_capacity_near_patient,
-      covid_capacity_manual
-    )
-    lab_staff <- capacity$n_labs * lab_cap
-  }
-  hygienists_per_sev_bed <- hwfe$patient_t24_sev[
-    hwfe$esft_group == "Cleaner"
-  ] / 8 * (
-    round(patients$sev_beds_inuse) / round(patients$total_beds_inuse)
-  ) * 10
-
-  hygienists_per_crit_bed <- hwfe$patient_t24_crit[
-    hwfe$esft_group == "Cleaner"
-  ] / 8 * (
-    round(patients$crit_beds_inuse) / round(patients$total_beds_inuse)
-  ) * 10
-
-  hygienists_per_bed <- hygienists_per_sev_bed + hygienists_per_crit_bed
-
-
-  hcws_per_sev_bed <- sum(
-    hwfe$patient_t24_sev[
-      hwfe$esft_group == "HCW"
-    ]
-  ) / 8 * (
-    round(sum(patients$sev_beds_inuse)) / round(sum(patients$total_beds_inuse))
+  # % lab staff available for covid response - E160 Inputs (or I160)
+  lab_cap <- mean(
+    covid_capacity_high_throughput,
+    covid_capacity_near_patient,
+    covid_capacity_manual
   )
 
-  hcws_per_crit_bed <- sum(
-    hwfe$patient_t24_crit[
+  # cases screened per HCW per day - Inputs, I78
+  cases_screened_per_hcw_per_day <- 8/sum(
+    hwfe$patient_t24_screen[
       hwfe$esft_group == "HCW"
     ]
-  ) / 8 * (
-    round(sum(patients$crit_beds_inuse)) / round(sum(patients$total_beds_inuse))
   )
 
-  hcws_per_bed <- hcws_per_sev_bed + hcws_per_crit_bed
+  # i think this is calculated later
+  lab_staff <-ifelse(cap_lab_staff == FALSE, lab_staff,
+                     capacity$n_labs * lab_cap)
 
+  # back calculations - capped number cleaners for inpatient - C33
+  # need to probably rework this, since the parameters are actually calculated from stuff
   if (is.null(params$n_hosp_beds)) {
     cleaners_inpatient_cap <- params$beds_covid * hygienists_per_bed
   } else {
     cleaners_inpatient_cap <- params$n_hosp_beds * hygienists_per_bed
   }
+
+  # back calculations - c36 - of critical/severe, % of cases that are critical
+  perc_crit_cases <- sum(patients$crit_beds_inuse)/sum(patients$total_beds_inuse)
+  # back calculations - c37 - of critical/severe, % of cases that are severe
+  perc_sev_cases <- 1 - perc_crit_cases
+  # add check here that they sum to 1 / correspond
+
+  # back calculations - C40 - probability of a new case being outpatient
+  prob_outpatient <- params$mild_i_proportion + params$mod_i_proportion
+  # back calculations - C41 - probability of a new case being inpatient
+  prob_inpatient <- params$sev_i_proportion + params$crit_i_proportion
+  # back calculations - C42 - HCWS required per outpatient
+  hcws_per_outpatient <- 1/cases_screened_per_hcw_per_day
+  # back calculations - C43 - HCWS required per inpatient
+  hcws_per_inpatient <- hcws_per_bed
+  # back calculations - C44 - per new case, ratio of HCWs for inpatient vs outpatient
+  ratio_hcws_inpatient_outpatient <- (prob_inpatient*hcws_per_inpatient)/(prob_inpatient*hcws_per_inpatient + prob_outpatient*hcws_per_outpatient)
+
   hcw_lab_caps <- list(
     hcws_inpatients_cap = hcws_inpatients_cap,
     hcws_screening_cap = hcws_screening_cap,
