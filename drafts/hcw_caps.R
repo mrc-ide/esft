@@ -18,6 +18,15 @@
 #'   machines allocated to COVID or not}
 #' }
 #'
+#'
+#'#' * perc_hcws_treat_covid - assumption of percentage of HCWs performing mostly
+#' inpatient tasks with severe and critical patients (e.g., management of
+#' respiratory failure and critical care monitoring); default = 0.51
+#' * perc_hcws_screen_covid - assumption of percentage of HCWs screening and
+#' triaging suspected COVID cases at all points of access to the health system,
+#' including primary health centres, clinics, hospital emergency units, and ad
+#' hoc community settings; default = 0.09
+#'
 #' @export
 hcw_caps_static <- function(params,
                             capacity,
@@ -129,6 +138,26 @@ hcw_caps_static <- function(params,
   # back calculations - C44 - per new case, ratio of HCWs for inpatient vs outpatient
   ratio_hcws_inpatient_outpatient <- (prob_inpatient*hcws_per_inpatient)/(prob_inpatient*hcws_per_inpatient + prob_outpatient*hcws_per_outpatient)
 
+
+  ambulanciers_per_bed = 0.06
+  bio_eng_per_bed = 0.02
+
+  # inputs - I66 - % HCW treating hospitalized covid inpatients
+  perc_treating_covid <- ratio_hcws_inpatient_outpatient*(1-params$perc_hcws_not_covid)
+  # inputs - I67 - % HCW screening/triaging suspected covid-19 cases
+  perc_screening_covid <- 1 - params$perc_hcws_not_covid - perc_treating_covid
+  # weekly summary caps
+  # D16 - capped num HCWs for inpatients
+  cap_hcw_inpatient <- ifelse(is.na())
+  # D17 - capped num hcws for screening/triage
+  # D18 - capped num lab staff for labs
+  # D19 - capped num cleaners for inpatients
+
+
+
+
+
+
   hcw_lab_caps <- list(
     hcws_inpatients_cap = hcws_inpatients_cap,
     hcws_screening_cap = hcws_screening_cap,
@@ -166,10 +195,9 @@ hcw_caps_static <- function(params,
 #' @export
 hcw_caps_dynamic <- function(params, # includes specific bed counts
                              patients,
-                             ambulanciers_per_bed = 0.06,
-                             bio_eng_per_bed = 0.02) {
+                             ) {
 
-
+# i dont think these are caps - these are numbers per week for inpatietnst- i feel ike they belogn w hcws_weekly
   inf_caregiver_inpatient_cap <- patients$total_beds_inuse *
     params$n_inf_caregivers_hosp
   amb_personnel_inpatient_cap <- patients$total_beds_inuse * ambulanciers_per_bed
