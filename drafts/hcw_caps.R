@@ -151,14 +151,11 @@ hcw_caps_static <- function(params,
   # c19 bed cap = I67 in inputs tab
   bed_cap <- capacity$n_hosp_beds # this has already been calculated in country capacity
 
-  # THIS IS THE PREVIOUS CALCULATION
-  lab_staff <-ifelse(cap_lab_staff == FALSE, lab_staff,
-                     capacity$n_labs * lab_cap)
   # D18
-  cap_lab_staff <- ifelse(is.na(capacity$n_hcws), hcws_inpatients_cap,
-                              capacity$n_hcws*perc_treating_covid)
+  cap_lab_staff <-ifelse(is.na(lab_cap), lab_staff,
+                     lab_staff*lab_cap)
   # D19 - capped num cleaners for inpatients
-
+  cap_cleaners <- cleaners_inpatient_cap
 
 
 
