@@ -14,8 +14,6 @@
 #'   \item{hcws_inpatients_cap}{Date the week summarized begins}
 #'   \item{hcws_screening_cap}{Date the week summarized ends}
 #'   \item{lab_staff}{Lab staff available}
-#'   \item{cap_lab_staff}{TRUE/FALSE, whether you want to cap lab staff by
-#'   machines allocated to COVID or not}
 #' }
 #'
 #'
@@ -32,20 +30,15 @@ hcw_caps_static <- function(params,
                             capacity,
                             throughput,
                             hwfe, # from who sheet
-                            patients,
-                            cap_lab_staff = FALSE) {
+                            patients) {
   # add exists part here
 
   # BACK CALCULATIONS - - - -
-  # back calculations C30, 31
+  # back calculations C30
   hcws_inpatients_cap <- params$perc_hcws_treat_covid * capacity$n_hcws
-  # n_hcws = num nurses + num doctors
+  # n_hcws = num nurses + num doctors,C31
   hcws_screening_cap <- params$perc_hcws_screen_covid * capacity$n_hcws
 
-  # back calculations, c32
-  lab_staff <- capacity$n_labs
-  # c19 bed cap = I67 in inputs tab
-  bed_cap <- capacity$n_hosp_beds # this has already been calculated in country capacity
 
   # BACK CALCULATIONS - DEPENDENT ON TOTAL FORECAST ------
 
@@ -85,23 +78,6 @@ hcw_caps_static <- function(params,
   hcws_per_bed <- hcws_per_sev_bed + hcws_per_crit_bed
 
 
-  # calculating average covid capacity
-  covid_capacity_high_throughput <- mean(
-    throughput$covid_capacity[throughput$type == "high_throughput"]
-  )
-  covid_capacity_near_patient <- mean(
-    throughput$covid_capacity[throughput$type == "near_patient"]
-  )
-  covid_capacity_manual <- mean(
-    throughput$covid_capacity[throughput$type == "manual"]
-  )
-  # % lab staff available for covid response - E160 Inputs (or I160)
-  lab_cap <- mean(
-    covid_capacity_high_throughput,
-    covid_capacity_near_patient,
-    covid_capacity_manual
-  )
-
   # cases screened per HCW per day - Inputs, I78
   cases_screened_per_hcw_per_day <- 8/sum(
     hwfe$patient_t24_screen[
@@ -109,9 +85,6 @@ hcw_caps_static <- function(params,
     ]
   )
 
-  # i think this is calculated later
-  lab_staff <-ifelse(cap_lab_staff == FALSE, lab_staff,
-                     capacity$n_labs * lab_cap)
 
   # back calculations - capped number cleaners for inpatient - C33
   # need to probably rework this, since the parameters are actually calculated from stuff
@@ -146,11 +119,44 @@ hcw_caps_static <- function(params,
   perc_treating_covid <- ratio_hcws_inpatient_outpatient*(1-params$perc_hcws_not_covid)
   # inputs - I67 - % HCW screening/triaging suspected covid-19 cases
   perc_screening_covid <- 1 - params$perc_hcws_not_covid - perc_treating_covid
-  # weekly summary caps
+
+
+  # weekly summary caps - THESE DEPEND ON BEDS IN USE FROM PATIENTS - recursively ----------------------
   # D16 - capped num HCWs for inpatients
-  cap_hcw_inpatient <- ifelse(is.na())
+  cap_hcw_inpatient <- ifelse(is.na(capacity$n_hcws), hcws_inpatients_cap,
+                              capacity$n_hcws*perc_treating_covid)
   # D17 - capped num hcws for screening/triage
-  # D18 - capped num lab staff for labs
+  cap_hcw_screen <- ifelse(is.na(capacity$n_hcws),hcws_screening_cap,
+                              capacity$n_hcws*perc_screening_covid)
+
+  # D18 - capped num lab staff for labs - WHOLE PROCESS -----
+  # calculating average covid capacity
+  covid_capacity_high_throughput <- mean(
+    throughput$covid_capacity[throughput$type == "high_throughput"]
+  )
+  covid_capacity_near_patient <- mean(
+    throughput$covid_capacity[throughput$type == "near_patient"]
+  )
+  covid_capacity_manual <- mean(
+    throughput$covid_capacity[throughput$type == "manual"]
+  )
+  # % lab staff available for covid response - E160 Inputs (or I160)
+  lab_cap <- mean(
+    covid_capacity_high_throughput,
+    covid_capacity_near_patient,
+    covid_capacity_manual
+  )
+  # back calculations, c32 & also c27
+  lab_staff <- capacity$n_labs
+  # c19 bed cap = I67 in inputs tab
+  bed_cap <- capacity$n_hosp_beds # this has already been calculated in country capacity
+
+  # THIS IS THE PREVIOUS CALCULATION
+  lab_staff <-ifelse(cap_lab_staff == FALSE, lab_staff,
+                     capacity$n_labs * lab_cap)
+  # D18
+  cap_lab_staff <- ifelse(is.na(capacity$n_hcws), hcws_inpatients_cap,
+                              capacity$n_hcws*perc_treating_covid)
   # D19 - capped num cleaners for inpatients
 
 
