@@ -48,13 +48,6 @@
 #'
 #' * perc_hcws_not_covid - assumption of percentage of HCWs not working on
 #' COVID; default = 0.4
-#' * perc_hcws_treat_covid - assumption of percentage of HCWs performing mostly
-#' inpatient tasks with severe and critical patients (e.g., management of
-#' respiratory failure and critical care monitoring); default = 0.51
-#' * perc_hcws_screen_covid - assumption of percentage of HCWs screening and
-#' triaging suspected COVID cases at all points of access to the health system,
-#' including primary health centres, clinics, hospital emergency units, and ad
-#' hoc community settings; default = 0.09
 #'
 #' * n_hosp_beds_per_care_unit - assumption, used to estimate triple packaging
 #' boxes (might not be necessary); default = 40
