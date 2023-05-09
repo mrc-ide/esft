@@ -1,5 +1,7 @@
 #' Screening HCWs per week, capped and uncapped
 #'
+#' ALL NEEDS TO BE REWRITTEN FOLLOWING THE PARAMETER CHANGE
+#'
 #' @param diagnostics_weekly From diagnostics_weekly
 #' @param params From get_parameters
 #'
