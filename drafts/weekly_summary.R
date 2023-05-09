@@ -14,8 +14,8 @@ source("R/utils.R")
 source("R/user_input.R")
 # source("R/hcw_caps.R")
 source("R/diagnostics_weekly.R")
-source("R/hcw_tests.R")
-source("R/hcws_weekly.R")
+# source("R/hcw_tests.R")
+# source("R/hcws_weekly.R")
 # goal is to figure out hcw caps and cases:
 
 load("data/who.rda")
@@ -185,7 +185,7 @@ tests <- diagnostics_weekly(params, patients, cases,
 #hcws <- hcws_weekly(params, capacity = capacity, lab_params, tests, patients,
                     # t_labs, hcw_dyn_caps = hcw_caps_dyn,
                     # hcw_stat_caps = hcw_caps_stat)
-screening_hcws <- screening_hcws_weekly(tests, params)
+# screening_hcws <- screening_hcws_weekly(tests, params)
 # added_tests <- additional_testing(hcws, screening_hcws, params, test_strat,
 #                                   tests)
 # n_tests <- total_tests(tests, added_tests, max_tests)

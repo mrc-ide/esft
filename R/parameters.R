@@ -45,10 +45,8 @@
 #' percentage allocation of health care workers (hcws):
 #' (as of now static, and assumed to equal 100% - option to change this to
 #' depending on staff ratios, severity ratios, and/or case estimation)
-#'
 #' * perc_hcws_not_covid - assumption of percentage of HCWs not working on
 #' COVID; default = 0.4
-#'
 #' * n_hosp_beds_per_care_unit - assumption, used to estimate triple packaging
 #' boxes (might not be necessary); default = 40
 #'
@@ -106,8 +104,6 @@ get_parameters <- function(overrides = list()) {
     ifr_crit = 0.5,
     # percentage allocation of HCWs
     perc_hcws_not_covid = 0.4,
-    perc_hcws_treat_covid = 0.51,
-    perc_hcws_screen_covid = 0.09,
     n_hosp_beds_per_care_unit = 40,
     # HCWs per bed or patient
     ambulancews_per_bed = 0.06,
@@ -146,16 +142,6 @@ get_parameters <- function(overrides = list()) {
 
   if (!approx_sum(props_infection, 1)) {
     stop("Proportions of infection severity level do not sum to 1")
-  }
-
-  perc_hcw <- c(
-    parameters$perc_hcws_not_covid,
-    parameters$perc_hcws_treat_covid,
-    parameters$perc_hcws_screen_covid
-  )
-
-  if (!approx_sum(perc_hcw, 1)) {
-    stop("HCW allocation percentages do not sum to 1")
   }
 
   perc_mv <- c(
