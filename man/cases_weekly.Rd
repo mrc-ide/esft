@@ -43,56 +43,32 @@ Dataframe of weekly summary
   include those who already have access to a bed.}
   \item{infections}{Estimated number of new infections, from model fits}
   \item{cumulative_infections}{Cumulative number of infections}
-  \item{cum_severe_cases}{Cumulative severe cases per week as defined by the
-  ESFT: cumulative hospital incidence}
-  \item{new_severe_cases}{New severe cases per week as defined by the ESFT:
-  hospital incidence that week}
-  \item{cum_critical_cases}{Cumulative critical cases per week as defined by
-  the ESFT: cumulative ICU incidence}
   \item{new_critical_cases}{New critical cases per week as defined by
   the ESFT: new ICU incidence}
-  \item{adm_severe_cases_nocap}{Admitted severe cases per week = hospital
-  demand}
-  \item{adm_critical_cases_nocap}{Admitted critical cases per week - ICU
-  demand}
-  \item{adm_severe_cases_cap}{Hospital incidence, capped by severe bed
-  availability}
-  \item{adm_critical_cases_cap}{ICU incidence, capped by critical bed
-  availability}
-  \item{new_mild_cases}{New mild cases every week, found by doing a
-  transformation of the critical and severe cases and multiplying by the mild
-  case proportion}
+  \item{new_severe_cases}{New severe cases per week as defined by the ESFT:
+  hospital incidence that week}
   \item{new_mod_cases}{New moderate cases every week, found by doing a
   transformation of the critical and severe cases and multiplying by the
   moderate case proportion}
-  \item{new_mild_cases_2}{New mild cases, alternative calculation. Multiplies
-  the infections per week times the mild proportion.}
-  \item{new_mod_cases_2}{New moderate cases, alternative calculation.
-  Multiplies the infections per week times the mild proportion.}
-  \item{new_severe_cases_2}{New severe cases, alternative calculation.
-  Multiplies the infections per week times the mild proportion.}
-  \item{new_critical_cases_2}{New critical cases, alternative calculation.
-  Multiplies the infections per week times the mild proportion.}
-  \item{cum_mild_cases}{Cumulative mild cases, using the first mild case
-  calculation}
+  \item{new_mild_cases}{New mild cases every week, found by doing a
+  transformation of the critical and severe cases and multiplying by the mild
+  case proportion}
+  \item{cum_critical_cases}{Cumulative critical cases per week as defined by
+  the ESFT: cumulative ICU incidence}
+  \item{cum_severe_cases}{Cumulative severe cases per week as defined by the
+  ESFT: cumulative hospital incidence}
   \item{cum_mod_cases}{Cumulative moderate cases, using the first moderate
   case calculation}
-  \item{rem_mild_cases}{Mild cases who have completed their isolation,
-  using the average length of stay for mild cases}
-  \item{rem_mod_cases}{Moderate cases who have completed their isolation,
-  using the average length of stay for moderate cases}
-  \item{rem_severe_cases}{Severe cases who have completed their hospital
-  stay, using the average length of stay for severe cases}
+  \item{cum_mild_cases}{Cumulative mild cases, using the first mild case
+  calculation}
   \item{rem_critical_cases}{Critical cases who have completed their hospital
   stay, using the average length of stay for critical cases}
-  \item{cum_rem_mild_cases}{Cumulative mild cases who have completed their
-  isolation using the average length of stay for mild cases}
-  \item{cum_rem_mod_cases}{Cumulative moderate cases who have completed their
-  isolation using the average length of stay for moderate cases}
-  \item{cum_rem_severe_cases}{Cumulative severe cases - admitted severe cases
-  per week with no cap}
-  \item{cum_rem_critical_cases}{Cumulative critical cases - admitted critical
-  cases per week with no cap}
+  \item{rem_severe_cases}{Severe cases who have completed their hospital
+  stay, using the average length of stay for severe cases}
+  \item{rem_mod_cases}{Moderate cases who have completed their isolation,
+  using the average length of stay for moderate cases}
+  \item{rem_mild_cases}{Mild cases who have completed their isolation,
+  using the average length of stay for mild cases}
   \item{sus_cases_but_negative}{Sum of all new cases multiplied by the
   number of negative tests per positive case}
 }

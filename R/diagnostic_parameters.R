@@ -318,8 +318,8 @@ calc_diagnostic_capacity <- function(country_diagnostic_capacity,
       TRUE ~ NA_real_
     )) %>%
     dplyr::select(-c(
-      .data$throughput_8hrs, .data$throughput_16hrs,
-      .data$throughput_24hrs
+      throughput_8hrs, throughput_16hrs,
+      throughput_24hrs
     ))
 
   # calculate the testing capacity available - max, and covid

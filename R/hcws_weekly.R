@@ -12,8 +12,7 @@
 #' @param tests diagnostics_weekly
 #' @param patients patients_weekly
 #' @param t_labs From total_labs
-#' @param hcw_dyn_caps dataframe of dynamic caps, hcw_caps_dynamic
-#' @param hcw_stat_caps single list of caps, hcw_caps_static
+#' @param hcw_caps single list of caps, hcw_caps
 #'
 #' @return Dataframe of summary
 #' \describe{
@@ -51,11 +50,10 @@ hcws_weekly <- function(params, # from get_parameters
                         tests, # from diagnostics_weekly
                         patients, # patients_weekly
                         t_labs, # total_labs
-                        hcw_dyn_caps,
-                        hcw_stat_caps # static and dynamic
+                        hcw_caps
 ) {
   data <- merge(patients, tests)
-  data <- merge(data, hcw_dyn_caps)
+  data <- merge(data, hcw_caps) # maybe add this to params instead???
   params <- merge(params, capacity)
 
   data <- data %>%
@@ -72,8 +70,9 @@ hcws_weekly <- function(params, # from get_parameters
         .data$total_beds_inuse * .data$hygienists_per_bed,
         .data$cleaners_inpatient_cap
       ),
-      amb_personnel_inpatient_capped = .data$amb_personnel_inpatient_cap,
-      bio_eng_inpatient_capped = .data$bio_eng_inpatient_cap,
+      # double check if i want to add the HCW caps to data or params - then rewrite
+      amb_personnel_inpatient_capped = .data$total_beds_inuse*.data$ambulanciers_per_bed,
+      bio_eng_inpatient_capped = .data$total_beds_inuse*.data$bio_eng_per_bed,
       # it's basically calculated this way i think to accommodate for mild
       # + mod testing in outpatient setting
       inf_caregivers_isol_uncapped = (

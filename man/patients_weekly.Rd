@@ -18,30 +18,30 @@ Dataframe of weekly summary
 \describe{
   \item{week_begins}{Date the week summarized begins}
   \item{week_ends}{Date the week summarized ends}
-  \item{mild_patients_nocap}{cum_mild_cases - cum_rem_mild_cases}
-  \item{mod_patients_nocap}{cum_mod_cases - cum_rem_mod_cases}
-  \item{sev_patients_nocap}{Uncapped hospital demand}
   \item{crit_patients_nocap}{Uncapped ICU demand}
-  \item{sev_beds_inuse}{Hospital demand capped by beds allocated to severe
-COVID}
+  \item{sev_patients_nocap}{Uncapped hospital demand}
+  \item{mod_patients_nocap}{cum_mod_cases - cum_rem_mod_cases}
+  \item{mild_patients_nocap}{cum_mild_cases - cum_rem_mild_cases}
   \item{crit_beds_inuse}{ICU demand capped by beds allocated to critical
-COVID}
+COVID, same as crit_patients_cap}
+  \item{sev_beds_inuse}{Hospital demand capped by beds allocated to severe
+COVID, same as sev_patients_cap}
   \item{total_beds_inuse}{Sum of severe and critical beds in use}
   \item{hosp_facilities_inuse}{Total beds in use divided by the avg. number
   of beds per hospital, as specified in parameters}
-  \item{rem_mild_patients}{Mild cases who have completed avg length of
-  isolation}
-  \item{rem_mod_patients}{Moderate cases who have completed avg length of
-  isolation}
-  \item{rem_sev_patients}{Cumulative removed severe patients - the
-  cumulative removed severe patients shifted back by avg. length of hospital
-  stay}
   \item{rem_crit_patients}{Cumulative removed critical patients - the
   cumulative removed critical patients shifted back by avg. length of
   hospital stay}
-  \item{discharged_sev_patients}{Severe patients admitted number of weeks
-  ago that = avg. length of stay}
+  \item{rem_sev_patients}{Cumulative removed severe patients - the
+  cumulative removed severe patients shifted back by avg. length of hospital
+  stay}
+  \item{rem_mod_patients}{Moderate cases who have completed avg length of
+  isolation}
+  \item{rem_mild_patients}{Mild cases who have completed avg length of
+  isolation}
   \item{discharged_crit_patients}{Critical patients admitted number of weeks
+  ago that = avg. length of stay}
+  \item{discharged_sev_patients}{Severe patients admitted number of weeks
   ago that = avg. length of stay}
   }
 }
@@ -56,24 +56,24 @@ bed capping.
 
 Here is the description of the additional patient calculations:
 
-* mild_patients_nocap - cum_mild_cases - cum_rem_mild_cases
-* mod_patients_nocap - cum_mod_cases - cum_rem_mod_cases
-* sev_patients_nocap - hospital_demand
 * crit_patients_nocap - ICU_demand
-* sev_beds_inuse - sev_patients_nocap capped by beds allocated to severe
-COVID
+* sev_patients_nocap - hospital_demand
+* mod_patients_nocap - cum_mod_cases - cum_rem_mod_cases
+* mild_patients_nocap - cum_mild_cases - cum_rem_mild_cases
 * crit_beds_inuse - crit_patients_nocap capped by beds allocated to critical
+COVID
+* sev_beds_inuse - sev_patients_nocap capped by beds allocated to severe
 COVID
 * total_beds_inuse - severe + critical beds in use
 * hosp_facilities_inuse - total beds in use / avg. hosp beds per care centre
-* rem_mild_patients - same as rem_mild_cases - new mild cases shifted by avg.
-length of stay in isolation
-* rem_mod_patients - same as rem_mod_cases - new moderate cases shifted by
-avg. length of stay in isolation
-* rem_sev_patients - cumulative removed severe patients - cumulative removed
-severe patients shifted by avg. length of hospital stay
 * rem_crit_patients - cumulative removed critical patients - cumulative
 removed critical patients shifted by avg. length of hospital stay
+* rem_sev_patients - cumulative removed severe patients - cumulative removed
+severe patients shifted by avg. length of hospital stay
+* rem_mod_patients - same as rem_mod_cases - new moderate cases shifted by
+avg. length of stay in isolation
+* rem_mild_patients - same as rem_mild_cases - new mild cases shifted by avg.
+length of stay in isolation
 * discharged_sev_patients - admitted severe patients shifted back by avg.
 length of hospital stay
 * discharged_crit_patients - admitted critical patients shifted back by avg.

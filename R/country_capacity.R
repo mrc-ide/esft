@@ -52,6 +52,8 @@ get_country_capacity <- function(iso3c = NULL,
 
   n_hcws <- esft::who$doctors[esft::who$country_code == iso3c] +
     esft::who$nurses[esft::who$country_code == iso3c]
+  # theres an if clause here that will if the above doesnt exist, take the capped numbers in back calculations
+  # which are the parameters dedicated to covid * sum of doctors and nurses, and params screening * sum docs and nurses
   n_labs <- esft::who$labs[esft::who$country_code == iso3c]
 
   n_hosp_beds <- esft::who$beds_total[esft::who$country_code == iso3c]

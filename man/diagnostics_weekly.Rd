@@ -41,10 +41,10 @@ Dataframe of weekly summary
   \item{tests_release_capped_sev_crit}{Tests for release for severe and
   critical patients capped by hospital capacity and IFR/number of severe and
   critical patients discharged from hospital}
-  \item{tests_mild}{Number of tests for mild patient diagnosis, given testing
-  strategy}
   \item{tests_mod}{Number of tests for moderate patient diagnosis, given
   testing strategy}
+  \item{tests_mild}{Number of tests for mild patient diagnosis, given testing
+  strategy}
   \item{tests_suspected}{Number of tests for suspected but negative cases}
   \item{testing_strategy}{Testing strategy, string}
 }

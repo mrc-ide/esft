@@ -12,10 +12,10 @@ source("R/cases_weekly.R")
 source("R/patients_weekly.R")
 source("R/utils.R")
 source("R/user_input.R")
-source("R/hcw_caps.R")
+# source("R/hcw_caps.R")
 source("R/diagnostics_weekly.R")
-source("R/hcw_tests.R")
-source("R/hcws_weekly.R")
+# source("R/hcw_tests.R")
+# source("R/hcws_weekly.R")
 # goal is to figure out hcw caps and cases:
 
 load("data/who.rda")
@@ -153,7 +153,7 @@ params <- get_parameters()
 test_params <- get_diagnostic_parameters()
 capacity <- get_country_capacity(iso3c="AFG")
 
-hcw_caps_stat <- hcw_caps_static(params, capacity, throughput)
+#hcw_caps_stat <- hcw_caps_static(params, capacity, throughput)
 lab_params <- get_lab_parameters()
 
 # capacity functions
@@ -170,20 +170,25 @@ afg_data<-subset(all, all$iso3c == "AFG")
 afg_data <- subset(afg_data, afg_data$scenario == "Maintain Status Quo")
 
 
-afg_data <- subset(afg_data, afg_data$date >= as.Date("2022-01-02"))
+#afg_data <- subset(afg_data, afg_data$date >= as.Date("2022-01-02"))
+
 cases <- cases_weekly(params, capacity, test_strategy_params=test_strat,
                       data=afg_data)
+
+# note - error occurred when subset by date
 patients <- patients_weekly(params, capacity, data = cases)
-hcw_caps_dyn <- hcw_caps_dynamic(params, hwfe, patients)
+#hcw_caps_dyn <- hcw_caps_dynamic(params, hwfe, patients)
+# also did weird stuff when subset by date - but tend only to be for diagnosis
 tests <- diagnostics_weekly(params, patients, cases,
                             diagnostic_parameters = test_params)
-hcws <- hcws_weekly(params, capacity = capacity, lab_params, tests, patients,
-                    t_labs, hcw_dyn_caps = hcw_caps_dyn,
-                    hcw_stat_caps = hcw_caps_stat)
-screening_hcws <- screening_hcws_weekly(tests, params)
-added_tests <- additional_testing(hcws, screening_hcws, params, test_strat,
-                                  tests)
-n_tests <- total_tests(tests, added_tests, max_tests)
+# this is off somehow
+#hcws <- hcws_weekly(params, capacity = capacity, lab_params, tests, patients,
+                    # t_labs, hcw_dyn_caps = hcw_caps_dyn,
+                    # hcw_stat_caps = hcw_caps_stat)
+# screening_hcws <- screening_hcws_weekly(tests, params)
+# added_tests <- additional_testing(hcws, screening_hcws, params, test_strat,
+#                                   tests)
+# n_tests <- total_tests(tests, added_tests, max_tests)
 test_ratios <- test_ratio(diagnostic_capacity, test_params)
 load("data/equipment.rda")
 
