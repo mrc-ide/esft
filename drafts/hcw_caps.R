@@ -25,10 +25,6 @@
 #'   beds in use}
 #'   \item{inf_caregiver_inpatient_cap}{Number caregivers required based on
 #'   hospital beds in use}
-#'   \item{amb_personnel_inpatient_cap}{Ambulanciers required based on hospital
-#'   beds in use}
-#'   \item{bio_eng_inpatient_cap}{Biomedical engineers required based on
-#'   hospital beds in use}
 #' }
 #'
 #' Maybe redefine????
@@ -162,9 +158,7 @@ hcw_caps <- function(params,
   }
 
   hcw_caps_list <- list(
-    ambulanciers_per_bed = ambulanciers_per_bed,
     bed_cap = bed_cap,
-    bio_eng_per_bed = bio_eng_per_bed,
     cases_screened_per_hcw_per_day = cases_screened_per_hcw_per_day,
     cleaners_inpatient_cap = cleaners_inpatient_cap,
     hcws_inpatients_cap = hcws_inpatients_cap,

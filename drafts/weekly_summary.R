@@ -12,7 +12,7 @@ source("R/cases_weekly.R")
 source("R/patients_weekly.R")
 source("R/utils.R")
 source("R/user_input.R")
-# source("R/hcw_caps.R")
+source("drafts/hcw_caps.R")
 source("R/diagnostics_weekly.R")
 # source("R/hcw_tests.R")
 # source("R/hcws_weekly.R")
@@ -177,7 +177,7 @@ cases <- cases_weekly(params, capacity, test_strategy_params=test_strat,
 
 # note - error occurred when subset by date
 patients <- patients_weekly(params, capacity, data = cases)
-#hcw_caps_dyn <- hcw_caps_dynamic(params, hwfe, patients)
+hcw_caps <- hcw_caps(params,capacity,throughput,hwfe, patients)
 # also did weird stuff when subset by date - but tend only to be for diagnosis
 tests <- diagnostics_weekly(params, patients, cases,
                             diagnostic_parameters = test_params)

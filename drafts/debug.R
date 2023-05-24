@@ -48,6 +48,10 @@ diagnostic_capacity <- calc_diagnostic_capacity(country_diagnostic_capacity =
 sink("mylist.txt")
 cat(paste0("#'   \\item{",names(noncovid), "}{}\n"))
 sink()
+
+sink("mylist.txt")
+cat(paste0(list.files(), "\n"))
+sink()
 # i'm saving my microbenchmark code cuz i'm proud of it
 mbm = microbenchmark(
   base = replace(ref_hcws, is.na(ref_hcws),
