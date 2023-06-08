@@ -46,7 +46,7 @@ diagnostic_capacity <- calc_diagnostic_capacity(country_diagnostic_capacity =
 
 # also saving the name code
 sink("mylist.txt")
-cat(paste0("#'   \\item{",names(noncovid), "}{}\n"))
+cat(paste0("#'   \\item{",names(hcw_caps), "}{}\n"))
 sink()
 
 sink("mylist.txt")

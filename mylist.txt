@@ -1,17 +1,18 @@
-afg_data.csv
- archive
- data
- data-raw
- DESCRIPTION
- drafts
- esft_dependency_diagram.jpg
- esft.Rproj
- kit
- LICENSE
- man
- mylist.txt
- names.txt
- NAMESPACE
- Package documentation.docx
- R
- README.md
+#'   \item{iso3c}{}
+#'   \item{bed_cap}{}
+#'   \item{cases_screened_per_hcw_per_day}{}
+#'   \item{cleaners_inpatient_cap}{}
+#'   \item{hcws_inpatients_cap}{}
+#'   \item{hcws_per_bed}{}
+#'   \item{hcws_per_inpatient}{}
+#'   \item{hcws_per_outpatient}{}
+#'   \item{hcws_screening_cap}{}
+#'   \item{hygienists_per_bed}{}
+#'   \item{lab_staff_cap}{}
+#'   \item{perc_crit_cases}{}
+#'   \item{perc_screening_covid}{}
+#'   \item{perc_sev_cases}{}
+#'   \item{perc_treating_covid}{}
+#'   \item{prob_inpatient}{}
+#'   \item{prob_outpatient}{}
+#'   \item{ratio_hcws_inpatient_outpatient}{}

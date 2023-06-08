@@ -43,8 +43,8 @@
 #' College Report nr. 9; default = 0.5
 #'
 #' percentage allocation of health care workers (hcws):
-#' (as of now static, and assumed to equal 100% - option to change this to
-#' depending on staff ratios, severity ratios, and/or case estimation)
+#' (we set some percentages before hand, the rest are determined by the hcw_caps
+#' function)
 #' * perc_hcws_not_covid - assumption of percentage of HCWs not working on
 #' COVID; default = 0.4
 #' * n_hosp_beds_per_care_unit - assumption, used to estimate triple packaging
@@ -64,10 +64,6 @@
 #' guidance, with estimates of 1 caregiver per patient for the duration of the
 #' roughly 2-week isolation - his calculation estimates the quantity of PPE
 #' required (e.g., masks and gloves) for the patient and caregiver; default = 1
-#'
-#' * cases_screened_per_hcw_per_day - screening/triage ratio is based on the
-#' assumption that each screening/triage takes approximately 48 minutes, which
-#' is 10 consultations per 8-hour shift ((8 x 60)/48); default = 10
 #'
 #' percent of critical patients mechanically ventilated:
 #'
@@ -110,7 +106,7 @@ get_parameters <- function(overrides = list()) {
     bioengs_per_bed = 0.02,
     n_inf_caregivers_hosp = 0,
     n_inf_caregivers_isol = 1,
-    cases_screened_per_hcw_per_day = ((8 * 60) / 48),
+    # cases_screened_per_hcw_per_day = ((8 * 60) / 48),
     # cleaners_per_bed = 0.6,
     # percent of critical patients mechanically ventilated
     perc_crit_inv_mv = 2 / 3,

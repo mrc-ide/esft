@@ -151,6 +151,7 @@ params <- get_parameters()
 # get list of countries to iterate through
 # this probably still includes those that were excluded
 countries <- data.frame(iso3c = unique(c19rm$iso3c))
+countries[nrow(countries) +1,"iso3c"] <- "AFG"
 countries$country_name <- countrycode::countrycode(sourcevar = countries$iso3c,
                                                    origin = "iso3c",
                                                    destination = "country.name")
@@ -160,18 +161,30 @@ countries <- countries[!(countries$iso3c %in% c("CIV", "COD", "COG", "CPV", "LAO
 all <- subset(all, all$scenario == "Maintain Status Quo")
 
 perc_treating_covid = list()
-for (country in countries$iso3c) {
-  capacity <- get_country_capacity(iso3c=country)
-  data<-subset(all, all$iso3c == country)
 
+# subset between Jan 2 2022 and March 27 2022
+df <- data.frame()
+for (country in countries$iso3c) {
+  capacity <- get_country_capacity(iso3c=country) # DYNAMIC
+  data<-subset(all, all$iso3c == country) # DYNAMIC
+
+  # DYNAMIC
   cases <- cases_weekly(params, capacity, test_strategy_params=test_strat,
                         data=data)
-
+  cases <- subset(cases, cases$week_begins < "2022-03-28")
+  cases <- subset(cases, cases$week_begins > "2022-01-01")
   # note - error occurred when subset by date
+  # SYPER DYNAMIC
   patients <- patients_weekly(params, capacity, data = cases)
+  patients <- subset(patients, patients$week_begins < "2022-03-28")
+  patients <- subset(patients, patients$week_begins > "2022-01-01")
   hcw_cap_list <- hcw_caps(params,capacity,throughput,hwfe, patients)
-  print(hcw_cap_list$perc_treating_covid)
-}
+  hcw_cap_list$iso3c <- country
+  df <- bind_rows(df, hcw_cap_list)
 
+}
+df <- df[,c(18,1:17)]
+summary(df)
 # prints out 0.511 the whole time
+# regardless what i subset or not - which is weird, because usually it will give 53% in the spreadsheets
 # so i think i'll use 51% for now, especially because i'm not certain about the calculation,and still have the range
