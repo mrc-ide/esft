@@ -1,5 +1,6 @@
 #' HCWS Weekly
 #'
+#'NEEDS TO BE UPDATED WITH NEW PARAMS + HCW CAPs
 #' @description This function takes some of the HCW cap options and calculates
 #' the section in the `Weekly Summary` tab marked HCW and staff (except for
 #' the screening/triage section, which depends on diagnostics_weekly and is
@@ -53,8 +54,8 @@ hcws_weekly <- function(params, # from get_parameters
                         hcw_caps
 ) {
   data <- merge(patients, tests)
-  data <- merge(data, hcw_caps) # maybe add this to params instead???
   params <- merge(params, capacity)
+  params <- merge(params, hcw_caps)
 
   data <- data %>%
     dplyr::mutate(
@@ -71,8 +72,8 @@ hcws_weekly <- function(params, # from get_parameters
         .data$cleaners_inpatient_cap
       ),
       # double check if i want to add the HCW caps to data or params - then rewrite
-      amb_personnel_inpatient_capped = .data$total_beds_inuse*.data$ambulanciers_per_bed,
-      bio_eng_inpatient_capped = .data$total_beds_inuse*.data$bio_eng_per_bed,
+      amb_personnel_inpatient_capped = .data$total_beds_inuse*.params$ambulancews_per_bed,
+      bio_eng_inpatient_capped = .data$total_beds_inuse*.params$bioengs_per_bed,
       # it's basically calculated this way i think to accommodate for mild
       # + mod testing in outpatient setting
       inf_caregivers_isol_uncapped = (
@@ -80,7 +81,7 @@ hcws_weekly <- function(params, # from get_parameters
       # for the all testing strategy, capped by testing capacity
       # (confusing - needs simplification)
       lab_staff_capped = min(
-        t_labs * lab_params$lab_staff_per_lab, params$n_labs
+        t_labs * lab_params$lab_staff_per_lab, params$lab_staff_cap
       ),
       cleaners_lab = t_labs * lab_params$hygienists_per_lab
     ) %>%

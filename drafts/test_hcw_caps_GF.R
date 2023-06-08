@@ -1,9 +1,9 @@
-# i just want something to run to get the weekly summary
-# can change it later to a wrapper if need be
+# hcw capacity - double checked for the GF
+# run on may 16 - for final rerun of data
 
 rm(list=ls())
 library(tidyverse)
-
+library(readr)
 # let's first pull params as they are written
 source("R/parameters.R")
 source("R/diagnostic_parameters.R")
@@ -13,10 +13,7 @@ source("R/patients_weekly.R")
 source("R/utils.R")
 source("R/user_input.R")
 source("drafts/hcw_caps.R")
-source("R/diagnostics_weekly.R")
-# source("R/hcw_tests.R")
-# source("R/hcws_weekly.R")
-# goal is to figure out hcw caps and cases:
+
 
 load("data/who.rda")
 load("data/population.rda")
@@ -26,7 +23,7 @@ load("data/diagnostics.rda")
 load("data/throughput.rda")
 load("data/hours_per_shift.rda")
 load("data/pharmaceuticals.rda")
-
+c19rm <- read_csv("~/Documents/GitHub/c19rm/data/c19rm_20_21.csv")
 all <- readRDS("data-raw/all.Rds")
 
 get_country_capacity <- function(iso3c = NULL,
@@ -150,48 +147,44 @@ get_country_test_capacity <- function(iso3c = NULL,
 # getting parameters, except for dynamic hcw caps, which depend on patents_weekly
 test_strat <- set_testing_strategy()
 params <- get_parameters()
-test_params <- get_diagnostic_parameters()
-capacity <- get_country_capacity(iso3c="AFG")
 
-#hcw_caps_stat <- hcw_caps_static(params, capacity, throughput)
-lab_params <- get_lab_parameters()
+# get list of countries to iterate through
+# this probably still includes those that were excluded
+countries <- data.frame(iso3c = unique(c19rm$iso3c))
+countries[nrow(countries) +1,"iso3c"] <- "AFG"
+countries$country_name <- countrycode::countrycode(sourcevar = countries$iso3c,
+                                                   origin = "iso3c",
+                                                   destination = "country.name")
+countries <- countries[complete.cases(countries),]
+countries <- countries[!(countries$iso3c %in% c("CIV", "COD", "COG", "CPV", "LAO", "STP")),]
 
-# capacity functions
-country_test_capacity <- get_country_test_capacity(iso3c="AFG", diagnostics)
-diagnostic_capacity <- calc_diagnostic_capacity(country_diagnostic_capacity =
-                                                  country_test_capacity,
-                                                throughput, hours_per_shift =
-                                                  hours_per_shift,
-                                                shifts_per_day = 1)
-t_labs <- total_labs(diagnostic_capacity)
-max_tests <- max_tests_per_day(diagnostic_capacity)
+all <- subset(all, all$scenario == "Maintain Status Quo")
 
-afg_data<-subset(all, all$iso3c == "AFG")
-afg_data <- subset(afg_data, afg_data$scenario == "Maintain Status Quo")
+perc_treating_covid = list()
 
+# subset between Jan 2 2022 and March 27 2022
+df <- data.frame()
+for (country in countries$iso3c) {
+  capacity <- get_country_capacity(iso3c=country) # DYNAMIC
+  data<-subset(all, all$iso3c == country) # DYNAMIC
 
-#afg_data <- subset(afg_data, afg_data$date >= as.Date("2022-01-02"))
+  # DYNAMIC
+  cases <- cases_weekly(params, capacity, test_strategy_params=test_strat,
+                        data=data)
+  cases <- subset(cases, cases$week_begins < "2022-03-28")
+  cases <- subset(cases, cases$week_begins > "2022-01-01")
+  # note - error occurred when subset by date
+  # SYPER DYNAMIC
+  patients <- patients_weekly(params, capacity, data = cases)
+  patients <- subset(patients, patients$week_begins < "2022-03-28")
+  patients <- subset(patients, patients$week_begins > "2022-01-01")
+  hcw_cap_list <- hcw_caps(params,capacity,throughput,hwfe, patients)
+  hcw_cap_list$iso3c <- country
+  df <- bind_rows(df, hcw_cap_list)
 
-cases <- cases_weekly(params, capacity, test_strategy_params=test_strat,
-                      data=afg_data)
-
-# note - error occurred when subset by date
-patients <- patients_weekly(params, capacity, data = cases)
-hcw_caps <- hcw_caps(params,capacity,throughput,hwfe, patients)
-# also did weird stuff when subset by date - but tend only to be for diagnosis
-tests <- diagnostics_weekly(params, patients, cases,
-                            diagnostic_parameters = test_params)
-# this is off somehow
-#hcws <- hcws_weekly(params, capacity = capacity, lab_params, tests, patients,
-                    # t_labs, hcw_dyn_caps = hcw_caps_dyn,
-                    # hcw_stat_caps = hcw_caps_stat)
-# screening_hcws <- screening_hcws_weekly(tests, params)
-# added_tests <- additional_testing(hcws, screening_hcws, params, test_strat,
-#                                   tests)
-# n_tests <- total_tests(tests, added_tests, max_tests)
-test_ratios <- test_ratio(diagnostic_capacity, test_params)
-load("data/equipment.rda")
-
-
-list=ls()
-list <- list[4,6,13,19,]
+}
+df <- df[,c(18,1:17)]
+summary(df)
+# prints out 0.511 the whole time
+# regardless what i subset or not - which is weird, because usually it will give 53% in the spreadsheets
+# so i think i'll use 51% for now, especially because i'm not certain about the calculation,and still have the range
