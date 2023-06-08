@@ -3,27 +3,10 @@
 #' @description This function calculates the static HCW caps found in the
 #' `Weekly Summary` in the ESFT.
 #'
-#' Here is the description of the additional patient calculations:
-#'
-#' * crit_patients_nocap - ICU_demand
-#' * sev_patients_nocap - hospital_demand
-#' * mod_patients_nocap - cum_mod_cases - cum_rem_mod_cases
-#' * mild_patients_nocap - cum_mild_cases - cum_rem_mild_cases
-#' * crit_beds_inuse - crit_patients_nocap capped by beds allocated to critical
-#' COVID
-#' #'#' * cases_screened_per_hcw_per_day - screening/triage ratio is based on the
+#'* TO DO - UPDATE THIS DESCRIPTIVE PART
+#' * cases_screened_per_hcw_per_day - screening/triage ratio is based on the
 #' assumption that each screening/triage takes approximately 48 minutes, which
 #' is 10 consultations per 8-hour shift ((8 x 60)/48); default = 10
-#'
-#'
-#' Maybe redefine????
-#'#' * perc_hcws_treat_covid - assumption of percentage of HCWs performing mostly
-#' inpatient tasks with severe and critical patients (e.g., management of
-#' respiratory failure and critical care monitoring); default = 0.51
-#' * perc_hcws_screen_covid - assumption of percentage of HCWs screening and
-#' triaging suspected COVID cases at all points of access to the health system,
-#' including primary health centres, clinics, hospital emergency units, and ad
-#' hoc community settings; default = 0.09
 #'
 #'
 #' @param params From get_parameters
@@ -38,22 +21,45 @@
 #'   \item{iso3c}{Iso3c code these HCW caps are associated with.}
 #'   \item{bed_cap}{Hospital bed cap (equals number of beds per country, as
 #'   found in the capacity function, which takes it from the World Bank)}
-#'   \item{cases_screened_per_hcw_per_day}{}
-#'   \item{cleaners_inpatient_cap}{}
-#'   \item{hcws_inpatients_cap}{}
-#'   \item{hcws_per_bed}{}
-#'   \item{hcws_per_inpatient}{}
-#'   \item{hcws_per_outpatient}{}
-#'   \item{hcws_screening_cap}{}
-#'   \item{hygienists_per_bed}{}
-#'   \item{lab_staff_cap}{}
-#'   \item{perc_crit_cases}{}
-#'   \item{perc_screening_covid}{}
-#'   \item{perc_sev_cases}{}
-#'   \item{perc_treating_covid}{}
-#'   \item{prob_inpatient}{}
-#'   \item{prob_outpatient}{}
-#'   \item{ratio_hcws_inpatient_outpatient}{}
+#'   \item{cases_screened_per_hcw_per_day}{Calculates the number of cases that
+#'   could theoretically be screened per HCW per day based on standardized
+#'   recommendations of hours spent per day per patient per HCW grouping (which
+#'   was developed using HWFE tool methodology and consultation with clinical
+#'   leads)}
+#'   \item{cleaners_inpatient_cap}{Number of beds times the hygienists per bed
+#'   in a hospital setting}
+#'   \item{hcws_inpatients_cap}{Percent of HCWs treating COVID-19 patients times
+#'   the number of HCWs}
+#'   \item{hcws_per_bed}{Number of HCWs per bed, weighted by the total number of
+#'   beds in use by severity and the time recommended for HCWs to spend at beds
+#'   by severity}
+#'   \item{hcws_per_inpatient}{Same as hcws_per_bed}
+#'   \item{hcws_per_outpatient}{1/Number of cases screened per HCW per day}
+#'   \item{hcws_screening_cap}{Percent of HCWs screening COVID-19 times the
+#'   number of HCWs}
+#'   \item{hygienists_per_bed}{Number of hygienists per bed, weighted by the
+#'   total number of beds in use by severity and the time recommended for
+#'   hygienists to spend at beds by severity}
+#'   \item{lab_staff_cap}{If there are machines dedicated to COVID-19 test
+#'   processing, its the average of their dedication to covid multiplied by
+#'   the number of lab staff, if not, its the total number of lab staff}
+#'   \item{perc_crit_cases}{Percentage of total critical beds in use divided by
+#'   the total beds in use over the forecasting period}
+#'   \item{perc_screening_covid}{Percentage of HCWs dedicated to COVID-19
+#'   screening, which is equal to the leftover percentage after accounting for
+#'   those HCWs not dedicated to COVID-19 and those allocated to COVID-19
+#'   response}
+#'   \item{perc_sev_cases}{Percentage of total severe beds in use divided by
+#'   the total beds in use over the forecasting period}
+#'   \item{perc_treating_covid}{Percentage of HCWs dedicated to COVID-19
+#'   response - this depends on the total patients in beds and the number of
+#'   HCWs needed to respond to them during the forecasting period}
+#'   \item{prob_inpatient}{Probability the patient in inpatient (severe or
+#'   critical)}
+#'   \item{prob_outpatient}{Probability the patient in inpatient (mild or
+#'   moderate)}
+#'   \item{ratio_hcws_inpatient_outpatient}{Ratio of inpatient dedicated HCWs
+#'   to inpatient and outpatient HCWs}
 #' }
 #'
 #' @export
@@ -69,7 +75,7 @@ hcw_caps <- function(params, # STATIC
       hwfe$esft_group == "HCW"
     ]
   )
-  # STATIC
+  # DYNAMIC - depends on covid capacity inputs
   # D18 - capped num lab staff for labs - WHOLE PROCESS ----- WS
   # calculating average covid capacity WS
   covid_capacity_high_throughput <- mean(
@@ -135,7 +141,6 @@ hcw_caps <- function(params, # STATIC
   hcws_per_bed <- hcws_per_sev_bed + hcws_per_crit_bed # -----------------------------------------------
 
   # back calculations - capped number cleaners for inpatient - C33 - same as ws D19
-  # need to probably rework this, since the parameters are actually calculated from stuff
   if (is.null(params$n_hosp_beds)) {
     cleaners_inpatient_cap <- params$beds_covid * hygienists_per_bed
   } else {
@@ -143,9 +148,9 @@ hcw_caps <- function(params, # STATIC
   }
 
   # back calculations - c36 - of critical/severe, % of cases that are critical
-  perc_crit_cases <- round(sum(patients$crit_beds_inuse)/sum(patients$total_beds_inuse), 3)
+  perc_crit_cases <- round(sum(patients$crit_beds_inuse)/sum(patients$total_beds_inuse), 5)
   # back calculations - c37 - of critical/severe, % of cases that are severe
-  perc_sev_cases <- round(1 - perc_crit_cases, 3)
+  perc_sev_cases <- round(1 - perc_crit_cases, 5)
   # add check here that they sum to 1 / correspond
 
   # back calculations - C40 - probability of a new case being outpatient
@@ -153,22 +158,22 @@ hcw_caps <- function(params, # STATIC
   # back calculations - C41 - probability of a new case being inpatient
   prob_inpatient <- params$sev_i_proportion + params$crit_i_proportion
   # back calculations - C42 - HCWS required per outpatient -----------------------------------------------
-  hcws_per_outpatient <- round(1/cases_screened_per_hcw_per_day, 3)
+  hcws_per_outpatient <- round(1/cases_screened_per_hcw_per_day, 5)
   # back calculations - C43 - HCWS required per inpatient -----------------------------------------------
   hcws_per_inpatient <- hcws_per_bed
   # back calculations - C44 - per new case, ratio of HCWs for inpatient vs outpatient -----------------------------------------------
-  ratio_hcws_inpatient_outpatient <- round((prob_inpatient*hcws_per_inpatient)/(prob_inpatient*hcws_per_inpatient + prob_outpatient*hcws_per_outpatient), 3)
+  ratio_hcws_inpatient_outpatient <- round((prob_inpatient*hcws_per_inpatient)/(prob_inpatient*hcws_per_inpatient + prob_outpatient*hcws_per_outpatient), 5)
 
   # inputs - I66 - % HCW treating hospitalized covid inpatients --------------------------------------------------
-  perc_treating_covid <- round(ratio_hcws_inpatient_outpatient*(1-params$perc_hcws_not_covid), 3)
+  perc_treating_covid <- round(ratio_hcws_inpatient_outpatient*(1-params$perc_hcws_not_covid), 5)
   # inputs - I67 - % HCW screening/triaging suspected covid-19 cases
-  perc_screening_covid <- round(1 - params$perc_hcws_not_covid - perc_treating_covid, 3)
+  perc_screening_covid <- round(1 - params$perc_hcws_not_covid - perc_treating_covid, 5)
 
   # BACK CALCULATIONS - - - -
   # back calculations C30 - D16 ws
-  hcws_inpatients_cap <- round(perc_treating_covid * capacity$n_hcws, 3)
+  hcws_inpatients_cap <- round(perc_treating_covid * capacity$n_hcws, 5)
   # n_hcws = num nurses + num doctors,C31 - D17 ws
-  hcws_screening_cap <- round(perc_screening_covid * capacity$n_hcws, 3)
+  hcws_screening_cap <- round(perc_screening_covid * capacity$n_hcws, 5)
 
   # condition check for correct prc hcws
   perc_hcw <- c(
