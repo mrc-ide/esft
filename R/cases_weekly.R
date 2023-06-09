@@ -101,7 +101,7 @@ cases_weekly <- function(params, # from get_parameters
     )
 
   data <- data %>%
-    dplyr::group_by(week_begins = cut(.data$date, breaks = "week")) %>%
+    dplyr::group_by(week_begins = cut(.data$date, breaks = "week", right=FALSE, include.lowest = T)) %>%
     dplyr::summarise(
       week_ends = data.table::last(.data$date),
       hospital_demand = max(.data$hospital_demand, na.rm = TRUE),
