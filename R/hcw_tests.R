@@ -1,9 +1,8 @@
 #' Screening HCWs per week, capped and uncapped
 #'
-#' ALL NEEDS TO BE REWRITTEN FOLLOWING THE PARAMETER CHANGE
-#'
 #' @param diagnostics_weekly From diagnostics_weekly
-#' @param params From get_parameters
+#' @param hcw_caps From hcw_caps
+#' @param capacity Country capacity, get_country_capacity
 #'
 #' @return Dataframe of summary
 #' \describe{
@@ -24,19 +23,20 @@
 #'
 #' @export
 screening_hcws_weekly <- function(diagnostics_weekly,
-                                  params) {
+                                  hcw_caps,
+                                  capacity) {
   data <- diagnostics_weekly
   data <- data %>%
     dplyr::mutate(screening_hcw_uncapped = (
       .data$tests_suspected + .data$tests_mild + .data$tests_mod) / (
-      7 * params$cases_screened_per_hcw_per_day
+      7 * hcw_caps$cases_screened_per_hcw_per_day
     ))
 
   data <- data %>%
     dplyr::mutate(
       screening_hcw_capped = min(
-        .data$screening_hcw_uncapped, params$n_hcws *
-          params$perc_hcws_screen_covid
+        .data$screening_hcw_uncapped, capacity$n_hcws *
+          hcw_caps$perc_screening_covid
       )
     ) %>%
     dplyr::select(c(
@@ -51,8 +51,7 @@ screening_hcws_weekly <- function(diagnostics_weekly,
 #'
 #' @param hcws From hcws_weekly
 #' @param screening_hcws From screening_hcws_weekly
-#' @param params From get_parameters
-#' @param testing_strategy From set_testing_strategy
+#' @param test_strat From set_testing_strategy
 #' @param tests_weekly From diagnostics_weekly
 #'
 #' @return Dataframe of additional testing
@@ -72,22 +71,25 @@ screening_hcws_weekly <- function(diagnostics_weekly,
 #' @export
 additional_testing <- function(hcws, # from hcws_weekly
                                screening_hcws, # from screening_hcws_weekly
-                               params,
-                               testing_strategy, # from set_testing_strategy
-                               tests_weekly) {
+                               test_strat, # from set_testing_strategy
+                               tests) { # from diagnostics_weekly
   data <- merge(hcws, screening_hcws)
-  data <- merge(data, tests_weekly)
-  params <- merge(params, testing_strategy)
+  data <- merge(data, tests)
+# this is temporary fix
+  if(typeof(test_strat)!='data.frame'){
+    test_strat <- as.data.frame(test_strat)
+  }
+
   data <- data %>%
     dplyr::mutate(
-      tests_hcws_weekly = params$tests_per_hcw_per_week * (
+      tests_hcws_weekly = test_strat$tests_per_hcw_per_week * (
         .data$hcws_inpatient_capped + .data$cleaners_inpatient_capped +
           .data$amb_personnel_inpatient_capped +
           .data$bio_eng_inpatient_capped + .data$screening_hcw_capped +
           .data$lab_staff_capped + .data$cleaners_lab),
       tests_contacts_weekly = ifelse(
-        params$testing_contacts == TRUE,
-        params$perc_contacts_tested * params$avg_contacts_pos_case * (
+        test_strat$testing_contacts == TRUE,
+        test_strat$perc_contacts_tested * test_strat$avg_contacts_pos_case * (
           .data$tests_diagnosis_uncapped_sev_crit +
             .data$tests_release_uncapped_sev_crit + .data$tests_mild +
             .data$tests_mod), 0

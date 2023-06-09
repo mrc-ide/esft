@@ -47,19 +47,10 @@ Mission Report; default = 0.134
 College Report nr. 9; default = 0.5
 
 percentage allocation of health care workers (hcws):
-(as of now static, and assumed to equal 100% - option to change this to
-depending on staff ratios, severity ratios, and/or case estimation)
-
+(we set some percentages before hand, the rest are determined by the hcw_caps
+function)
 * perc_hcws_not_covid - assumption of percentage of HCWs not working on
 COVID; default = 0.4
-* perc_hcws_treat_covid - assumption of percentage of HCWs performing mostly
-inpatient tasks with severe and critical patients (e.g., management of
-respiratory failure and critical care monitoring); default = 0.53
-* perc_hcws_screen_covid - assumption of percentage of HCWs screening and
-triaging suspected COVID cases at all points of access to the health system,
-including primary health centres, clinics, hospital emergency units, and ad
-hoc community settings; default = 0.07
-
 * n_hosp_beds_per_care_unit - assumption, used to estimate triple packaging
 boxes (might not be necessary); default = 40
 
@@ -77,10 +68,6 @@ default = 0
 guidance, with estimates of 1 caregiver per patient for the duration of the
 roughly 2-week isolation - his calculation estimates the quantity of PPE
 required (e.g., masks and gloves) for the patient and caregiver; default = 1
-
-* cases_screened_per_hcw_per_day - screening/triage ratio is based on the
-assumption that each screening/triage takes approximately 48 minutes, which
-is 10 consultations per 8-hour shift ((8 x 60)/48); default = 10
 
 percent of critical patients mechanically ventilated:
 

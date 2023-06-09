@@ -1,6 +1,5 @@
 #' HCWS Weekly
 #'
-#'NEEDS TO BE UPDATED WITH NEW PARAMS + HCW CAPs
 #' @description This function takes some of the HCW cap options and calculates
 #' the section in the `Weekly Summary` tab marked HCW and staff (except for
 #' the screening/triage section, which depends on diagnostics_weekly and is
@@ -54,26 +53,24 @@ hcws_weekly <- function(params, # from get_parameters
                         hcw_caps
 ) {
   data <- merge(patients, tests)
-  params <- merge(params, capacity)
-  params <- merge(params, hcw_caps)
 
   data <- data %>%
     dplyr::mutate(
       hcws_inpatient_uncapped = .data$total_beds_inuse *
-        .data$hcws_per_bed,
+        hcw_caps$hcws_per_bed,
       hcws_inpatient_capped = min(
-        .data$total_beds_inuse * .data$hcws_per_bed,
-        hcw_stat_caps$hcws_inpatients_cap
+        .data$total_beds_inuse * hcw_caps$hcws_per_bed,
+        hcw_caps$hcws_inpatients_cap
       ),
       inf_caregivers_hosp_uncapped = .data$total_beds_inuse *
         params$n_inf_caregivers_hosp,
       cleaners_inpatient_capped = min(
-        .data$total_beds_inuse * .data$hygienists_per_bed,
-        .data$cleaners_inpatient_cap
+        .data$total_beds_inuse * hcw_caps$hygienists_per_bed,
+        hcw_caps$cleaners_inpatient_cap
       ),
       # double check if i want to add the HCW caps to data or params - then rewrite
-      amb_personnel_inpatient_capped = .data$total_beds_inuse*.params$ambulancews_per_bed,
-      bio_eng_inpatient_capped = .data$total_beds_inuse*.params$bioengs_per_bed,
+      amb_personnel_inpatient_capped = .data$total_beds_inuse*params$ambulancews_per_bed,
+      bio_eng_inpatient_capped = .data$total_beds_inuse*params$bioengs_per_bed,
       # it's basically calculated this way i think to accommodate for mild
       # + mod testing in outpatient setting
       inf_caregivers_isol_uncapped = (
@@ -81,7 +78,7 @@ hcws_weekly <- function(params, # from get_parameters
       # for the all testing strategy, capped by testing capacity
       # (confusing - needs simplification)
       lab_staff_capped = min(
-        t_labs * lab_params$lab_staff_per_lab, params$lab_staff_cap
+        t_labs * lab_params$lab_staff_per_lab, hcw_caps$lab_staff_cap
       ),
       cleaners_lab = t_labs * lab_params$hygienists_per_lab
     ) %>%

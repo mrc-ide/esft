@@ -4,12 +4,14 @@
 \alias{screening_hcws_weekly}
 \title{Screening HCWs per week, capped and uncapped}
 \usage{
-screening_hcws_weekly(diagnostics_weekly, params)
+screening_hcws_weekly(diagnostics_weekly, hcw_caps, capacity)
 }
 \arguments{
 \item{diagnostics_weekly}{From diagnostics_weekly}
 
-\item{params}{From get_parameters}
+\item{hcw_caps}{From hcw_caps}
+
+\item{capacity}{Country capacity, get_country_capacity}
 }
 \value{
 Dataframe of summary
