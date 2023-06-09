@@ -21,18 +21,18 @@ commodities_weekly <- function(equipment, patients, cases, tests,
                                total_tests, params) {
   hygiene <- hygiene_forecast(
     equipment, hcws, patients, cases, tests,
-    screening_hcws
+    screening_hcws, params
   )
 
-  case_management <- case_management_forecast(params, equipment, patients)
+  case_management <- case_management_forecast(equipment, patients)
 
   ppe <- ppe_forecast(
     equipment, hcws, patients, cases, tests,
-    screening_hcws
+    screening_hcws, params
   )
   diagnostic_supplies <- diagnostics_forecast(
     lab_params, equipment, test_ratios,
-    total_tests, patients
+    n_tests = total_tests, patients
   )
 
   # maybe, get totals?
@@ -41,7 +41,9 @@ commodities_weekly <- function(equipment, patients, cases, tests,
 
 #' @title Hygiene weekly
 #'
-#' @description
+#' @description The amounts per hygiene item come from the equipment sheet:
+#' one idea is to disaggregate this from the merging so that the sourcing is
+#' clearer. This is to clear up memory + make it easier to make alterations.
 #'
 #' @param equipment This should be the data frame of equipment need
 #' @param hcws HCWs_weekly
@@ -49,11 +51,12 @@ commodities_weekly <- function(equipment, patients, cases, tests,
 #' @param cases cases_weekly
 #' @param tests diagnostics_weekly
 #' @param screening_hcws screening_hcws_weekly
+#' @param params From get_parameters()
 #'
 #' @import dplyr
 #' @export
 hygiene_forecast <- function(equipment, hcws, patients, cases, tests,
-                             screening_hcws) {
+                             screening_hcws, params) {
   equipment <- equipment %>%
     dplyr::mutate(
       across(where(is.numeric), ~ replace_na(.x, 0))
@@ -139,13 +142,12 @@ hygiene_forecast <- function(equipment, hcws, patients, cases, tests,
 #' To do: get rid of for loop for non reusable items.
 #' Can also experiment with Reduce.
 #'
-#' @param params Classic parameter function (?)
 #' @param equipment This should be the data frame of equipment need
 #' @param patients From patients_weekly
 #'
 #'
 #' @export
-case_management_forecast <- function(params, equipment, patients) {
+case_management_forecast <- function(equipment, patients) {
   equipment <- equipment %>%
     dplyr::mutate(
       across(where(is.numeric), ~ replace_na(.x, 0))
@@ -197,7 +199,7 @@ case_management_forecast <- function(params, equipment, patients) {
     amounts,
     amounts$week_begins != min(first_amounts$week_begins)
   )
-  # substitute these rows back in
+  # substitute these rows back in - generates a lot of text, maybe fix?
   amounts <- full_join(first_amounts, amounts)
   # order by date and item
   amounts <- amounts[
@@ -208,7 +210,7 @@ case_management_forecast <- function(params, equipment, patients) {
   # df <- subset(amounts, amounts$reusable == T)
   items <- unique(amounts$item)
 
-  #
+  res <- data.frame()
   # split and run this only on reusable items
   # if you split - 1360 FALSE, 2641 TRUE - so reduce time by a third
   for (i in 1:length(items)) {
@@ -268,10 +270,11 @@ case_management_forecast <- function(params, equipment, patients) {
 #' @param cases cases_weekly
 #' @param tests diagnostics_weekly
 #' @param screening_hcws screening_hcws_weekly
+#' @param params From get_parameters()
 #'
 #' @export
 ppe_forecast <- function(equipment, hcws, patients, cases, tests,
-                         screening_hcws) {
+                         screening_hcws, params) {
   equipment <- equipment %>%
     dplyr::mutate(
       across(where(is.numeric), ~ replace_na(.x, 0))
@@ -316,11 +319,9 @@ ppe_forecast <- function(equipment, hcws, patients, cases, tests,
       amount_screening_hcw = ifelse(
         reusable == TRUE,
         (ifelse(amount_per_screening_hcw_per_day > 0,
-          screening_hcw_capped, 0
-        ) +
+          screening_hcw_capped, 0) +
           ifelse(amount_per_screening_patient_per_day > 0,
-            tests_mild + tests_mod
-          )),
+            tests_mild + tests_mod, 0)),
         (screening_hcw_capped * amount_per_screening_hcw_per_day +
           tests_mod * amount_per_screening_patient_per_day * params$stay_mod +
           tests_mild * amount_per_screening_patient_per_day * params$stay_mild
@@ -357,13 +358,13 @@ ppe_forecast <- function(equipment, hcws, patients, cases, tests,
 #' @param lab_params From lab parameters
 #' @param equipment This should be the data frame of equipment need
 #' @param test_ratios This should be from test ratios
-#' @param total_tests total_tests from that function
+#' @param n_tests n_tests from total_tests
 #' @param patients patients_weekly, this has the number of hospital facilities in use
 #'
 #'
 #' @export
 diagnostics_forecast <- function(lab_params, equipment, test_ratios,
-                                 total_tests, patients) {
+                                 n_tests, patients) {
   equipment <- equipment %>%
     dplyr::mutate(
       across(where(is.numeric), ~ replace_na(.x, 0))
@@ -375,20 +376,20 @@ diagnostics_forecast <- function(lab_params, equipment, test_ratios,
   dx$total_amount <- NA
 
   # ignore warnings
-  dx$total_amount[grep("manual PCR", dx$item)] <- dx$total_tests_capped *
+  dx$total_amount[grep("manual PCR", dx$item)] <- dx$total_tests_capped[grep("manual PCR", dx$item)] *
     test_ratios$ratio[test_ratios$type == "manual"] / (
       lab_params$perc_wastage_manual_test_kits *
         lab_params$num_tests_manual_test_kits)
   dx$total_amount[grep("Triple packaging", dx$item)] <-
-    dx$hosp_facilities_inuse *
+    dx$hosp_facilities_inuse[grep("Triple packaging", dx$item)] *
       lab_params$triple_packaging_per_unit
-  dx$total_amount[grep("Swab and Viral", dx$item)] <- dx$total_tests_capped
-  dx$total_amount[grep("high-throughput", dx$item)] <- dx$total_tests_capped *
+  dx$total_amount[grep("Swab and Viral", dx$item)] <- dx$total_tests_capped[grep("Swab and Viral", dx$item)]
+  dx$total_amount[grep("high-throughput", dx$item)] <- dx$total_tests_capped[grep("high-throughput", dx$item)] *
     test_ratios$ratio[test_ratios$type == "high_throughput"]
-  dx$total_amount[grep("RT-PCR cartridge", dx$item)] <- dx$total_tests_capped *
+  dx$total_amount[grep("RT-PCR cartridge", dx$item)] <- dx$total_tests_capped[grep("RT-PCR cartridge", dx$item)] *
     test_ratios$ratio[test_ratios$type == "near_patient"]
   dx$total_amount[grep("Antigen Rapid Diagnostic Tests", dx$item)] <-
-    dx$total_tests_capped *
+    dx$total_tests_capped[grep("Antigen Rapid Diagnostic Tests", dx$item)] *
       test_ratios$ratio[test_ratios$type == "antigen"]
 
   # remove NAs (keep in mind, for some equipment items we did not have calculations to copy)
