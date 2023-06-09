@@ -4,16 +4,7 @@
 \alias{hcws_weekly}
 \title{HCWS Weekly}
 \usage{
-hcws_weekly(
-  params,
-  capacity,
-  lab_params,
-  tests,
-  patients,
-  t_labs,
-  hcw_dyn_caps,
-  hcw_stat_caps
-)
+hcws_weekly(params, capacity, lab_params, tests, patients, t_labs, hcw_caps)
 }
 \arguments{
 \item{params}{from get_parameters}
@@ -28,9 +19,7 @@ hcws_weekly(
 
 \item{t_labs}{From total_labs}
 
-\item{hcw_dyn_caps}{dataframe of dynamic caps, hcw_caps_dynamic}
-
-\item{hcw_stat_caps}{single list of caps, hcw_caps_static}
+\item{hcw_caps}{single list of caps, hcw_caps}
 }
 \value{
 Dataframe of summary

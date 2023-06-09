@@ -4,22 +4,14 @@
 \alias{additional_testing}
 \title{Additional testing}
 \usage{
-additional_testing(
-  hcws,
-  screening_hcws,
-  params,
-  testing_strategy,
-  tests_weekly
-)
+additional_testing(hcws, screening_hcws, test_strat, tests)
 }
 \arguments{
 \item{hcws}{From hcws_weekly}
 
 \item{screening_hcws}{From screening_hcws_weekly}
 
-\item{params}{From get_parameters}
-
-\item{testing_strategy}{From set_testing_strategy}
+\item{test_strat}{From set_testing_strategy}
 
 \item{tests_weekly}{From diagnostics_weekly}
 }

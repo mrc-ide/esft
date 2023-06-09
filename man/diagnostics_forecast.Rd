@@ -18,5 +18,5 @@ diagnostics_forecast(lab_params, equipment, test_ratios, total_tests, patients)
 \item{patients}{patients_weekly, this has the number of hospital facilities in use}
 }
 \description{
-
+Diagnostics weekly
 }

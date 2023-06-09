@@ -20,5 +20,5 @@ ppe_forecast(equipment, hcws, patients, cases, tests, screening_hcws)
 \item{screening_hcws}{screening_hcws_weekly}
 }
 \description{
-
+PPE need weekly
 }

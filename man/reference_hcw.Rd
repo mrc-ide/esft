@@ -26,9 +26,6 @@ reference_hcw(
 \item{overrides}{These are the base values supplied by the ESFT worksheet -
 replacements for if there are no reference cadre values}
 }
-\value{
-
-}
 \description{
-
+Reference cadres of HCWs
 }

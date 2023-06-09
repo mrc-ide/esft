@@ -12,10 +12,11 @@ source("R/cases_weekly.R")
 source("R/patients_weekly.R")
 source("R/utils.R")
 source("R/user_input.R")
-source("drafts/hcw_caps.R")
+source("R/hcw_caps.R")
 source("R/diagnostics_weekly.R")
-# source("R/hcw_tests.R")
-# source("R/hcws_weekly.R")
+source("R/hcw_tests.R")
+source("R/hcws_weekly.R")
+source("R/noncovid_essentials.R")
 # goal is to figure out hcw caps and cases:
 
 load("data/who.rda")
@@ -170,7 +171,7 @@ afg_data<-subset(all, all$iso3c == "AFG")
 afg_data <- subset(afg_data, afg_data$scenario == "Maintain Status Quo")
 
 
-#afg_data <- subset(afg_data, afg_data$date >= as.Date("2022-01-02"))
+afg_data <- subset(afg_data, afg_data$date > as.Date("2022-01-02"))
 
 cases <- cases_weekly(params, capacity, test_strategy_params=test_strat,
                       data=afg_data)
@@ -179,19 +180,44 @@ cases <- cases_weekly(params, capacity, test_strategy_params=test_strat,
 patients <- patients_weekly(params, capacity, data = cases)
 hcw_caps <- hcw_caps(params,capacity,throughput,hwfe, patients)
 # also did weird stuff when subset by date - but tend only to be for diagnosis
+patients <- subset(patients, patients$week_begins > "2022-01-02")
+cases <- subset(cases, cases$week_begins > "2022-01-02")
+
 tests <- diagnostics_weekly(params, patients, cases,
-                            diagnostic_parameters = test_params)
-# this is off somehow
-#hcws <- hcws_weekly(params, capacity = capacity, lab_params, tests, patients,
-                    # t_labs, hcw_dyn_caps = hcw_caps_dyn,
-                    # hcw_stat_caps = hcw_caps_stat)
-# screening_hcws <- screening_hcws_weekly(tests, params)
-# added_tests <- additional_testing(hcws, screening_hcws, params, test_strat,
-#                                   tests)
-# n_tests <- total_tests(tests, added_tests, max_tests)
+                            diagnostic_parameters = test_params,
+                            testing_strategy = "all")
+
+hcws <- hcws_weekly(params, # from get_parameters
+                    capacity, # from get_country_capacity
+                    lab_params, # get_lab_parameters
+                    tests, # from diagnostics_weekly
+                    patients, # patients_weekly
+                    t_labs, # total_labs
+                    hcw_caps)
+screening_hcws <- screening_hcws_weekly(tests, hcw_caps,
+                                        capacity)
+added_tests <- additional_testing(hcws, # from hcws_weekly
+                                  screening_hcws, # from screening_hcws_weekly
+                                  test_strat, # from set_testing_strategy
+                                  tests)
+n_tests <- total_tests(tests, added_tests, max_tests)
 test_ratios <- test_ratio(diagnostic_capacity, test_params)
 load("data/equipment.rda")
-
+ref_hcws <- reference_hcw(iso3c = "AFG", params, who, throughput,
+                           overrides = list(
+                             n_docs = 8000,
+                             n_nurses = 5000,
+                             n_labs = 300,
+                             n_midwives = 500,
+                             n_dentists = 10,
+                             n_physiotherapists = 50,
+                             n_trad_comp_med = 4000,
+                             n_chws = 245,
+                             n_pharmacists = 818
+                           ))
+noncovid_ess <-noncovid_essentials(noncovid, ref_hcws,
+                                forecast_length = 12,
+                                days_week = 5)
 
 list=ls()
 list <- list[4,6,13,19,]

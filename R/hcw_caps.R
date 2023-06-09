@@ -1,13 +1,47 @@
 #' HCW Caps
 #'
-#' @description This function calculates the static HCW caps found in the
-#' `Weekly Summary` in the ESFT.
+#' @description This function calculates the HCW caps found in the
+#' `Weekly Summary`, `Inputs`, and `Back Calculations` tabs in the ESFT.
 #'
-#'* TO DO - UPDATE THIS DESCRIPTIVE PART
-#' * cases_screened_per_hcw_per_day - screening/triage ratio is based on the
+#' Here is the description of the bed cap calculations:
+#' * bed_cap - Bed cap to calculate max bed occupancy, equal to total number of
+#' beds available per country.
+#' * cases_screened_per_hcw_per_day - Screening/triage ratio is based on the
 #' assumption that each screening/triage takes approximately 48 minutes, which
-#' is 10 consultations per 8-hour shift ((8 x 60)/48); default = 10
-#'
+#' is 10 consultations per 8-hour shift.
+#' * cleaners_inpatient_cap - Max number of estimated cleaners needed, refers
+#' to Cleaners and Helpers (ILO ISCO code 9112).
+#' * hcws_inpatients_cap - Max number of estimated healthcare workers, refers
+#' to all medical practitioners, including physicians, nursing professionals,
+#' and paramedical practitioners (ILO ISCO codes 2240, 2211, 2212, 2221, 3221,
+#' 5321, 3256)
+#' * hcws_per_bed - Average number of health care workers per bed, derived from
+#' bed occupancy and typical/recommended hours per bed per health care worker.
+#' * hcws_per_inpatient - Same as hcws_per_bed.
+#' * hcws_per_outpatient - Number of health care workers required per outpatient
+#' (screening) case, or the inverse of cases screened per health care worker per
+#' day.
+#' * hcws_screening_cap - Max number of estimated health care workers
+#' dedicated to screening COVID-19 cases.
+#' * hygienists_per_bed - Average number of hygienists per bed, derived from bed
+#' occupancy and typical/recommended hours per bed per hygienist.
+#' * lab_staff_cap - Estimated max number of possible lab staff - either derived
+#' from the different machines and their estimated COVID-19 capacity or derived
+#' from the total number of available lab staff.
+#' * perc_crit_cases - Percent of all patients occupying beds who are of
+#' critical severity.
+#' * perc_screening_covid - Percent of all HCWs dedicated to screening COVID-19
+#' cases (usually the percent leftover after accounting for those who are and
+#' are not dedicated to COVID-19 response)
+#' * perc_sev_cases - Percent of all patients occupying beds who are of severe
+#' case severity.
+#' * perc_treating_covid - Percent of HCWs dedicated to responding to COVID-19.
+#' * prob_inpatient - Probability that a COVID-19 case is inpatient, i.e. in a
+#' care facility.
+#' * prob_outpatient - Probability that a COVID-19 case is outpatient, i.e. that
+#' it is not in a care facility.
+#' * ratio_hcws_inpatient_outpatient - Per new case, ratio of HCWs for inpatient
+#' vs. outpatient
 #'
 #' @param params From get_parameters
 #' @param capacity Country capacity, get_country_capacity
@@ -15,7 +49,6 @@
 #' @param hwfe From WHO ESFT sheet
 #' @param patients From patients_weekly
 #'
-#' From old statis caps - UPDATE
 #' @return List of caps
 #' \describe{
 #'   \item{iso3c}{Iso3c code these HCW caps are associated with.}
@@ -41,17 +74,18 @@
 #'   total number of beds in use by severity and the time recommended for
 #'   hygienists to spend at beds by severity}
 #'   \item{lab_staff_cap}{If there are machines dedicated to COVID-19 test
-#'   processing, its the average of their dedication to covid multiplied by
-#'   the number of lab staff, if not, its the total number of lab staff}
-#'   \item{perc_crit_cases}{Percentage of total critical beds in use divided by
+#'   processing, its the average of their percent capacity allocation to COVID
+#'   multiplied by the number of lab staff. If there are no estimates for
+#'   percent allocation to COVID, it is equal to the total number of lab staff}
+#'   \item{perc_crit_cases}{Percent of total critical beds in use divided by
 #'   the total beds in use over the forecasting period}
-#'   \item{perc_screening_covid}{Percentage of HCWs dedicated to COVID-19
-#'   screening, which is equal to the leftover percentage after accounting for
+#'   \item{perc_screening_covid}{Percent of HCWs dedicated to COVID-19
+#'   screening, which is equal to the leftover Percent after accounting for
 #'   those HCWs not dedicated to COVID-19 and those allocated to COVID-19
 #'   response}
-#'   \item{perc_sev_cases}{Percentage of total severe beds in use divided by
+#'   \item{perc_sev_cases}{Percent of total severe beds in use divided by
 #'   the total beds in use over the forecasting period}
-#'   \item{perc_treating_covid}{Percentage of HCWs dedicated to COVID-19
+#'   \item{perc_treating_covid}{Percent of HCWs dedicated to COVID-19
 #'   response - this depends on the total patients in beds and the number of
 #'   HCWs needed to respond to them during the forecasting period}
 #'   \item{prob_inpatient}{Probability the patient in inpatient (severe or
