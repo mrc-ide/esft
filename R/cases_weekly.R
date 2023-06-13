@@ -51,14 +51,6 @@
 #'   case calculation}
 #'   \item{cum_mild_cases}{Cumulative mild cases, using the first mild case
 #'   calculation}
-#'   \item{rem_critical_cases}{Critical cases who have completed their hospital
-#'   stay, using the average length of stay for critical cases}
-#'   \item{rem_severe_cases}{Severe cases who have completed their hospital
-#'   stay, using the average length of stay for severe cases}
-#'   \item{rem_mod_cases}{Moderate cases who have completed their isolation,
-#'   using the average length of stay for moderate cases}
-#'   \item{rem_mild_cases}{Mild cases who have completed their isolation,
-#'   using the average length of stay for mild cases}
 #'   \item{sus_cases_but_negative}{Sum of all new cases multiplied by the
 #'   number of negative tests per positive case}
 #' }
@@ -137,19 +129,19 @@ cases_weekly <- function(params, # from get_parameters
       cum_critical_cases = cumsum(.data$ICU_incidence),
       cum_severe_cases = cumsum(.data$hospital_incidence),
       cum_mod_cases = cumsum(.data$new_mod_cases),
-      cum_mild_cases = cumsum(.data$new_mild_cases),
-      rem_critical_cases = data.table::shift(.data$new_critical_cases,
-        n = params$stay_crit
-      ),
-      rem_severe_cases = data.table::shift(.data$new_severe_cases,
-        n = params$stay_sev
-      ),
-      rem_mod_cases = data.table::shift(.data$new_mod_cases,
-        n = params$stay_mod
-      ),
-      rem_mild_cases = data.table::shift(.data$new_mild_cases,
-        n = params$stay_mild
-      )
+      cum_mild_cases = cumsum(.data$new_mild_cases)
+      # rem_critical_cases = data.table::shift(.data$new_critical_cases,
+      #   n = params$stay_crit
+      # ),
+      # rem_severe_cases = data.table::shift(.data$new_severe_cases,
+      #   n = params$stay_sev
+      # ),
+      # rem_mod_cases = data.table::shift(.data$new_mod_cases,
+      #   n = params$stay_mod
+      # ),
+      # rem_mild_cases = data.table::shift(.data$new_mild_cases,
+      #   n = params$stay_mild
+      # )
     )
 
   data <- data %>%
