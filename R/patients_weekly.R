@@ -145,86 +145,30 @@ patients_weekly <- function(params,
     )
 
   # this has to be a loop since they are dependent on each other
-
-  res <- data.frame()
   for (i in 1:nrow(data)) {
     # step 1: get current num discharged, which is the previous
       discharged_sev_patients = data$sev_patients_admitted_cap[i-params$stay_sev]
       discharged_crit_patients = data$crit_patients_admitted_cap[i-params$stay_crit]
+      sev_patients_admitted_cap = ifelse((data$sev_beds_inuse[i -1] -
+           discharged_sev_patients + data$new_severe_cases[i]) >
+          params$severe_beds_covid,
+        params$severe_beds_covid - (data$sev_beds_inuse[i - 1] -
+                                      discharged_sev_patients),
+        data$new_severe_cases[i])
+      crit_patients_admitted_cap = ifelse((data$crit_beds_inuse[i -1] -
+                                            discharged_crit_patients + data$new_critical_cases[i]) >
+                                           params$crit_beds_covid,
+                                         params$crit_beds_covid - (data$crit_beds_inuse[i - 1] -
+                                                                       discharged_crit_patients),
+                                         data$new_critical_cases[i])
 
-    df <- subset(amounts, amounts$item == items[i])
-    for (n in 1:nrow(df)) {
-      amount_sev <- df$amount_sev_patient[n]
-      demand_sev <- df$demand_sev_patient[n]
-      amount_crit <- df$amount_crit_patient[n]
-      demand_crit <- df$demand_crit_patient[n]
-      amount_sev_crit <- df$amount_sev_crit_patient[n]
-      demand_sev_crit <- df$demand_sev_crit_patient[n]
-      if (is.na(amount_crit)) {
-        if (df$reusable[n] == T) {
-          sum_sev <- sum(df$amount_sev_patient[1:n - 1])
-          amount_sev_replace <- max(ceiling(demand_sev -
-                                              sum_sev), 0)
-          sum_crit <- sum(df$amount_crit_patient[1:n - 1])
-          amount_crit_replace <- max(ceiling(demand_crit -
-                                               sum_crit), 0)
-          sum_sev_crit <- sum(df$amount_sev_crit_patient[1:n - 1])
-          amount_sev_crit_replace <- max(ceiling(demand_sev_crit -
-                                                   sum_sev_crit), 0)
-        } else {
-          amount_sev_replace <- ceiling(demand_sev)
-          amount_crit_replace <- ceiling(demand_crit)
-          amount_sev_crit_replace <- ceiling(demand_sev_crit)
-        }
-        df$amount_sev_patient[n] <- amount_sev_replace
-        df$amount_crit_patient[n] <- amount_crit_replace
-        df$amount_sev_crit_patient[n] <- amount_sev_crit_replace
-      }
-    }
-    res <- rbind(res, df) # this likely takes most time
+      data$discharged_sev_patients[i] <- discharged_sev_patients
+      data$discharged_crit_patients[i] <- discharged_crit_patients
+      data$sev_patients_admitted_cap[i] <- sev_patients_admitted_cap
+      data$crit_patients_admitted_cap[i] <- crit_patients_admitted_cap
   }
 
-  res <- res %>% dplyr::select(c(
-    item, category, week_begins, week_ends, amount_sev_patient,
-    amount_crit_patient, amount_sev_crit_patient
-  ))
 
-
-  # keep in mind: discharged means capping
-  data <- data %>%
-    dplyr::mutate(
-      discharged_sev_patients = data.table::shift(.data$sev_patients_admitted_cap,
-        n = params$stay_sev
-      ),
-      discharged_crit_patients = data.table::shift(.data$crit_patients_admitted_cap,
-        n = params$stay_sev
-      )
-    )
-
-  # to do: figure out the severe patients admitted here
-  data <- data %>%
-    dplyr::mutate(
-      # if critical beds in use in previous week - critical patients discharged + new critical cases > crit beds COVID,
-      # crit beds covid - (critical beds in use in previous week- critical patients discharged)
-      # else new critical cases
-      sev_patients_admitted_cap = ifelse(
-        (data.table::shift(.data$sev_beds_inuse, n = 1) -
-           .data$discharged_sev_patients + .data$new_severe_cases) >
-          params$severe_beds_covid,
-        params$severe_beds_covid - (data.table::shift(.data$sev_beds_inuse,
-                                                      n = 1) -
-                                      .data$discharged_sev_patients),
-        .data$new_severe_cases),
-
-      crit_patients_admitted_cap = ifelse(
-        (data.table::shift(.data$crit_beds_inuse, n = 1) -
-           .data$discharged_crit_patients + .data$new_critical_cases) >
-          params$crit_beds_covid,
-        params$crit_beds_covid - (data.table::shift(.data$crit_beds_inuse,
-                                                      n = 1) -
-                                      .data$discharged_crit_patients),
-        .data$new_critical_cases)
-    )
   data <- data %>% dplyr::select(c(
     week_begins, week_ends, crit_patients_nocap,
     sev_patients_nocap, mod_patients_nocap,
