@@ -5,7 +5,9 @@
 #' (or dying) from illness, per week'. It takes in the model output plus the
 #' cumulative infections calculated by cases_weekly (which is the first step in
 #' the weekly summary process). It then calculates hospital demands, including
-#' bed capping.
+#' bed capping. Note: there will be a lag on the appearances of the first values
+#' in these projections, and these are dependent on the length of stay of
+#' various case types specified in the get_parameters() function.
 #'
 #'
 #' Here is the description of the additional patient calculations:
@@ -32,6 +34,10 @@
 #' length of hospital stay
 #' * discharged_crit_patients - admitted critical patients shifted back by avg.
 #' length of hospital stay
+#' * sev_patients_admitted_cap - admitted severe patients capped by severe beds,
+#' number of beds in use, and number of patients discharged
+#' * crit_patients_admitted_cap - admitted critical patients capped by critical
+#' beds, number of beds in use, and number of patients discharged
 #'
 #' @param params From get_parameters
 #' @param country_capacity From get_country_capacity
@@ -66,6 +72,10 @@
 #'   ago that = avg. length of stay}
 #'   \item{discharged_sev_patients}{Severe patients admitted number of weeks
 #'   ago that = avg. length of stay}
+#'   \item{sev_patients_admitted_cap}{Severe patients admitted during the week
+#'   based on bed availability and numbers of discharged patients}
+#'   \item{crit_patients_admitted_cap}{Critical patients admitted during the
+#'   week based on bed availability and numbers of discharged patients}
 #'   }
 #'
 #' @import dplyr
@@ -152,52 +162,66 @@ patients_weekly <- function(params,
 
   data[is.na(data)] <- 0
 
-  # this has to be a loop since they are dependent on each other
-  # but the issue here is that it depends on keeping the stays in hospital constant
-  # theoretically this would calculate backwards to get the x amount backwards of whatever - although that doesnt work
-  # so how bout we calculate a -1
-  # would that work in dealing with the condition?
+  # depends on stay - there will be a lag between the start of the projections
+  # and the first occurrence of a discharged patient value based on how long
+  # the length of stay is in weeks
   for (i in 1:nrow(data)) {
-    # step 1: get current num discharged, which is the previous
-    if (i == 1){
-      discharged_sev_patients = 0
-      discharged_crit_patients = 0
-      sev_patients_admitted_cap = data$sev_beds_inuse[i]
-      crit_patients_admitted_cap = data$crit_beds_inuse[i]
-    } else if (i == 2){
-      discharged_crit_patients = 0
-      discharged_sev_patients = data$sev_patients_admitted_cap[i-params$stay_sev]
-      sev_patients_admitted_cap = ifelse((data$sev_beds_inuse[i -1] -
-                                            discharged_sev_patients + data$new_severe_cases[i]) >
-                                           params$severe_beds_covid,
-                                         params$severe_beds_covid - (data$sev_beds_inuse[i - 1] -
-                                                                       discharged_sev_patients),
-                                         data$new_severe_cases[i])
-      crit_patients_admitted_cap = 0
+    if (params$stay_sev >= i && params$stay_crit >= i) {
+      discharged_sev_patients <- 0
+      discharged_crit_patients <- 0
+      sev_patients_admitted_cap <- data$sev_beds_inuse[i]
+      crit_patients_admitted_cap <- data$crit_beds_inuse[i]
+    } else if (params$stay_sev < i && params$stay_crit >= i) {
+      discharged_crit_patients <- 0
+      discharged_sev_patients <-
+        data$sev_patients_admitted_cap[i - params$stay_sev]
+      sev_patients_admitted_cap <- ifelse((data$sev_beds_inuse[i - 1] -
+        discharged_sev_patients + data$new_severe_cases[i]) >
+        params$severe_beds_covid,
+      params$severe_beds_covid - (data$sev_beds_inuse[i - 1] -
+        discharged_sev_patients),
+      data$new_severe_cases[i]
+      )
+      crit_patients_admitted_cap <- 0
+    } else if (params$stay_sev >= i && params$stay_crit < i) {
+      discharged_crit_patients <-
+        data$crit_patients_admitted_cap[i - params$stay_crit]
+      discharged_sev_patients <- 0
+      sev_patients_admitted_cap <- 0
+      crit_patients_admitted_cap <- ifelse((data$crit_beds_inuse[i - 1] -
+        discharged_crit_patients + data$new_critical_cases[i]) >
+        params$crit_beds_covid,
+      params$crit_beds_covid - (data$crit_beds_inuse[i - 1] -
+        discharged_crit_patients),
+      data$new_critical_cases[i]
+      )
     } else {
       # maybe should i add something here ??
       # it still doesnt work if i subset before or after calculation
-      discharged_sev_patients = data$sev_patients_admitted_cap[i-params$stay_sev]
-      discharged_crit_patients = data$crit_patients_admitted_cap[i-params$stay_crit]
-      sev_patients_admitted_cap = ifelse((data$sev_beds_inuse[i -1] -
-                                            discharged_sev_patients + data$new_severe_cases[i]) >
-                                           params$severe_beds_covid,
-                                         params$severe_beds_covid - (data$sev_beds_inuse[i - 1] -
-                                                                       discharged_sev_patients),
-                                         data$new_severe_cases[i])
-      crit_patients_admitted_cap = ifelse((data$crit_beds_inuse[i -1] -
-                                             discharged_crit_patients + data$new_critical_cases[i]) >
-                                            params$crit_beds_covid,
-                                          params$crit_beds_covid - (data$crit_beds_inuse[i - 1] -
-                                                                      discharged_crit_patients),
-                                          data$new_critical_cases[i])
+      discharged_sev_patients <-
+        data$sev_patients_admitted_cap[i - params$stay_sev]
+      discharged_crit_patients <-
+        data$crit_patients_admitted_cap[i - params$stay_crit]
+      sev_patients_admitted_cap <- ifelse((data$sev_beds_inuse[i - 1] -
+        discharged_sev_patients + data$new_severe_cases[i]) >
+        params$severe_beds_covid,
+      params$severe_beds_covid - (data$sev_beds_inuse[i - 1] -
+        discharged_sev_patients),
+      data$new_severe_cases[i]
+      )
+      crit_patients_admitted_cap <- ifelse((data$crit_beds_inuse[i - 1] -
+        discharged_crit_patients + data$new_critical_cases[i]) >
+        params$crit_beds_covid,
+      params$crit_beds_covid - (data$crit_beds_inuse[i - 1] -
+        discharged_crit_patients),
+      data$new_critical_cases[i]
+      )
     }
 
-
-      data$discharged_sev_patients[i] <- discharged_sev_patients
-      data$discharged_crit_patients[i] <- discharged_crit_patients
-      data$sev_patients_admitted_cap[i] <- sev_patients_admitted_cap
-      data$crit_patients_admitted_cap[i] <- crit_patients_admitted_cap
+    data$discharged_sev_patients[i] <- discharged_sev_patients
+    data$discharged_crit_patients[i] <- discharged_crit_patients
+    data$sev_patients_admitted_cap[i] <- sev_patients_admitted_cap
+    data$crit_patients_admitted_cap[i] <- crit_patients_admitted_cap
   }
 
 

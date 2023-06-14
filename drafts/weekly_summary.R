@@ -171,21 +171,24 @@ afg_data<-subset(all, all$iso3c == "AFG")
 afg_data <- subset(afg_data, afg_data$scenario == "Maintain Status Quo")
 
 
-afg_data <- subset(afg_data, afg_data$date > as.Date("2022-01-02"))
+# afg_data <- subset(afg_data, afg_data$date > as.Date("2022-01-01"))
 
 cases <- cases_weekly(params, capacity, test_strategy_params=test_strat,
                       data=afg_data)
 
-# note - error occurred when subset by date
+# note - error occurred when subset by date like this: afg_data$date > as.Date("2022-01-01"))
+# have to subset before or you get carried over values from discharged and occupancy
+cases <- subset(cases, cases$week_ends > as.Date("2022-01-01"))
+
+# but patients still gives weird values for stay - it gives zeros, since those conditions havent been found and theyre super recursively difficlt to solve
 patients <- patients_weekly(params, capacity, data = cases)
 hcw_caps <- hcw_caps(params,capacity,throughput,hwfe, patients)
 # also did weird stuff when subset by date - but tend only to be for diagnosis
-patients <- subset(patients, patients$week_begins > as.Date("2022-01-02"))
-cases <- subset(cases, cases$week_begins > as.Date("2022-01-02"))
+patients <- subset(patients, patients$week_ends > as.Date("2022-01-01"))
 
-tests <- diagnostics_weekly(params, patients, cases,
+tests <- diagnostics_weekly(params = params, patients, cases,
                             diagnostic_parameters = test_params,
-                            testing_strategy = "all")
+                            testing_scenario = test_strat)
 
 hcws <- hcws_weekly(params, # from get_parameters
                     capacity, # from get_country_capacity
@@ -215,6 +218,8 @@ ref_hcws <- reference_hcw(iso3c = "AFG", params, who, throughput,
                              n_chws = 245,
                              n_pharmacists = 818
                            ))
+
+# something went wrong here
 noncovid_ess <-noncovid_essentials(noncovid, ref_hcws,
                                 forecast_length = 12,
                                 days_week = 5)
