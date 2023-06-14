@@ -184,7 +184,7 @@ cases <- subset(cases, cases$week_ends > as.Date("2022-01-01"))
 patients <- patients_weekly(params, capacity, data = cases)
 hcw_caps <- hcw_caps(params,capacity,throughput,hwfe, patients)
 # also did weird stuff when subset by date - but tend only to be for diagnosis
-patients <- subset(patients, patients$week_ends > as.Date("2022-01-01"))
+# patients <- subset(patients, patients$week_ends > as.Date("2022-01-01"))
 
 tests <- diagnostics_weekly(params = params, patients, cases,
                             diagnostic_parameters = test_params,

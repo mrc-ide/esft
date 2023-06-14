@@ -62,8 +62,8 @@ diagnostics_weekly <- function(params,
           .data$rem_crit_patients * (
             1 - params$ifr_crit) * params$tests_release_sev_crit,
       tests_diagnosis_capped_sev_crit =
-        (.data$sev_beds_inuse +
-          .data$crit_beds_inuse) * params$tests_diagnosis_sev_crit,
+        (.data$sev_patients_admitted_cap +
+          .data$crit_patients_admitted_cap) * params$tests_diagnosis_sev_crit,
       tests_release_capped_sev_crit =
         .data$discharged_sev_patients * (
           1 - params$ifr_sev) * params$tests_release_sev_crit +
