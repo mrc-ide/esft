@@ -144,23 +144,55 @@ patients_weekly <- function(params,
         data.table::shift(.data$cum_rem_critical_cases, n = 1)
     )
 
+  # initialize the columns
+  data$discharged_sev_patients <- c(rep(0, nrow(data)))
+  data$discharged_crit_patients <- c(rep(0, nrow(data)))
+  data$sev_patients_admitted_cap <- c(rep(0, nrow(data)))
+  data$crit_patients_admitted_cap <- c(rep(0, nrow(data)))
+
+  data[is.na(data)] <- 0
+
   # this has to be a loop since they are dependent on each other
+  # but the issue here is that it depends on keeping the stays in hospital constant
+  # theoretically this would calculate backwards to get the x amount backwards of whatever - although that doesnt work
+  # so how bout we calculate a -1
+  # would that work in dealing with the condition?
   for (i in 1:nrow(data)) {
     # step 1: get current num discharged, which is the previous
+    if (i == 1){
+      discharged_sev_patients = 0
+      discharged_crit_patients = 0
+      sev_patients_admitted_cap = data$sev_beds_inuse[i]
+      crit_patients_admitted_cap = data$crit_beds_inuse[i]
+    } else if (i == 2){
+      discharged_crit_patients = 0
+      discharged_sev_patients = data$sev_patients_admitted_cap[i-params$stay_sev]
+      sev_patients_admitted_cap = ifelse((data$sev_beds_inuse[i -1] -
+                                            discharged_sev_patients + data$new_severe_cases[i]) >
+                                           params$severe_beds_covid,
+                                         params$severe_beds_covid - (data$sev_beds_inuse[i - 1] -
+                                                                       discharged_sev_patients),
+                                         data$new_severe_cases[i])
+      crit_patients_admitted_cap = 0
+    } else {
+      # maybe should i add something here ??
+      # it still doesnt work if i subset before or after calculation
       discharged_sev_patients = data$sev_patients_admitted_cap[i-params$stay_sev]
       discharged_crit_patients = data$crit_patients_admitted_cap[i-params$stay_crit]
       sev_patients_admitted_cap = ifelse((data$sev_beds_inuse[i -1] -
-           discharged_sev_patients + data$new_severe_cases[i]) >
-          params$severe_beds_covid,
-        params$severe_beds_covid - (data$sev_beds_inuse[i - 1] -
-                                      discharged_sev_patients),
-        data$new_severe_cases[i])
+                                            discharged_sev_patients + data$new_severe_cases[i]) >
+                                           params$severe_beds_covid,
+                                         params$severe_beds_covid - (data$sev_beds_inuse[i - 1] -
+                                                                       discharged_sev_patients),
+                                         data$new_severe_cases[i])
       crit_patients_admitted_cap = ifelse((data$crit_beds_inuse[i -1] -
-                                            discharged_crit_patients + data$new_critical_cases[i]) >
-                                           params$crit_beds_covid,
-                                         params$crit_beds_covid - (data$crit_beds_inuse[i - 1] -
-                                                                       discharged_crit_patients),
-                                         data$new_critical_cases[i])
+                                             discharged_crit_patients + data$new_critical_cases[i]) >
+                                            params$crit_beds_covid,
+                                          params$crit_beds_covid - (data$crit_beds_inuse[i - 1] -
+                                                                      discharged_crit_patients),
+                                          data$new_critical_cases[i])
+    }
+
 
       data$discharged_sev_patients[i] <- discharged_sev_patients
       data$discharged_crit_patients[i] <- discharged_crit_patients
@@ -176,10 +208,10 @@ patients_weekly <- function(params,
     sev_beds_inuse, total_beds_inuse,
     hosp_facilities_inuse, rem_crit_patients,
     rem_sev_patients, rem_mod_patients,
-    rem_mild_patients, discharged_crit_patients, discharged_sev_patients
+    rem_mild_patients, discharged_crit_patients, discharged_sev_patients,
+    sev_patients_admitted_cap, crit_patients_admitted_cap
   ))
 
-  data[is.na(data)] <- 0
 
   return(data)
 }
