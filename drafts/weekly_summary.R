@@ -149,6 +149,7 @@ get_country_test_capacity <- function(iso3c = NULL,
   return(diagnostics)
 }
 # getting parameters, except for dynamic hcw caps, which depend on patents_weekly
+# test_strat <- set_testing_strategy(strategy="targeted") - this works !!
 test_strat <- set_testing_strategy()
 params <- get_parameters()
 test_params <- get_diagnostic_parameters()
@@ -182,13 +183,21 @@ cases <- subset(cases, cases$week_ends > as.Date("2022-01-01"))
 
 # but patients still gives weird values for stay - it gives zeros, since those conditions havent been found and theyre super recursively difficlt to solve
 patients <- patients_weekly(params, capacity, data = cases)
-hcw_caps <- hcw_caps(params,capacity,throughput,hwfe, patients)
+caps <- list(
+  hcws_inpatients_cap = 5448,
+  hcws_screening_cap = 919
+)
+patients <- patients[c(2:13),]
+# subsetting gets the per bed stuff correct
+# but the cleaner cap is sitll shit
+hcw_caps <- hcw_caps(params,capacity,throughput,hwfe, patients, overrides=caps)
 # also did weird stuff when subset by date - but tend only to be for diagnosis
 # patients <- subset(patients, patients$week_ends > as.Date("2022-01-01"))
 
 tests <- diagnostics_weekly(params = params, patients, cases,
                             diagnostic_parameters = test_params,
                             testing_scenario = test_strat)
+# NOTE: THERE IS AN ERROR IN THE WAY HCW CAPS ARE CALCULATED IN THE ESFT SHEET
 
 hcws <- hcws_weekly(params, # from get_parameters
                     capacity, # from get_country_capacity

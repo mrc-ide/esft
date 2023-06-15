@@ -380,7 +380,7 @@ total_labs <- function(capacity) {
   ) / 3 +
     capacity$modules_activated[capacity$platform_key == "genexpert"] / 4
 
-  labs <- round(labs)
+  # labs <- (labs)
 
   return(labs)
 }

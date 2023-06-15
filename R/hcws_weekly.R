@@ -58,29 +58,33 @@ hcws_weekly <- function(params, # from get_parameters
     dplyr::mutate(
       hcws_inpatient_uncapped = .data$total_beds_inuse *
         hcw_caps$hcws_per_bed,
-      hcws_inpatient_capped = min(
-        .data$total_beds_inuse * hcw_caps$hcws_per_bed,
-        hcw_caps$hcws_inpatients_cap
+      hcws_inpatient_capped = ifelse(
+        .data$total_beds_inuse * hcw_caps$hcws_per_bed > hcw_caps$hcws_inpatients_cap,
+        hcw_caps$hcws_inpatients_cap,
+        .data$total_beds_inuse * hcw_caps$hcws_per_bed
       ),
       inf_caregivers_hosp_uncapped = .data$total_beds_inuse *
         params$n_inf_caregivers_hosp,
-      cleaners_inpatient_capped = min(
-        .data$total_beds_inuse * hcw_caps$hygienists_per_bed,
-        hcw_caps$cleaners_inpatient_cap
+      cleaners_inpatient_capped = ifelse(
+        .data$total_beds_inuse * hcw_caps$hygienists_per_bed > hcw_caps$cleaners_inpatient_cap,
+        hcw_caps$cleaners_inpatient_cap,
+        .data$total_beds_inuse * hcw_caps$hygienists_per_bed
       ),
       # double check if i want to add the HCW caps to data or params - then rewrite
-      amb_personnel_inpatient_capped = .data$total_beds_inuse*params$ambulancews_per_bed,
-      bio_eng_inpatient_capped = .data$total_beds_inuse*params$bioengs_per_bed,
+      amb_personnel_inpatient_capped = round(.data$total_beds_inuse*params$ambulancews_per_bed),
+      bio_eng_inpatient_capped = round(.data$total_beds_inuse*params$bioengs_per_bed),
       # it's basically calculated this way i think to accommodate for mild
       # + mod testing in outpatient setting
       inf_caregivers_isol_uncapped = (
         .data$tests_mild + .data$tests_mod) * params$n_inf_caregivers_isol,
       # for the all testing strategy, capped by testing capacity
       # (confusing - needs simplification)
-      lab_staff_capped = min(
-        t_labs * lab_params$lab_staff_per_lab, hcw_caps$lab_staff_cap
+      lab_staff_capped = ceiling(ifelse(
+        t_labs * lab_params$lab_staff_per_lab > hcw_caps$lab_staff_cap,
+        hcw_caps$lab_staff_cap,
+        t_labs * lab_params$lab_staff_per_lab)
       ),
-      cleaners_lab = t_labs * lab_params$hygienists_per_lab
+      cleaners_lab = ceiling(t_labs * lab_params$hygienists_per_lab)
     ) %>%
     dplyr::select(c(
       week_ends, week_begins, hcws_inpatient_capped,
