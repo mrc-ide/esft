@@ -17,7 +17,8 @@ source("R/diagnostics_weekly.R")
 source("R/hcw_tests.R")
 source("R/hcws_weekly.R")
 source("R/noncovid_essentials.R")
-# goal is to figure out hcw caps and cases:
+source("R/pharma_forecast.R")
+source("R/commodities_forecast.R")
 
 load("data/who.rda")
 load("data/population.rda")
@@ -27,9 +28,10 @@ load("data/diagnostics.rda")
 load("data/throughput.rda")
 load("data/hours_per_shift.rda")
 load("data/pharmaceuticals.rda")
+load("data/equipment.rda")
 
 all <- readRDS("data-raw/all.Rds")
-
+####### run first -------
 get_country_capacity <- function(iso3c = NULL,
                                  overrides = list()) {
 
@@ -214,24 +216,48 @@ added_tests <- additional_testing(hcws, # from hcws_weekly
                                   tests)
 n_tests <- total_tests(tests, added_tests, max_tests)
 test_ratios <- test_ratio(diagnostic_capacity, test_params)
-load("data/equipment.rda")
-ref_hcws <- reference_hcw(iso3c = "AFG", params, who, throughput,
-                           overrides = list(
-                             n_docs = 8000,
-                             n_nurses = 5000,
-                             n_labs = 300,
-                             n_midwives = 500,
-                             n_dentists = 10,
-                             n_physiotherapists = 50,
-                             n_trad_comp_med = 4000,
-                             n_chws = 245,
-                             n_pharmacists = 818
-                           ))
 
-# something went wrong here
+####### forecast -------
+
+ref_hcws <- reference_hcw(iso3c = "AFG", params, who, throughput,
+                          overrides = list(
+                            n_docs = 8000,
+                            n_nurses = 5000,
+                            n_labs = 300,
+                            n_midwives = 500,
+                            n_dentists = 10,
+                            n_physiotherapists = 50,
+                            n_trad_comp_med = 4000,
+                            n_chws = 245,
+                            n_pharmacists = 818
+                          ))
 noncovid_ess <-noncovid_essentials(noncovid, ref_hcws,
                                 forecast_length = 12,
                                 days_week = 5)
 
-list=ls()
-list <- list[4,6,13,19,]
+cases <- cases[c(2:13),]
+pharma <- pharma_forecast(pharmaceuticals, cases)
+pharma <- pharma[,c(2,25:28)]
+# hygiene is all good
+hygiene <- hygiene_forecast(
+  equipment, hcws, patients, cases, tests,
+  screening_hcws, params
+)
+
+case_management <- case_management_forecast(equipment, patients)
+case_management <- subset(case_management, case_management$week_begins < "2022-01-14")
+case_management <- case_management[,c(1,3:4,8)]
+
+ppe <- ppe_forecast(
+  equipment, hcws, patients, cases, tests,
+  screening_hcws, params
+)
+ppe <- subset(ppe, ppe$week_begins < "2022-01-14")
+ppe <- ppe[,c(1:3,9)]
+
+diagnostic_supplies <- diagnostics_forecast(
+  lab_params, equipment, test_ratios,
+  n_tests, patients
+)
+diagnostic_supplies <- subset(diagnostic_supplies, diagnostic_supplies$week_begins < "2022-01-14")
+diagnostic_supplies <- diagnostic_supplies[,c(-5)]
