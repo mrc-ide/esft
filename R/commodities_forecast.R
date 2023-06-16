@@ -160,8 +160,9 @@ case_management_forecast <- function(equipment, patients) {
   case[, c(8:24)] <- case[, c(8:24)] * reusable_multiplier
 
   amounts <- merge(case, patients[, c(
-    "week_begins", "week_ends", "sev_beds_inuse",
-    "crit_beds_inuse", "total_beds_inuse"
+    "week_begins", "week_ends", "sev_patients_admitted_cap",
+    "crit_patients_admitted_cap", "sev_beds_inuse", "crit_beds_inuse",
+    "total_beds_inuse"
   )])
 
   # although this looks like it will double count, in actuality,
@@ -169,13 +170,14 @@ case_management_forecast <- function(equipment, patients) {
   amounts <- amounts %>%
     dplyr::group_by(item) %>%
     dplyr::mutate(
-      demand_sev_patient = sev_beds_inuse *
+      demand_sev_patient = sev_patients_admitted_cap *
         amount_per_inpatient_sev_patient_per_day +
         sev_beds_inuse * amount_per_inpatient_sev_bed_per_day,
-      demand_crit_patient = crit_beds_inuse *
+      demand_crit_patient = crit_patients_admitted_cap *
         amount_per_inpatient_crit_patient_per_day +
         crit_beds_inuse * amount_per_inpatient_crit_bed_per_day,
-      demand_sev_crit_patient = total_beds_inuse *
+      demand_sev_crit_patient = (sev_patients_admitted_cap +
+                                   crit_patients_admitted_cap) *
         amount_per_inpatient_sev_crit_patient_per_day +
         total_beds_inuse * amount_per_inpatient_sev_crit_bed_per_day
     )
