@@ -155,10 +155,10 @@ case_management_forecast <- function(equipment, patients) {
 
   case <- subset(equipment, startsWith(equipment$category, "Case management"))
 
-  reusable_multiplier <- ifelse(case$reusable == TRUE, 1, 7)
-
-  case[, c(8:24)] <- case[, c(8:24)] * reusable_multiplier
-
+  # reusable_multiplier <- ifelse(case$reusable == TRUE, 1, 7)
+  #
+  # case[, c(8:24)] <- case[, c(8:24)] * reusable_multiplier
+# does this not do correct thing????
   amounts <- merge(case, patients[, c(
     "week_begins", "week_ends", "sev_patients_admitted_cap",
     "crit_patients_admitted_cap", "sev_beds_inuse", "crit_beds_inuse",
@@ -288,69 +288,94 @@ ppe_forecast <- function(equipment, hcws, patients, cases, tests,
 
   ppe[, c(8:24)] <- ppe[, c(8:24)] * reusable_multiplier
 
-  amounts <- merge(hcws, ppe)
-  amounts <- merge(amounts, tests)
+  # amounts <- merge(hcws, ppe) I think the issue is that there are duplicate
+  # rows per type of item
+  amounts <- merge(hcws, tests)
   amounts <- merge(amounts, patients)
   amounts <- merge(amounts, screening_hcws)
+  amounts <- merge(amounts, ppe)
+# i should test the if reusable is true condution
+# need to go over hcws bit by bit
+  res <- data.frame()
+  items <- unique(amounts$item)
+  # split and run this only on reusable items
+  # if you split - 1360 FALSE, 2641 TRUE - so reduce time by a third
+  for (i in 1:length(items)) {
+    df <- subset(amounts, amounts$item == items[i])
+    for (n in 1:nrow(df)) {
+      if (df$reusable[n] == TRUE) {
+        amount_isolation = (df$inf_caregivers_isol_uncapped[n] * params$stay_mild) +
+              (df$tests_mild[n] * params$stay_mild) + (df$tests_mod[n] * params$stay_mod)
+        amount_screening_hcw = ifelse(df$amount_per_screening_hcw_per_day[n] > 0,
+                  df$screening_hcw_capped[n], 0) +
+              ifelse(df$amount_per_screening_patient_per_day[n] > 0, df$tests_mild[n] +
+                       df$tests_mod[n], 0)
+        amount_lab =
+              (ifelse(df$amount_per_lab_tech_per_day[n] > 0,
+                    df$lab_staff_capped[n], 0) +
+              ifelse(df$amount_per_lab_cleaner_per_day[n] > 0,
+                     df$cleaners_lab[n], 0))
 
-  amounts <- amounts %>%
-    dplyr::group_by(item) %>%
-    dplyr::mutate(
-      amount_inpatient_hcw = hcws_inpatient_capped *
-        amount_per_inpatient_hcw_per_day +
-        cleaners_inpatient_capped * amount_per_inpatient_cleaner_per_day +
-        inf_caregivers_hosp_uncapped *
-          amount_per_inpatient_inf_caregiver_per_day +
-        amb_personnel_inpatient_capped *
-          amount_per_inpatient_ambworker_per_day +
-        bio_eng_inpatient_capped * amount_per_inpatient_biomed_eng_per_day,
-      amount_inpatient_patient = total_beds_inuse *
-        amount_per_inpatient_sev_crit_patient_per_day +
-        sev_beds_inuse * amount_per_inpatient_sev_patient_per_day +
-        crit_beds_inuse * amount_per_inpatient_crit_patient_per_day,
-      amount_isolation = ifelse(
-        reusable == TRUE,
-        inf_caregivers_isol_uncapped * params$stay_mild +
-          tests_mild * params$stay_mild +
-          tests_mod * params$stay_mod,
-        inf_caregivers_isol_uncapped *
-          amount_per_isolation_inf_caregiver_per_day * params$stay_mild +
-          tests_mild * params$stay_mild * amount_per_isolation_patient_per_day +
-          tests_mod * params$stay_mod * amount_per_isolation_patient_per_day
-      ),
-      amount_screening_hcw = ifelse(
-        reusable == TRUE,
-        (ifelse(amount_per_screening_hcw_per_day > 0,
-          screening_hcw_capped, 0) +
-          ifelse(amount_per_screening_patient_per_day > 0,
-            tests_mild + tests_mod, 0)),
-        (screening_hcw_capped * amount_per_screening_hcw_per_day +
-          tests_mod * amount_per_screening_patient_per_day * params$stay_mod +
-          tests_mild * amount_per_screening_patient_per_day * params$stay_mild
+        amount_inpatient_hcw = (
+          ifelse(df$amount_per_inpatient_hcw_per_day[n] >0,
+                 df$hcws_inpatient_capped[n], 0) +
+            ifelse(df$amount_per_inpatient_cleaner_per_day[n] >0,
+                   df$cleaners_inpatient_capped[n], 0) +
+            ifelse(df$amount_per_inpatient_inf_caregiver_per_day[n] >0,
+                   df$inf_caregivers_hosp_uncapped[n],0) +
+            ifelse(df$amount_per_inpatient_ambworker_per_day[n] >0,
+                   df$amb_personnel_inpatient_capped[n],0) +
+            ifelse(df$amount_per_inpatient_biomed_eng_per_day[n] >0,
+                   df$bio_eng_inpatient_capped[n],0)
         )
-      ),
-      amount_lab = ifelse(
-        reusable == TRUE,
-        (ifelse(amount_per_lab_tech_per_day > 0,
-          lab_staff_capped, 0
-        ) +
-          ifelse(amount_per_lab_cleaner_per_day > 0,
-            cleaners_lab, 0
-          )),
-        (lab_staff_capped * amount_per_lab_tech_per_day +
-          cleaners_lab * amount_per_lab_cleaner_per_day)
-      )
-    ) %>%
-    dplyr::select(c(
-      item, week_begins, week_ends, amount_inpatient_hcw,
-      amount_inpatient_patient, amount_isolation, amount_screening_hcw,
-      amount_lab
-    ))
 
-  amounts$total_amount <- rowSums(amounts[, c(4:8)])
-  amounts$category <- "ppe"
+      } else {
+        amount_isolation = (df$inf_caregivers_isol_uncapped[n]*
+            df$amount_per_isolation_inf_caregiver_per_day[n] * params$stay_mild) +
+            (df$tests_mild[n] * params$stay_mild * df$amount_per_isolation_patient_per_day[n]) +
+            (df$tests_mod[n] * params$stay_mod * df$amount_per_isolation_patient_per_day[n])
+        amount_screening_hcw = (df$screening_hcw_capped[n] * df$amount_per_screening_hcw_per_day[n]) +
+             (df$tests_mod[n] * df$amount_per_screening_patient_per_day[n] * params$stay_mod) +
+             (df$tests_mild[n] * df$amount_per_screening_patient_per_day[n] * params$stay_mild
+          )
+        amount_lab =
+            (df$lab_staff_capped[n] * df$amount_per_lab_tech_per_day[n]) +
+               (df$cleaners_lab[n] * df$amount_per_lab_cleaner_per_day[n])
 
-  return(amounts)
+        amount_inpatient_hcw = (
+          (df$amount_per_inpatient_hcw_per_day[n]*
+                 df$hcws_inpatient_capped[n]) +
+            (df$cleaners_inpatient_capped[n] * df$amount_per_inpatient_cleaner_per_day[n]) +
+            (df$inf_caregivers_hosp_uncapped[n] *
+               df$amount_per_inpatient_inf_caregiver_per_day[n]) +
+            (df$amb_personnel_inpatient_capped[n] *
+               df$amount_per_inpatient_ambworker_per_day[n]) +
+            (df$bio_eng_inpatient_capped[n] * df$amount_per_inpatient_biomed_eng_per_day[n])
+        )
+      }
+      amount_inpatient_patient = (df$total_beds_inuse[n] *
+        df$amount_per_inpatient_sev_crit_patient_per_day[n]) +
+        (df$sev_beds_inuse[n] * df$amount_per_inpatient_sev_patient_per_day[n]) +
+        (df$crit_beds_inuse[n] * df$amount_per_inpatient_crit_patient_per_day[n])
+
+      df$amount_isolation[n] <- amount_isolation
+      df$amount_screening_hcw[n] <- amount_screening_hcw
+      df$amount_lab[n] <- amount_lab
+      df$amount_inpatient_patient[n] <- amount_inpatient_patient
+      df$amount_inpatient_hcw[n] <- amount_inpatient_hcw
+    }
+    res <- rbind(res, df) # this likely takes most time
+  }
+  # remove NAs (keep in mind, for some equipment items we did not have calculations to copy)
+  res <- res %>% dplyr::select(c(item, week_begins, week_ends, amount_isolation,
+                                 amount_lab, amount_screening_hcw,
+                                 amount_inpatient_patient, amount_inpatient_hcw))
+
+  res$total_amount <- res$amount_isolation + res$amount_lab +
+    res$amount_screening_hcw + res$amount_inpatient_patient + res$amount_inpatient_hcw
+  res$category <- "ppe"
+
+  return(res)
 }
 
 #' @title Diagnostics weekly
@@ -377,11 +402,11 @@ diagnostics_forecast <- function(lab_params, equipment, test_ratios,
   dx <- merge(dx, patients)
   dx$total_amount <- NA
 
-  # ignore warnings
+  # the issue here is that i only did it for the first week,
   dx$total_amount[grep("manual PCR", dx$item)] <- dx$total_tests_capped[grep("manual PCR", dx$item)] *
-    test_ratios$ratio[test_ratios$type == "manual"] / (
-      lab_params$perc_wastage_manual_test_kits *
-        lab_params$num_tests_manual_test_kits)
+    test_ratios$ratio[test_ratios$type == "manual"] / (100 -
+      (lab_params$perc_wastage_manual_test_kits *
+        lab_params$num_tests_manual_test_kits))
   dx$total_amount[grep("Triple packaging", dx$item)] <-
     dx$hosp_facilities_inuse[grep("Triple packaging", dx$item)] *
       lab_params$triple_packaging_per_unit
@@ -394,10 +419,39 @@ diagnostics_forecast <- function(lab_params, equipment, test_ratios,
     dx$total_tests_capped[grep("Antigen Rapid Diagnostic Tests", dx$item)] *
       test_ratios$ratio[test_ratios$type == "antigen"]
 
-  # remove NAs (keep in mind, for some equipment items we did not have calculations to copy)
-  dx <- dx[complete.cases(dx), ]
-  dx <- dx %>% select(c(item, week_begins, week_ends, total_amount))
-  dx$category <- "diagnostics"
+  # order by date and item
+  dx <- dx[
+    with(dx, order(item, week_begins)),
+  ]
 
-  return(dx)
+  res <- data.frame()
+  nas <- dx[!complete.cases(dx),]
+  dx <- dx[complete.cases(dx),]
+  items <- unique(dx$item)
+  # split and run this only on reusable items
+  # if you split - 1360 FALSE, 2641 TRUE - so reduce time by a third
+  for (i in 1:length(items)) {
+    df <- subset(dx, dx$item == items[i])
+    for (n in 1:nrow(df)) {
+      # this is the amount if it is not reusable
+      amount_nonreusable <- df$total_amount[n]
+      # if its not one of the NA values
+        if (df$reusable[n] == TRUE) { # if the item is reusable
+          # find sum of what has been given so far
+          sum_sofar <- sum(df$total_amount[1:n - 1])
+          amount_replace <- max(ceiling(amount_nonreusable -
+                                              sum_sofar), 0)
+        } else {
+          amount_replace <- amount_nonreusable
+        }
+        df$total_amount[n] <- amount_replace
+    }
+    res <- rbind(res, df) # this likely takes most time
+  }
+  res <- rbind(res, nas)
+  # remove NAs (keep in mind, for some equipment items we did not have calculations to copy)
+  res <- res %>% dplyr::select(c(item, week_begins, week_ends, total_amount))
+  res$category <- "diagnostics"
+
+  return(res)
 }

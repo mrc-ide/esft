@@ -219,21 +219,22 @@ test_ratios <- test_ratio(diagnostic_capacity, test_params)
 
 ####### forecast -------
 
-ref_hcws <- reference_hcw(iso3c = "AFG", params, who, throughput,
-                          overrides = list(
-                            n_docs = 8000,
-                            n_nurses = 5000,
-                            n_labs = 300,
-                            n_midwives = 500,
-                            n_dentists = 10,
-                            n_physiotherapists = 50,
-                            n_trad_comp_med = 4000,
-                            n_chws = 245,
-                            n_pharmacists = 818
-                          ))
-noncovid_ess <-noncovid_essentials(noncovid, ref_hcws,
-                                forecast_length = 12,
-                                days_week = 5)
+# need to rewrite because the esft proj not loaded
+# ref_hcws <- reference_hcw(iso3c = "AFG", params, who, throughput,
+#                           overrides = list(
+#                             n_docs = 8000,
+#                             n_nurses = 5000,
+#                             n_labs = 300,
+#                             n_midwives = 500,
+#                             n_dentists = 10,
+#                             n_physiotherapists = 50,
+#                             n_trad_comp_med = 4000,
+#                             n_chws = 245,
+#                             n_pharmacists = 818
+#                           ))
+# noncovid_ess <-noncovid_essentials(noncovid, ref_hcws,
+#                                 forecast_length = 12,
+#                                 days_week = 5)
 
 cases <- cases[c(2:13),]
 pharma <- pharma_forecast(pharmaceuticals, cases)
