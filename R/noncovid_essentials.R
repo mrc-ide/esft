@@ -27,6 +27,7 @@
 #' }
 #'
 #' @importFrom countrycode countrycode
+#' @importFrom utils modifyList
 #'
 #' @export
 reference_hcw <- function(iso3c = NULL, params, who, throughput,
@@ -72,7 +73,7 @@ reference_hcw <- function(iso3c = NULL, params, who, throughput,
     n_pharmacists = who$pharmacists[who$country_code == iso3c]
   )
 
-  default <- modifyList(default, overrides[intersect(
+  default <- utils::modifyList(default, overrides[intersect(
     names(overrides),
     names(which(is.na(default)))
   )])

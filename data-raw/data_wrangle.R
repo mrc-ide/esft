@@ -50,7 +50,8 @@ usethis::use_data(noncovid, overwrite = TRUE, internal = FALSE)
 pharmaceuticals <- readxl::read_excel("data-raw/who_summary_data.xlsx",
   sheet = "pharmaceutical"
 )
-pharmaceuticals$covid_specific <- ifelse(pharmaceuticals$covid_specific == "No", FALSE, TRUE)
+pharmaceuticals$covid_specific <- ifelse(pharmaceuticals$covid_specific == "No",
+                                         FALSE, TRUE)
 usethis::use_data(pharmaceuticals, overwrite = TRUE, internal = FALSE)
 
 # Diagnostics ---------------------

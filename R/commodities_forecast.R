@@ -531,6 +531,7 @@ ppe_forecast <- function(equipment, hcws, patients, cases, tests,
 #' @import tidyr
 #' @importFrom magrittr %>%
 #' @importFrom rlang .data
+#' @importFrom stats complete.cases
 #'
 #' @export
 diagnostics_forecast <- function(lab_params, equipment, test_ratios,
@@ -572,8 +573,8 @@ diagnostics_forecast <- function(lab_params, equipment, test_ratios,
   ]
 
   res <- data.frame()
-  nas <- dx[!complete.cases(dx), ]
-  dx <- dx[complete.cases(dx), ]
+  nas <- dx[!stats::complete.cases(dx), ]
+  dx <- dx[stats::complete.cases(dx), ]
   items <- unique(dx$item)
 
   for (i in 1:length(items)) {

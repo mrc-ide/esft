@@ -7,7 +7,7 @@ Maintainer: <ines.gerard-ursin20@imperial.ac.uk>
 Description: This package replicates what is available through WHO ESFT.
     This repo also serves as documentation of the calculations and their
     assumptions, so the user can employ them/reference them as they see fit.
-License: MIT License
+License: MIT License + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Depends: 
