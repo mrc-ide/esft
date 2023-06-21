@@ -4,7 +4,7 @@
 \alias{diagnostics_forecast}
 \title{Diagnostics weekly}
 \usage{
-diagnostics_forecast(lab_params, equipment, test_ratios, total_tests, patients)
+diagnostics_forecast(lab_params, equipment, test_ratios, n_tests, patients)
 }
 \arguments{
 \item{lab_params}{From lab parameters}
@@ -13,10 +13,21 @@ diagnostics_forecast(lab_params, equipment, test_ratios, total_tests, patients)
 
 \item{test_ratios}{This should be from test ratios}
 
-\item{total_tests}{total_tests from that function}
+\item{n_tests}{n_tests from total_tests}
 
-\item{patients}{patients_weekly, this has the number of hospital facilities in use}
+\item{patients}{patients_weekly, this has num of hospital facilities in use}
+}
+\value{
+Dataframe of diagnostics weekly
+\describe{
+  \item{category}{Category of item: diagnostics}
+  \item{week_begins}{Date the week begins}
+  \item{week_ends}{Date the week ends}
+  \item{unit}{Unit items supplied in}
+  \item{item}{Item name}
+  \item{total_amount}{Total amount of that item}
+}
 }
 \description{
-Diagnostics weekly
+Calculates a forecast of diagnostic needs by week.
 }

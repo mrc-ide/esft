@@ -4,7 +4,6 @@
 #' the section in the `Weekly Summary` tab marked HCW and staff (except for
 #' the screening/triage section, which depends on diagnostics_weekly and is
 #' calculated separately in screening_hcws_weekly).
-#' This will then be used in some sort of capacity mapping/forecasting.
 #'
 #' @param params from get_parameters
 #' @param capacity from get_country_capacity
@@ -50,8 +49,7 @@ hcws_weekly <- function(params, # from get_parameters
                         tests, # from diagnostics_weekly
                         patients, # patients_weekly
                         t_labs, # total_labs
-                        hcw_caps
-) {
+                        hcw_caps) {
   data <- merge(patients, tests)
 
   data <- data %>%
@@ -59,20 +57,24 @@ hcws_weekly <- function(params, # from get_parameters
       hcws_inpatient_uncapped = .data$total_beds_inuse *
         hcw_caps$hcws_per_bed,
       hcws_inpatient_capped = ifelse(
-        .data$total_beds_inuse * hcw_caps$hcws_per_bed > hcw_caps$hcws_inpatients_cap,
+        .data$total_beds_inuse * hcw_caps$hcws_per_bed >
+          hcw_caps$hcws_inpatients_cap,
         hcw_caps$hcws_inpatients_cap,
         .data$total_beds_inuse * hcw_caps$hcws_per_bed
       ),
       inf_caregivers_hosp_uncapped = .data$total_beds_inuse *
         params$n_inf_caregivers_hosp,
       cleaners_inpatient_capped = ifelse(
-        .data$total_beds_inuse * hcw_caps$hygienists_per_bed > hcw_caps$cleaners_inpatient_cap,
+        .data$total_beds_inuse * hcw_caps$hygienists_per_bed >
+          hcw_caps$cleaners_inpatient_cap,
         hcw_caps$cleaners_inpatient_cap,
         .data$total_beds_inuse * hcw_caps$hygienists_per_bed
       ),
-      # double check if i want to add the HCW caps to data or params - then rewrite
-      amb_personnel_inpatient_capped = round(.data$total_beds_inuse*params$ambulancews_per_bed),
-      bio_eng_inpatient_capped = round(.data$total_beds_inuse*params$bioengs_per_bed),
+      # double check if i want to add the HCW caps to data or params
+      amb_personnel_inpatient_capped = round(.data$total_beds_inuse *
+                                               params$ambulancews_per_bed),
+      bio_eng_inpatient_capped = round(.data$total_beds_inuse *
+                                         params$bioengs_per_bed),
       # it's basically calculated this way i think to accommodate for mild
       # + mod testing in outpatient setting
       inf_caregivers_isol_uncapped = (
@@ -82,8 +84,8 @@ hcws_weekly <- function(params, # from get_parameters
       lab_staff_capped = ceiling(ifelse(
         t_labs * lab_params$lab_staff_per_lab > hcw_caps$lab_staff_cap,
         hcw_caps$lab_staff_cap,
-        t_labs * lab_params$lab_staff_per_lab)
-      ),
+        t_labs * lab_params$lab_staff_per_lab
+      )),
       cleaners_lab = ceiling(t_labs * lab_params$hygienists_per_lab)
     ) %>%
     dplyr::select(c(

@@ -6,7 +6,26 @@
 \usage{
 pharma_forecast(pharmaceuticals, cases)
 }
+\value{
+Dataframe of Pharmaceutical Forecast
+\describe{
+  \item{drug}{Drug name}
+  \item{total_drug_form_all_mild_treated}{Total drug form needed for all
+  mild patients}
+  \item{total_drug_form_all_mod_treated}{Total drug form needed for all
+  moderate patients}
+  \item{total_drug_form_all_severe_treated}{Total drug form needed for all
+  severe patients}
+  \item{total_drug_form_all_crit_treated}{Total drug form needed for all
+  critical patients}
+}
+}
 \description{
-Takes the pharma inputs and times them by total new cases.
-Unclear how to work out the price setting aspect.
+Takes total amounts of drugs per course, percent treated
+and new cases by severity, and yields estimates of the total drugs required
+for the forecast period. Note: due to differences in the norms around
+rounding (R rounds from 5 to the nearest even number, Excel rounds up from 5)
+- these numbers are slightly different from the numbers in the forecast file.
+If desired, the code can be modified to round up (replace round with
+ceiling in the body of the function).
 }

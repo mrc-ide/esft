@@ -61,14 +61,6 @@ Dataframe of weekly summary
   case calculation}
   \item{cum_mild_cases}{Cumulative mild cases, using the first mild case
   calculation}
-  \item{rem_critical_cases}{Critical cases who have completed their hospital
-  stay, using the average length of stay for critical cases}
-  \item{rem_severe_cases}{Severe cases who have completed their hospital
-  stay, using the average length of stay for severe cases}
-  \item{rem_mod_cases}{Moderate cases who have completed their isolation,
-  using the average length of stay for moderate cases}
-  \item{rem_mild_cases}{Mild cases who have completed their isolation,
-  using the average length of stay for mild cases}
   \item{sus_cases_but_negative}{Sum of all new cases multiplied by the
   number of negative tests per positive case}
 }

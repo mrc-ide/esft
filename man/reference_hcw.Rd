@@ -9,7 +9,7 @@ reference_hcw(
   params,
   who,
   throughput,
-  overrides = list(n_docs = 8000, n_nurses = 5000, n_labs = 300, n_midwives = 500,
+  default = list(n_docs = 8000, n_nurses = 5000, n_labs = 300, n_midwives = 500,
     n_dentists = 10, n_physiotherapists = 50, n_trad_comp_med = 4000, n_chws = 245,
     n_pharmacists = 818)
 )
@@ -23,9 +23,27 @@ reference_hcw(
 
 \item{throughput}{Either diagnostic_capacity or throughput}
 
-\item{overrides}{These are the base values supplied by the ESFT worksheet -
-replacements for if there are no reference cadre values}
+\item{default}{These are the base values supplied by the ESFT worksheet -
+and are replaced by calculated values if not supplied.}
+}
+\value{
+Dataframe of reference HCWs
+\describe{
+  \item{n_docs}{Number of medical doctors (non-COVID-19)}
+  \item{n_nurses}{Number of nurses (non-COVID-19)}
+  \item{n_labs}{Number of laboratory scientists and techs (non-COVID-19)}
+  \item{n_midwives}{Number of midwives}
+  \item{n_dentists}{Number of dentists}
+  \item{n_physiotherapists}{Number of physiotherapists}
+  \item{n_trad_comp_med}{Number of traditional and complementary medical
+  personnel}
+  \item{n_chws}{Number of community health workers}
+  \item{n_pharmacists}{Number of pharmacists}
+}
 }
 \description{
-Reference cadres of HCWs
+Provides reference values of HCWs taken from the WHO ESFT, and
+populates the list with standard values if estimates are not available.
+One question: why aren't the reference values proportional to the country
+population size?
 }

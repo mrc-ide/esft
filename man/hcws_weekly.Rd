@@ -52,5 +52,4 @@ This function takes some of the HCW cap options and calculates
 the section in the `Weekly Summary` tab marked HCW and staff (except for
 the screening/triage section, which depends on diagnostics_weekly and is
 calculated separately in screening_hcws_weekly).
-This will then be used in some sort of capacity mapping/forecasting.
 }

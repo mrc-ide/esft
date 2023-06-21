@@ -76,8 +76,8 @@ additional_testing <- function(hcws, # from hcws_weekly
                                tests) { # from diagnostics_weekly
   data <- merge(hcws, screening_hcws)
   data <- merge(data, tests)
-# this is temporary fix
-  if(typeof(test_strat)!='data.frame'){
+  # this is temporary fix
+  if (typeof(test_strat) != "data.frame") {
     test_strat <- as.data.frame(test_strat)
   }
 
@@ -141,8 +141,9 @@ total_tests <- function(tests_weekly,
   data <- data %>%
     dplyr::mutate(
       total_tests_capped = ifelse(.data$total_tests_uncapped > max_tests * 7,
-                                  max_tests * 7,
-                                  .data$total_tests_uncapped),
+        max_tests * 7,
+        .data$total_tests_uncapped
+      ),
     ) %>%
     dplyr::select(c(
       week_begins, week_ends,

@@ -58,7 +58,7 @@ diagnostic_capacity <- calc_diagnostic_capacity(country_diagnostic_capacity =
 
 # also saving the name code
 sink("mylist.txt")
-cat(paste0("#'   \\item{",names(hcw_caps), "}{}\n"))
+cat(paste0("#'   \\item{",names(pharma), "}{}\n"))
 sink()
 
 #' * crit_patients_nocap - ICU_demand

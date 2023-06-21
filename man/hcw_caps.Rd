@@ -4,7 +4,7 @@
 \alias{hcw_caps}
 \title{HCW Caps}
 \usage{
-hcw_caps(params, capacity, throughput, hwfe, patients)
+hcw_caps(params, capacity, throughput, hwfe, patients, overrides = list())
 }
 \arguments{
 \item{params}{From get_parameters}
@@ -16,6 +16,8 @@ hcw_caps(params, capacity, throughput, hwfe, patients)
 \item{hwfe}{From WHO ESFT sheet}
 
 \item{patients}{From patients_weekly}
+
+\item{overrides}{a named list of hcw_cap values to use instead of defaults}
 }
 \value{
 List of caps

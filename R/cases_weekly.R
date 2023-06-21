@@ -93,7 +93,8 @@ cases_weekly <- function(params, # from get_parameters
     )
 
   data <- data %>%
-    dplyr::group_by(week_begins = cut(.data$date, breaks = "week", right=FALSE, include.lowest = T)) %>%
+    dplyr::group_by(week_begins = cut(.data$date, breaks = "week",
+                                      right = FALSE, include.lowest = T)) %>%
     dplyr::summarise(
       week_ends = data.table::last(.data$date),
       hospital_demand = max(.data$hospital_demand, na.rm = TRUE),
@@ -130,18 +131,6 @@ cases_weekly <- function(params, # from get_parameters
       cum_severe_cases = cumsum(.data$hospital_incidence),
       cum_mod_cases = cumsum(.data$new_mod_cases),
       cum_mild_cases = cumsum(.data$new_mild_cases)
-      # rem_critical_cases = data.table::shift(.data$new_critical_cases,
-      #   n = params$stay_crit
-      # ),
-      # rem_severe_cases = data.table::shift(.data$new_severe_cases,
-      #   n = params$stay_sev
-      # ),
-      # rem_mod_cases = data.table::shift(.data$new_mod_cases,
-      #   n = params$stay_mod
-      # ),
-      # rem_mild_cases = data.table::shift(.data$new_mild_cases,
-      #   n = params$stay_mild
-      # )
     )
 
   data <- data %>%
