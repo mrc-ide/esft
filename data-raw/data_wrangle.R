@@ -25,6 +25,7 @@ bed_perc_crit_proxy <- readxl::read_excel("data-raw/who_summary_data.xlsx",
 usethis::use_data(bed_perc_crit_proxy, overwrite = TRUE, internal = FALSE)
 
 hwfe <- readxl::read_excel("data-raw/who_summary_data.xlsx", sheet = "hwfe")
+# names(hwfe)
 usethis::use_data(hwfe, overwrite = TRUE, internal = FALSE)
 
 population <- readxl::read_excel("data-raw/who_summary_data.xlsx",

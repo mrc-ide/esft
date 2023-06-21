@@ -60,6 +60,7 @@
 #' @import countrycode
 #' @importFrom magrittr %>%
 #' @importFrom rlang .data
+#' @importFrom tidyr pivot_wider
 #'
 #' @export
 cases_weekly <- function(params, # from get_parameters

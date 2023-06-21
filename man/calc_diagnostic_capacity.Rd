@@ -26,9 +26,6 @@ Default = NULL.}
 \item{hours_per_shift}{Hours per shift, default = 8}
 }
 \description{
-Given specified parameters, calculates diagnostic country capacity.
-}
-\details{
-As of right now, need to increase hours per shift in throughput data in order
-to up the capacity.
+Gets country diagnostic capacity. As of right now, need to
+increase hours per shift in throughput data in order to up the capacity.
 }

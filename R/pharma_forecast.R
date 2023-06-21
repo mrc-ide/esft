@@ -8,6 +8,8 @@
 #' If desired, the code can be modified to round up (replace round with
 #' ceiling in the body of the function).
 #'
+#' @param pharmaceuticals pharmaceuticals.rda, from the ESFT
+#' @param cases From cases_weekly
 #'
 #' @return Dataframe of Pharmaceutical Forecast
 #' \describe{
@@ -23,6 +25,7 @@
 #'}
 #'
 #' @import dplyr
+#' @importFrom tidyselect everything
 #' @importFrom magrittr %>%
 #'
 #' @export

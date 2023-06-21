@@ -53,7 +53,7 @@ screening_hcws_weekly <- function(diagnostics_weekly,
 #' @param hcws From hcws_weekly
 #' @param screening_hcws From screening_hcws_weekly
 #' @param test_strat From set_testing_strategy
-#' @param tests_weekly From diagnostics_weekly
+#' @param tests From diagnostics_weekly
 #'
 #' @return Dataframe of additional testing
 #' \describe{

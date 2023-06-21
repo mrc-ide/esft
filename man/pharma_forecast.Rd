@@ -6,6 +6,11 @@
 \usage{
 pharma_forecast(pharmaceuticals, cases)
 }
+\arguments{
+\item{pharmaceuticals}{pharmaceuticals.rda, from the ESFT}
+
+\item{cases}{From cases_weekly}
+}
 \value{
 Dataframe of Pharmaceutical Forecast
 \describe{

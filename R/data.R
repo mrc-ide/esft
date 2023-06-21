@@ -79,7 +79,7 @@
 #' @format A data frame with 5 rows and 3 variables:
 #' \describe{
 #'   \item{income_group}{Income group}
-#'   \item{beds_1000}{Hospital beds per 1,000 people}
+#'   \item{Beds_1000}{Hospital beds per 1,000 people}
 #'   \item{source}{Source of estimate}
 #' }
 #' @source \url{https://data.worldbank.org/indicator/SH.MED.BEDS.ZS}
@@ -145,10 +145,10 @@
 #' are slower but also provide PCR processing.
 #'
 #'
-#' @format A data frame with 220 rows and 9 variables:
+#' @format A data frame with 220 rows and 10 variables:
 #' \describe{
 #'   \item{country_name}{Country name}
-#'   \item{who_region}{WHO region}
+#'   \item{region}{WHO region}
 #'   \item{income_group}{Income group}
 #'   \item{roche_6800}{Number of Roche 6800 machines estimated to be in country}
 #'   \item{roche_8800}{Number of Roche 8800 machines estimated to be in country}
@@ -158,6 +158,7 @@
 #'   in country}
 #'   \item{genexpert}{Number of GeneXpert machines estimated to be in country}
 #'   \item{manual}{Number of manual machines estimated to be in country}
+#'   \item{country_code}{ISO3C code per country}
 #' }
 #' @source \url{https://apps.who.int/iris/bitstream/handle/10665/333983/WHO-2019-nCoV-Tools-Essential_forecasting-Overview-2020.1-eng.pdf?sequence=1&isAllowed=y}
 "diagnostics"
