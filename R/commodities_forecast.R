@@ -304,8 +304,10 @@ ppe_forecast <- function(equipment, hcws, patients, cases, tests,
     df <- subset(amounts, amounts$item == items[i])
     for (n in 1:nrow(df)) {
       if (df$reusable[n] == TRUE) {
-        amount_isolation = (df$inf_caregivers_isol_uncapped[n] * params$stay_mild) +
-              (df$tests_mild[n] * params$stay_mild) + (df$tests_mod[n] * params$stay_mod)
+        amount_isolation = ifelse(df$amount_per_isolation_inf_caregiver_per_day[n] > 0,
+                                  df$inf_caregivers_isol_uncapped[n], 0) +
+          ifelse(df$amount_per_isolation_patient_per_day[n] > 0, df$tests_mild[n] +
+                   df$tests_mod[n], 0)
         amount_screening_hcw = ifelse(df$amount_per_screening_hcw_per_day[n] > 0,
                   df$screening_hcw_capped[n], 0) +
               ifelse(df$amount_per_screening_patient_per_day[n] > 0, df$tests_mild[n] +
