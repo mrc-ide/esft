@@ -48,6 +48,7 @@
 #' @param throughput Throughput dataframe, from r data file - can be altered
 #' @param hwfe From WHO ESFT sheet
 #' @param patients From patients_weekly
+#' @param overrides a named list of hcw_cap values to use instead of defaults
 #'
 #' @return List of caps
 #' \describe{
@@ -101,10 +102,11 @@ hcw_caps <- function(params, # STATIC
                      capacity, # changes by country DYNAMIC
                      throughput, # also from WHO sheet
                      hwfe, # from who sheet
-                     patients) { # dynamic
+                     patients,
+                     overrides = list()) { # dynamic
   # STATIC
   # cases screened per HCW per day - Inputs, I78
-  cases_screened_per_hcw_per_day <- 8/sum(
+  cases_screened_per_hcw_per_day <- 8 / sum(
     hwfe$patient_t24_screen[
       hwfe$esft_group == "HCW"
     ]
@@ -123,22 +125,23 @@ hcw_caps <- function(params, # STATIC
   )
   # % lab staff available for covid response - E160 Inputs (or I160)
   # STATIC
-  lab_cap <- mean(
+  lab_cap <- mean(c(
     covid_capacity_high_throughput,
     covid_capacity_near_patient,
     covid_capacity_manual
-  )
+  ))
   # back calculations, c32 & also c27
   # DYNAMIC
   lab_staff <- capacity$n_labs
   # c19 bed cap = I67 in inputs tab
-  # DYNAMIC
-  bed_cap <- capacity$n_hosp_beds # this has already been calculated in country capacity
+  # DYNAMIC # this has already been calculated in country capacity
+  bed_cap <- capacity$n_hosp_beds
 
   # D18 WS
   # DYNAMIC
-  lab_staff_cap <-ifelse(is.na(lab_cap), lab_staff,
-                         lab_staff*lab_cap)
+  lab_staff_cap <- ifelse(is.na(lab_cap), lab_staff,
+    lab_staff * lab_cap
+  )
 
   # num hygienists per bed, I73 - DEPENDS ON OUTPUT - patients
   hygienists_per_sev_bed <- hwfe$patient_t24_sev[
@@ -155,7 +158,7 @@ hcw_caps <- function(params, # STATIC
 
   hygienists_per_bed <- hygienists_per_sev_bed + hygienists_per_crit_bed
 
-  # INPUTS - num hcws per bed, I72 - DEPENDS ON OUTPUT - patients -----------------------------------------------
+  # INPUTS - num hcws per bed, I72 - DEPENDS ON OUTPUT - patients
   hcws_per_sev_bed <- sum(
     hwfe$patient_t24_sev[
       hwfe$esft_group == "HCW"
@@ -172,17 +175,18 @@ hcw_caps <- function(params, # STATIC
     (sum(patients$crit_beds_inuse) / sum(patients$total_beds_inuse))
   )
 
-  hcws_per_bed <- hcws_per_sev_bed + hcws_per_crit_bed # -----------------------------------------------
+  hcws_per_bed <- hcws_per_sev_bed + hcws_per_crit_bed # ----------------------
 
-  # back calculations - capped number cleaners for inpatient - C33 - same as ws D19
-  if (is.null(params$n_hosp_beds)) {
-    cleaners_inpatient_cap <- params$beds_covid * hygienists_per_bed
+  # back calculations - capped number cleaners for inpatient C33, same as ws D19
+  if (is.null(capacity$n_hosp_beds)) {
+    cleaners_inpatient_cap <- capacity$beds_covid * hygienists_per_bed
   } else {
-    cleaners_inpatient_cap <- params$n_hosp_beds * hygienists_per_bed
+    cleaners_inpatient_cap <- capacity$n_hosp_beds * hygienists_per_bed
   }
 
   # back calculations - c36 - of critical/severe, % of cases that are critical
-  perc_crit_cases <- round(sum(patients$crit_beds_inuse)/sum(patients$total_beds_inuse), 5)
+  perc_crit_cases <- round(sum(patients$crit_beds_inuse) /
+    sum(patients$total_beds_inuse), 5)
   # back calculations - c37 - of critical/severe, % of cases that are severe
   perc_sev_cases <- round(1 - perc_crit_cases, 5)
   # add check here that they sum to 1 / correspond
@@ -191,19 +195,29 @@ hcw_caps <- function(params, # STATIC
   prob_outpatient <- params$mild_i_proportion + params$mod_i_proportion
   # back calculations - C41 - probability of a new case being inpatient
   prob_inpatient <- params$sev_i_proportion + params$crit_i_proportion
-  # back calculations - C42 - HCWS required per outpatient -----------------------------------------------
-  hcws_per_outpatient <- round(1/cases_screened_per_hcw_per_day, 5)
-  # back calculations - C43 - HCWS required per inpatient -----------------------------------------------
+  # back calculations - C42 - HCWS required per outpatient
+  hcws_per_outpatient <- round(1 / cases_screened_per_hcw_per_day, 5)
+  # back calculations - C43 - HCWS required per inpatient
   hcws_per_inpatient <- hcws_per_bed
-  # back calculations - C44 - per new case, ratio of HCWs for inpatient vs outpatient -----------------------------------------------
-  ratio_hcws_inpatient_outpatient <- round((prob_inpatient*hcws_per_inpatient)/(prob_inpatient*hcws_per_inpatient + prob_outpatient*hcws_per_outpatient), 5)
+  # back calculations - C44 - per new case, ratio of HCWs for
+  # inpatient : outpatient
+  ratio_hcws_inpatient_outpatient <- round(
+    (prob_inpatient * hcws_per_inpatient) /
+      (prob_inpatient * hcws_per_inpatient +
+        prob_outpatient * hcws_per_outpatient), 5
+  )
 
-  # inputs - I66 - % HCW treating hospitalized covid inpatients --------------------------------------------------
-  perc_treating_covid <- round(ratio_hcws_inpatient_outpatient*(1-params$perc_hcws_not_covid), 5)
+  # inputs - I66 - % HCW treating hospitalized covid inpatients ---------------
+  perc_treating_covid <- round(
+    ratio_hcws_inpatient_outpatient * (1 - params$perc_hcws_not_covid), 5
+  )
   # inputs - I67 - % HCW screening/triaging suspected covid-19 cases
-  perc_screening_covid <- round(1 - params$perc_hcws_not_covid - perc_treating_covid, 5)
+  perc_screening_covid <- round(
+    1 - params$perc_hcws_not_covid - perc_treating_covid, 5
+  )
 
   # BACK CALCULATIONS - - - -
+  # the caps are recalculated based on
   # back calculations C30 - D16 ws
   hcws_inpatients_cap <- round(perc_treating_covid * capacity$n_hcws, 5)
   # n_hcws = num nurses + num doctors,C31 - D17 ws
@@ -227,22 +241,32 @@ hcw_caps <- function(params, # STATIC
     cleaners_inpatient_cap = cleaners_inpatient_cap,
     hcws_inpatients_cap = hcws_inpatients_cap,
     hcws_per_bed = hcws_per_bed,
-    # hcws_per_crit_bed = hcws_per_crit_bed,
-    # hcws_per_sev_bed = hcws_per_sev_bed,
     hcws_per_inpatient = hcws_per_inpatient, # DOUBLE CHECK IF ACTUALLY USED
     hcws_per_outpatient = hcws_per_outpatient,
     hcws_screening_cap = hcws_screening_cap,
-    hygienists_per_bed = hygienists_per_bed, # not sure if the by severity breakdown needed
-    # hygienists_per_crit_bed = hygienists_per_crit_bed,
-    # hygienists_per_sev_bed = hygienists_per_sev_bed,
-    lab_staff_cap = lab_staff_cap, # this one is lab staff available for covid - one in WS
+    hygienists_per_bed = hygienists_per_bed,
+    # this one is lab staff avail. for covid - one in WS
+    lab_staff_cap = lab_staff_cap,
     perc_crit_cases = perc_crit_cases,
-    perc_screening_covid = perc_screening_covid, # is there a better way to call this just back to parameters? or should we just add it?
+    perc_screening_covid = perc_screening_covid,
     perc_sev_cases = perc_sev_cases,
     perc_treating_covid = perc_treating_covid,
     prob_inpatient = prob_inpatient,
     prob_outpatient = prob_outpatient,
     ratio_hcws_inpatient_outpatient = ratio_hcws_inpatient_outpatient
   )
+
+  # Override parameters with any client specified ones
+  if (!is.list(overrides)) {
+    stop("overrides must be a list")
+  }
+
+  for (name in names(overrides)) {
+    if (!(name %in% names(hcw_caps_list))) {
+      stop(paste("unknown parameter", name, sep = " "))
+    }
+    hcw_caps_list[[name]] <- overrides[[name]]
+  }
+
   return(hcw_caps_list)
 }

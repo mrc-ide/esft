@@ -34,9 +34,10 @@ screening_hcws_weekly <- function(diagnostics_weekly,
 
   data <- data %>%
     dplyr::mutate(
-      screening_hcw_capped = min(
-        .data$screening_hcw_uncapped, capacity$n_hcws *
-          hcw_caps$perc_screening_covid
+      screening_hcw_capped = ifelse(
+        .data$screening_hcw_uncapped > hcw_caps$hcws_screening_cap,
+        hcw_caps$hcws_screening_cap,
+        .data$screening_hcw_uncapped
       )
     ) %>%
     dplyr::select(c(
@@ -52,7 +53,7 @@ screening_hcws_weekly <- function(diagnostics_weekly,
 #' @param hcws From hcws_weekly
 #' @param screening_hcws From screening_hcws_weekly
 #' @param test_strat From set_testing_strategy
-#' @param tests_weekly From diagnostics_weekly
+#' @param tests From diagnostics_weekly
 #'
 #' @return Dataframe of additional testing
 #' \describe{
@@ -75,8 +76,8 @@ additional_testing <- function(hcws, # from hcws_weekly
                                tests) { # from diagnostics_weekly
   data <- merge(hcws, screening_hcws)
   data <- merge(data, tests)
-# this is temporary fix
-  if(typeof(test_strat)!='data.frame'){
+  # this is temporary fix
+  if (typeof(test_strat) != "data.frame") {
     test_strat <- as.data.frame(test_strat)
   }
 
@@ -132,14 +133,17 @@ total_tests <- function(tests_weekly,
   data <- merge(tests_weekly, additional_tests)
   data <- data %>%
     dplyr::mutate(
-      total_tests_uncapped = ceiling(.data$tests_diagnosis_capped_sev_crit +
+      total_tests_uncapped = (.data$tests_diagnosis_capped_sev_crit +
         .data$tests_release_capped_sev_crit + .data$tests_mild +
         .data$tests_mod + .data$tests_suspected + .data$tests_hcws_weekly +
         .data$tests_contacts_weekly),
     )
   data <- data %>%
     dplyr::mutate(
-      total_tests_capped = min(.data$total_tests_uncapped, max_tests * 7),
+      total_tests_capped = ifelse(.data$total_tests_uncapped > max_tests * 7,
+        max_tests * 7,
+        .data$total_tests_uncapped
+      ),
     ) %>%
     dplyr::select(c(
       week_begins, week_ends,

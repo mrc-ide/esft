@@ -17,7 +17,7 @@ Total tests and percent antigen:
 * total_tests_sev_crit - total tests, used for diagnosis and release;
 default = 2
 * perc_antigen_tests - percent testing done in hospital via antigen testing,
-max 80%; default = 20%}
+max 80 percent; default = 20 percent}
 }
 \value{
 List of diagnostic parameters.

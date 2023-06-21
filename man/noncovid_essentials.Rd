@@ -15,6 +15,27 @@ noncovid_essentials(noncovid, ref_hcws, forecast_length = 12, days_week = 5)
 
 \item{days_week}{Average days worked per week, default = 5}
 }
+\value{
+Dataframe of commodities weekly
+\describe{
+  \item{item}{Item name}
+  \item{amount_noncovid_doctors}{Total commodity needs for the non-COVID-19
+  doctors}
+  \item{amount_noncovid_nurse}{Total commodity needs for the non-COVID-19
+  nurses}
+  \item{amount_noncovid_lab_techs}{Total commodity needs for the non-COVID-19
+  lab scientists and technicians}
+  \item{amount_midwives}{Total commodity needs for the midwives}
+  \item{amount_dentists}{Total commodity needs for the dentists}
+  \item{amount_physios}{Total commodity needs for the physiotherapists}
+  \item{amount_trad_comp_meds}{Total commodity needs for the traditional
+  and complementary medical personnel}
+  \item{amount_chws}{Total commodity needs for the community healthcare
+  workers}
+  \item{amount_pharmacists}{Total commodity needs for the pharmacists}
+}
+}
 \description{
-Non COVID essentials
+Calculates PPE and other commodities needed for non-COVID-19
+essential health services that need to continue during the pandemic.
 }

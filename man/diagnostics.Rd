@@ -5,10 +5,10 @@
 \alias{diagnostics}
 \title{Diagnostics}
 \format{
-A data frame with 220 rows and 9 variables:
+A data frame with 220 rows and 10 variables:
 \describe{
   \item{country_name}{Country name}
-  \item{who_region}{WHO region}
+  \item{region}{WHO region}
   \item{income_group}{Income group}
   \item{roche_6800}{Number of Roche 6800 machines estimated to be in country}
   \item{roche_8800}{Number of Roche 8800 machines estimated to be in country}
@@ -18,6 +18,7 @@ A data frame with 220 rows and 9 variables:
   in country}
   \item{genexpert}{Number of GeneXpert machines estimated to be in country}
   \item{manual}{Number of manual machines estimated to be in country}
+  \item{country_code}{ISO3C code per country}
 }
 }
 \source{

@@ -4,7 +4,15 @@
 \alias{hygiene_forecast}
 \title{Hygiene weekly}
 \usage{
-hygiene_forecast(equipment, hcws, patients, cases, tests, screening_hcws)
+hygiene_forecast(
+  equipment,
+  hcws,
+  patients,
+  cases,
+  tests,
+  screening_hcws,
+  params
+)
 }
 \arguments{
 \item{equipment}{This should be the data frame of equipment need}
@@ -18,7 +26,30 @@ hygiene_forecast(equipment, hcws, patients, cases, tests, screening_hcws)
 \item{tests}{diagnostics_weekly}
 
 \item{screening_hcws}{screening_hcws_weekly}
+
+\item{params}{From get_parameters()}
+}
+\value{
+Dataframe of weekly hygiene forecast
+\describe{
+  \item{category}{Category of item: Hygiene}
+  \item{week_begins}{Date the week begins}
+  \item{week_ends}{Date the week ends}
+  \item{unit}{Unit items supplied in}
+  \item{item}{Item name}
+  \item{total_amount}{Total amount of that item (sum of all columns
+  following)}
+  \item{amount_inpatient_hcw}{Total amount for all inpatient HCWs, cleaners,
+  informal caregivers, ambulance personnel, and boimedical engineers}
+  \item{amount_inpatient_patient}{Total amount for all inpatient patients}
+  \item{amount_isolation}{Total amount for all informal caregivers for
+  isolating patients as well as the isolating patients}
+  \item{amount_screening}{Total amount for screening HCWs and patients}
+  \item{amount_lab}{Total amount for all lab technicians and cleaners}
+}
 }
 \description{
-Hygiene weekly
+The amounts per hygiene item come from the equipment sheet:
+this is a formula that feeds into the overall commodity forecast, but is
+independent and provides more details (including needs per cadre).
 }

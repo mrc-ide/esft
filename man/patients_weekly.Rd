@@ -43,6 +43,10 @@ COVID, same as sev_patients_cap}
   ago that = avg. length of stay}
   \item{discharged_sev_patients}{Severe patients admitted number of weeks
   ago that = avg. length of stay}
+  \item{sev_patients_admitted_cap}{Severe patients admitted during the week
+  based on bed availability and numbers of discharged patients}
+  \item{crit_patients_admitted_cap}{Critical patients admitted during the
+  week based on bed availability and numbers of discharged patients}
   }
 }
 \description{
@@ -51,7 +55,9 @@ Summary tab under the headers 'Sick patients per week', 'Patients recovering
 (or dying) from illness, per week'. It takes in the model output plus the
 cumulative infections calculated by cases_weekly (which is the first step in
 the weekly summary process). It then calculates hospital demands, including
-bed capping.
+bed capping. Note: there will be a lag on the appearances of the first values
+in these projections, and these are dependent on the length of stay of
+various case types specified in the get_parameters() function.
 
 
 Here is the description of the additional patient calculations:
@@ -78,4 +84,8 @@ length of stay in isolation
 length of hospital stay
 * discharged_crit_patients - admitted critical patients shifted back by avg.
 length of hospital stay
+* sev_patients_admitted_cap - admitted severe patients capped by severe beds,
+number of beds in use, and number of patients discharged
+* crit_patients_admitted_cap - admitted critical patients capped by critical
+beds, number of beds in use, and number of patients discharged
 }

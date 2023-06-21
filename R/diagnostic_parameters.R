@@ -12,7 +12,7 @@
 #' * total_tests_sev_crit - total tests, used for diagnosis and release;
 #' default = 2
 #' * perc_antigen_tests - percent testing done in hospital via antigen testing,
-#' max 80%; default = 20%
+#' max 80 percent; default = 20 percent
 #'
 #' @return List of diagnostic parameters.
 #'
@@ -46,7 +46,7 @@ get_diagnostic_parameters <- function(overrides = list()) {
          or equal to 0.")
   }
 
-  parameters
+  return(parameters)
 }
 
 #' @title Get diagnostic capacity
@@ -119,8 +119,7 @@ get_country_test_capacity <- function(iso3c = NULL,
 
 #' @title Sets testing strategy and associated parameters
 #'
-#' @description
-#' Default is testing strategy = all
+#' @description Default is testing strategy = all
 #'
 #' @param strategy testing strategy for mild/moderate presenting cases - either
 #' "all" or "targeted"
@@ -268,9 +267,8 @@ get_lab_parameters <- function(overrides = list()) {
 
 #' @title Given specified parameters, calculates diagnostic country capacity.
 #'
-#' @details
-#' As of right now, need to increase hours per shift in throughput data in order
-#' to up the capacity.
+#' @description Gets country diagnostic capacity. As of right now, need to
+#' increase hours per shift in throughput data in order to up the capacity.
 #'
 #' @param country_diagnostic_capacity Capacity called from the
 #' get_country_test_capacity function
@@ -331,7 +329,7 @@ calc_diagnostic_capacity <- function(country_diagnostic_capacity,
   return(capacity)
 }
 
-#' @title Get diagnostic ratios
+#' @title Get diagnostic ratios.
 #'
 #' @param capacity From calculate_diagnostic_capacity.
 #' @param diagnostic_params From get_diagnostic_parameters
@@ -380,7 +378,7 @@ total_labs <- function(capacity) {
   ) / 3 +
     capacity$modules_activated[capacity$platform_key == "genexpert"] / 4
 
-  labs <- round(labs)
+  # labs <- (labs)
 
   return(labs)
 }

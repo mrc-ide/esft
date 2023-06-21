@@ -13,7 +13,7 @@ additional_testing(hcws, screening_hcws, test_strat, tests)
 
 \item{test_strat}{From set_testing_strategy}
 
-\item{tests_weekly}{From diagnostics_weekly}
+\item{tests}{From diagnostics_weekly}
 }
 \value{
 Dataframe of additional testing

@@ -8,8 +8,8 @@
 #' @param patients From patients_weekly
 #' @param cases From cases_weekly
 #' @param diagnostic_parameters From get_diagnostic_parameters
-#' @param testing_strategy String - either "all" or "targeted". For percent
-#' tested in targeted, set the percent tested in get_parameters.
+#' @param testing_scenario List of 8 testing scenario parameters, from
+#' set_testing_strategy()
 #'
 #' @return Dataframe of weekly summary
 #' \describe{
@@ -44,9 +44,10 @@ diagnostics_weekly <- function(params,
                                patients, # from patients weekly
                                cases, # from cases weekly
                                diagnostic_parameters,
-                               testing_strategy = "all") {
+                               testing_scenario) { # from set_testing_strategy()
   data <- merge(patients, cases)
   params <- merge(params, diagnostic_parameters)
+  params <- merge(params, testing_scenario)
 
   # this section produces results that are wildly different from the spreadsheet
   # why is that?
@@ -61,41 +62,38 @@ diagnostics_weekly <- function(params,
           .data$rem_crit_patients * (
             1 - params$ifr_crit) * params$tests_release_sev_crit,
       tests_diagnosis_capped_sev_crit =
-        (.data$sev_beds_inuse +
-          .data$crit_beds_inuse) * params$tests_diagnosis_sev_crit,
+        (.data$sev_patients_admitted_cap +
+          .data$crit_patients_admitted_cap) * params$tests_diagnosis_sev_crit,
       tests_release_capped_sev_crit =
         .data$discharged_sev_patients * (
           1 - params$ifr_sev) * params$tests_release_sev_crit +
           .data$discharged_crit_patients * (
             1 - params$ifr_crit) * params$tests_release_sev_crit
     )
-  if (!(is.null(testing_strategy))) {
-    if (testing_strategy == "all") {
-      data <- data %>%
-        dplyr::mutate(
-          tests_mild = .data$new_mild_cases * params$tests_diagnosis_mild_mod,
-          tests_mod = .data$new_mod_cases * params$tests_diagnosis_mild_mod,
-          tests_suspected = .data$sus_cases_but_negative *
-            params$tests_diagnosis_mild_mod,
-          testing_strategy = testing_strategy
-        )
-    } else if (testing_strategy == "targeted") {
-      data <- data %>%
-        dplyr::mutate(
-          tests_mild =
-            .data$new_mild_cases * params$tests_diagnosis_mild_mod *
-              params$perc_tested_mild_mod,
-          tests_mod =
-            .data$new_mod_cases * params$tests_diagnosis_mild_mod *
-              params$perc_tested_mild_mod,
-          tests_suspected =
-            .data$sus_cases_but_negative * params$tests_diagnosis_mild_mod *
-              params$perc_tested_mild_mod,
-          testing_strategy = testing_strategy
-        )
-    } else {
-      stop("Please specify either strategy: all or targeted.")
-    }
+
+  if (params$strategy == "all") {
+    data <- data %>%
+      dplyr::mutate(
+        tests_mild = .data$new_mild_cases * params$tests_diagnosis_mild_mod,
+        tests_mod = .data$new_mod_cases * params$tests_diagnosis_mild_mod,
+        tests_suspected = .data$sus_cases_but_negative *
+          params$tests_diagnosis_mild_mod,
+        testing_strategy = params$strategy
+      )
+  } else if (params$strategy == "targeted") {
+    data <- data %>%
+      dplyr::mutate(
+        tests_mild =
+          .data$new_mild_cases * params$tests_diagnosis_mild_mod *
+            params$perc_tested_mild_mod,
+        tests_mod =
+          .data$new_mod_cases * params$tests_diagnosis_mild_mod *
+            params$perc_tested_mild_mod,
+        tests_suspected =
+          .data$sus_cases_but_negative * params$tests_diagnosis_mild_mod *
+            params$perc_tested_mild_mod,
+        testing_strategy = params$strategy
+      )
   }
 
   data <- data %>%

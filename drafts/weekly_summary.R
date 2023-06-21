@@ -17,7 +17,8 @@ source("R/diagnostics_weekly.R")
 source("R/hcw_tests.R")
 source("R/hcws_weekly.R")
 source("R/noncovid_essentials.R")
-# goal is to figure out hcw caps and cases:
+source("R/pharma_forecast.R")
+source("R/commodities_forecast.R")
 
 load("data/who.rda")
 load("data/population.rda")
@@ -27,9 +28,10 @@ load("data/diagnostics.rda")
 load("data/throughput.rda")
 load("data/hours_per_shift.rda")
 load("data/pharmaceuticals.rda")
+load("data/equipment.rda")
 
 all <- readRDS("data-raw/all.Rds")
-
+####### run first -------
 get_country_capacity <- function(iso3c = NULL,
                                  overrides = list()) {
 
@@ -149,6 +151,7 @@ get_country_test_capacity <- function(iso3c = NULL,
   return(diagnostics)
 }
 # getting parameters, except for dynamic hcw caps, which depend on patents_weekly
+# test_strat <- set_testing_strategy(strategy="targeted") - this works !!
 test_strat <- set_testing_strategy()
 params <- get_parameters()
 test_params <- get_diagnostic_parameters()
@@ -171,21 +174,32 @@ afg_data<-subset(all, all$iso3c == "AFG")
 afg_data <- subset(afg_data, afg_data$scenario == "Maintain Status Quo")
 
 
-afg_data <- subset(afg_data, afg_data$date > as.Date("2022-01-02"))
+# afg_data <- subset(afg_data, afg_data$date > as.Date("2022-01-01"))
 
 cases <- cases_weekly(params, capacity, test_strategy_params=test_strat,
                       data=afg_data)
 
-# note - error occurred when subset by date
-patients <- patients_weekly(params, capacity, data = cases)
-hcw_caps <- hcw_caps(params,capacity,throughput,hwfe, patients)
-# also did weird stuff when subset by date - but tend only to be for diagnosis
-patients <- subset(patients, patients$week_begins > "2022-01-02")
-cases <- subset(cases, cases$week_begins > "2022-01-02")
+# note - error occurred when subset by date like this: afg_data$date > as.Date("2022-01-01"))
+# have to subset before or you get carried over values from discharged and occupancy
+cases <- subset(cases, cases$week_ends > as.Date("2022-01-01"))
 
-tests <- diagnostics_weekly(params, patients, cases,
+# but patients still gives weird values for stay - it gives zeros, since those conditions havent been found and theyre super recursively difficlt to solve
+patients <- patients_weekly(params, capacity, data = cases)
+caps <- list(
+  hcws_inpatients_cap = 5448,
+  hcws_screening_cap = 919
+)
+patients <- patients[c(2:13),]
+# subsetting gets the per bed stuff correct
+# but the cleaner cap is sitll shit
+hcw_caps <- hcw_caps(params,capacity,throughput,hwfe, patients, overrides=caps)
+# also did weird stuff when subset by date - but tend only to be for diagnosis
+# patients <- subset(patients, patients$week_ends > as.Date("2022-01-01"))
+
+tests <- diagnostics_weekly(params = params, patients, cases,
                             diagnostic_parameters = test_params,
-                            testing_strategy = "all")
+                            testing_scenario = test_strat)
+# NOTE: THERE IS AN ERROR IN THE WAY HCW CAPS ARE CALCULATED IN THE ESFT SHEET
 
 hcws <- hcws_weekly(params, # from get_parameters
                     capacity, # from get_country_capacity
@@ -202,22 +216,44 @@ added_tests <- additional_testing(hcws, # from hcws_weekly
                                   tests)
 n_tests <- total_tests(tests, added_tests, max_tests)
 test_ratios <- test_ratio(diagnostic_capacity, test_params)
-load("data/equipment.rda")
+
+####### forecast -------
+
 ref_hcws <- reference_hcw(iso3c = "AFG", params, who, throughput,
-                           overrides = list(
-                             n_docs = 8000,
-                             n_nurses = 5000,
-                             n_labs = 300,
-                             n_midwives = 500,
-                             n_dentists = 10,
-                             n_physiotherapists = 50,
-                             n_trad_comp_med = 4000,
-                             n_chws = 245,
-                             n_pharmacists = 818
-                           ))
+                          default = list(
+                            n_docs = 8000,
+                            n_nurses = 5000,
+                            n_labs = 300,
+                            n_midwives = 500,
+                            n_dentists = 10,
+                            n_physiotherapists = 50,
+                            n_trad_comp_med = 4000,
+                            n_chws = 245,
+                            n_pharmacists = 818
+                          ))
 noncovid_ess <-noncovid_essentials(noncovid, ref_hcws,
                                 forecast_length = 12,
                                 days_week = 5)
 
-list=ls()
-list <- list[4,6,13,19,]
+cases <- cases[c(2:13),]
+pharma <- pharma_forecast(pharmaceuticals, cases)
+# hygiene is all good
+hygiene <- hygiene_forecast(
+  equipment, hcws, patients, cases, tests,
+  screening_hcws, params
+)
+
+case_management <- case_management_forecast(equipment, patients)
+case_management <- subset(case_management, case_management$week_begins < "2022-01-14")
+
+ppe <- ppe_forecast(
+  equipment, hcws, patients, cases, tests,
+  screening_hcws, params
+)
+ppe <- subset(ppe, ppe$week_begins < "2022-01-14")
+
+diagnostic_supplies <- diagnostics_forecast(
+  lab_params, equipment, test_ratios,
+  n_tests, patients
+)
+diagnostic_supplies <- subset(diagnostic_supplies, diagnostic_supplies$week_begins < "2022-01-14")

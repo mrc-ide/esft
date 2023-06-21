@@ -9,7 +9,7 @@ diagnostics_weekly(
   patients,
   cases,
   diagnostic_parameters,
-  testing_strategy = "all"
+  testing_scenario
 )
 }
 \arguments{
@@ -21,8 +21,8 @@ diagnostics_weekly(
 
 \item{diagnostic_parameters}{From get_diagnostic_parameters}
 
-\item{testing_strategy}{String - either "all" or "targeted". For percent
-tested in targeted, set the percent tested in get_parameters.}
+\item{testing_scenario}{List of 8 testing scenario parameters, from
+set_testing_strategy()}
 }
 \value{
 Dataframe of weekly summary

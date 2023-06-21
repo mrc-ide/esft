@@ -8,7 +8,7 @@
 A data frame with 5 rows and 3 variables:
 \describe{
   \item{income_group}{Income group}
-  \item{beds_1000}{Hospital beds per 1,000 people}
+  \item{Beds_1000}{Hospital beds per 1,000 people}
   \item{source}{Source of estimate}
 }
 }

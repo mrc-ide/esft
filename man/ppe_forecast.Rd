@@ -4,7 +4,7 @@
 \alias{ppe_forecast}
 \title{PPE need weekly}
 \usage{
-ppe_forecast(equipment, hcws, patients, cases, tests, screening_hcws)
+ppe_forecast(equipment, hcws, patients, cases, tests, screening_hcws, params)
 }
 \arguments{
 \item{equipment}{This should be the data frame of equipment need}
@@ -18,7 +18,32 @@ ppe_forecast(equipment, hcws, patients, cases, tests, screening_hcws)
 \item{tests}{diagnostics_weekly}
 
 \item{screening_hcws}{screening_hcws_weekly}
+
+\item{params}{From get_parameters()}
+}
+\value{
+Dataframe of PPE needs weekly
+\describe{
+  \item{category}{Category of item: either Case management - accessories &
+  consumables or Case management - biomedical equipment}
+  \item{week_begins}{Date the week begins}
+  \item{week_ends}{Date the week ends}
+  \item{unit}{Unit items supplied in}
+  \item{item}{Item name}
+  \item{total_amount}{Total amount of that item (sum of all columns
+  following)}
+  \item{amount_inpatient_hcw}{Total amount for inpatient HCWs - including
+  HCWs, cleaners, ambulance workers, informal caregivers, and biomedical
+  engineers}
+  \item{amount_inpatient_patient}{Total amount for inpatient patients}
+  \item{amount_isolation}{Total amount for informal caregivers and patients
+  in isolation}
+  \item{amount_screening}{Total amount for screening HCWs and screened
+  patients}
+  \item{amount_lab}{Total amount for lab technicians and cleaners}
+}
 }
 \description{
-PPE need weekly
+Calculates PPE need forecasts for different cadres of HCWs for
+the forecast period.
 }

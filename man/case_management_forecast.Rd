@@ -2,19 +2,38 @@
 % Please edit documentation in R/commodities_forecast.R
 \name{case_management_forecast}
 \alias{case_management_forecast}
-\title{Case management weekly: accessories, consumables, and biomedical equipment}
+\title{Case management weekly: accessories, consumables, and biomedical
+equipment}
 \usage{
-case_management_forecast(params, equipment, patients)
+case_management_forecast(equipment, patients)
 }
 \arguments{
-\item{params}{Classic parameter function (?)}
-
 \item{equipment}{This should be the data frame of equipment need}
 
 \item{patients}{From patients_weekly}
 }
+\value{
+Dataframe of commodities weekly
+\describe{
+  \item{category}{Category of item: either Case management - accessories &
+  consumables or Case management - biomedical equipment}
+  \item{week_begins}{Date the week begins}
+  \item{week_ends}{Date the week ends}
+  \item{unit}{Unit items supplied in}
+  \item{item}{Item name}
+  \item{total_amount}{Total amount of that item (sum of all columns
+  following)}
+  \item{amount_sev_patient}{Total amount for severe patients}
+  \item{amount_crit_patient}{Total amount for critical patients}
+  \item{amount_sev_crit_patient}{Total amount for severe and critical
+  patients}
+}
+}
 \description{
 in O(N^2) time. Next iteration should get rid of for loops.
 To do: get rid of for loop for non reusable items.
-Can also experiment with Reduce.
+Can also experiment with Reduce. Also note - the last three columns do not
+double count the item amounts, they are structured this way due to the way
+that the amount per patient is structured in the input data sheet. There is
+never a case where all three final columns have entries >0.
 }
