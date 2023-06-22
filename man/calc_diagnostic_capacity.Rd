@@ -23,7 +23,7 @@ Important to get names right if go vector rought (easiest to copy paste from
 throughput), and shifts can only be 1, 2, or 3 (8, 12, 24 hrs).
 Default = NULL.}
 
-\item{hours_per_shift}{Hours per shift, default = 8}
+\item{hours_per_shift}{Hours per shift, default = 8 (data from ESFT package)}
 }
 \description{
 Gets country diagnostic capacity. As of right now, need to

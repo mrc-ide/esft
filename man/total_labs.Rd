@@ -8,7 +8,7 @@ total_labs(capacity)
 }
 \arguments{
 \item{capacity}{From get_country_test_capacity or
-calculate_diagnostic_capacity. Only thing is, we need the country capacity.}
+calc_diagnostic_capacity. Only thing is, we need the country capacity.}
 }
 \description{
 Calculates max total labs that could be available for COVID

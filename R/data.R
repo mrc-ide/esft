@@ -70,38 +70,6 @@
 #' @source \url{https://data.worldbank.org/indicator/SH.MED.BEDS.ZS}
 "wb_beds"
 
-#' @title Income group averages of hospital beds per 1,000
-#'
-#' @description Average number of hospital beds per 1,000 people in a country
-#' population based on income group. Used as proxy numbers for when country
-#' level data not available.
-#'
-#' @format A data frame with 5 rows and 3 variables:
-#' \describe{
-#'   \item{income_group}{Income group}
-#'   \item{Beds_1000}{Hospital beds per 1,000 people}
-#'   \item{source}{Source of estimate}
-#' }
-#' @source \url{https://data.worldbank.org/indicator/SH.MED.BEDS.ZS}
-"bed_nr_proxy"
-
-#' @title Income group averages of percentage beds allocated to critical care
-#'
-#' @description Imperial College estimates of the percentage of hospitals
-#' allocated to critical care, by country income level. Used as proxy for when
-#' country level data not available.
-#'
-#' @format A data frame with 5 rows and 3 variables:
-#' \describe{
-#'   \item{income_group}{Income group}
-#'   \item{perc_crit_proxy}{Average percentage of beds allocated to critical
-#'   care}
-#'   \item{source}{Source of estimate}
-#' }
-#' @source Imperial College, Report 12: The Global Impact of COVID-19 and
-#' Strategies for Mitigation and Suppression
-"bed_perc_crit_proxy"
-
 #' @title Health care work force data
 #'
 #' @description HWFE tool methodology, combined with LMIC-specific inputs from
@@ -341,16 +309,6 @@
 #' }
 #' @source \url{https://www.who.int/publications/i/item/WHO-2019-nCoV-Tools-Essential_forecasting-2022.1}
 "hours_per_shift"
-
-#' @title Percent capacity dedicated to COVID
-#'
-#' @format A data frame with 4 rows and 2 variables:
-#' \describe{
-#'   \item{capacity}{Diagnostic capacity dedicated to COVID-19 response}
-#'   \item{percent}{Percentage of capacity this translates to}
-#' }
-#' @source \url{https://www.who.int/publications/i/item/WHO-2019-nCoV-Tools-Essential_forecasting-2022.1}
-"capacity_perc"
 
 #' @title Throughput data for diagnostic machinery
 #'

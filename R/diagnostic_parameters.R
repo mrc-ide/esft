@@ -75,7 +75,7 @@ get_diagnostic_parameters <- function(overrides = list()) {
 #'
 #' @return Number of diagnostic machines available within each country.
 #' @source Estimates provided by the WHO Operations, Supply & Logistics Team and
-#' reviewed by diagnostics tehcnical experts at the WHO.
+#' reviewed by diagnostics technical experts at the WHO.
 #'
 #' @export
 get_country_test_capacity <- function(iso3c = NULL,
@@ -278,7 +278,7 @@ get_lab_parameters <- function(overrides = list()) {
 #' Important to get names right if go vector rought (easiest to copy paste from
 #' throughput), and shifts can only be 1, 2, or 3 (8, 12, 24 hrs).
 #' Default = NULL.
-#' @param hours_per_shift Hours per shift, default = 8
+#' @param hours_per_shift Hours per shift, default = 8 (data from ESFT package)
 #'
 #' @import dplyr
 #' @importFrom magrittr %>%
@@ -331,7 +331,7 @@ calc_diagnostic_capacity <- function(country_diagnostic_capacity,
 
 #' @title Get diagnostic ratios.
 #'
-#' @param capacity From calculate_diagnostic_capacity.
+#' @param capacity From calc_diagnostic_capacity.
 #' @param diagnostic_params From get_diagnostic_parameters
 #'
 #' @import dplyr
@@ -363,7 +363,7 @@ test_ratio <- function(capacity, diagnostic_params) {
 #' @title Calculates max total labs that could be available for COVID
 #'
 #' @param capacity From get_country_test_capacity or
-#' calculate_diagnostic_capacity. Only thing is, we need the country capacity.
+#' calc_diagnostic_capacity. Only thing is, we need the country capacity.
 #'
 #' @export
 total_labs <- function(capacity) {

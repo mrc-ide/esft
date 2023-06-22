@@ -7,7 +7,7 @@
 test_ratio(capacity, diagnostic_params)
 }
 \arguments{
-\item{capacity}{From calculate_diagnostic_capacity.}
+\item{capacity}{From calc_diagnostic_capacity.}
 
 \item{diagnostic_params}{From get_diagnostic_parameters}
 }
