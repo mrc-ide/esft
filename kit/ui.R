@@ -19,7 +19,8 @@ navbarPage("ESFT",
                         dateInput('week1',
                                   label = 'First date of forecast: yyyy-mm-dd',
                                   value = '2022-01-01'
-                        )
+                        ),
+                        actionButton("check_inputs_btn", "Check Input")
                         # option to put in delivery lead time
                         # add in an action button t
                       ),
@@ -39,7 +40,8 @@ navbarPage("ESFT",
                                          min = 0, value = 0.15, max=1, step=0.1),
                             numericInput("crit_i_proportion",
                                          "Proportion of cases that are critical",
-                                         min = 0, value = 0.05, max=1, step=0.1)
+                                         min = 0, value = 0.05, max=1, step=0.1),
+                            actionButton("check_props_btn", "Check Proportions")
                           ),
                           tabPanel("Length of Stay",
                             numericInput("stay_mild",
@@ -90,7 +92,8 @@ navbarPage("ESFT",
                                          min = 0, value = 0.66, max=1,step=0.01),
                             numericInput("perc_crit_noninv_mv",
                                          "Percent of critical patients noninvasively ventilated",
-                                         min = 0, value = 0.33, max=1,step=0.01)
+                                         min = 0, value = 0.33, max=1,step=0.01),
+                            actionButton("check_vent_btn", "Check Ventilations")
                           ),
                           tabPanel("Oxygen Flow",
                             numericInput("o2_flow_sev",
@@ -106,7 +109,8 @@ navbarPage("ESFT",
                           tabPanel("Diagnostics",
                                    "Left blank for now"),
                           tabPanel("Lab",
-                                   "Left blank, from get_lab")
+                                   "Left blank, from get_lab"),
+                          verbatimTextOutput("error_output")
 
 
                         )
