@@ -5,7 +5,7 @@
 \title{Get diagnostic capacity}
 \source{
 Estimates provided by the WHO Operations, Supply & Logistics Team and
-reviewed by diagnostics tehcnical experts at the WHO.
+reviewed by diagnostics technical experts at the WHO.
 }
 \usage{
 get_country_test_capacity(iso3c = NULL, overrides = list())

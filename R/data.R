@@ -251,22 +251,6 @@
 #' @source \url{https://www.who.int/publications/i/item/WHO-2019-nCoV-Tools-Essential_forecasting-2022.1}
 "equipment"
 
-#' @title Transmission scenarios
-#'
-#' @format A data frame with 3 rows and 5 variables:
-#' \describe{
-#'   \item{imperial_scenario}{Scenario as given in the ESFT tool.}
-#'   \item{label_death_calibrated}{Label of the scenario in the death calibrated
-#'   fits.}
-#'   \item{label_not_death_calibrated}{Label of the scenario in the non death
-#'   calibrated fits.}
-#'   \item{R}{R number associated with transmission scenarios.}
-#'   \item{imperial_category_labels}{Scenario labels as used in imperial model
-#'   fits.}
-#' }
-#' @source \url{https://www.who.int/publications/i/item/WHO-2019-nCoV-Tools-Essential_forecasting-2022.1}
-"transmission_scenarios"
-
 #' @title UNDP Population data
 #'
 #' @format A data frame with 259 rows and 6 variables:
