@@ -51,25 +51,6 @@
 #' @source \url{https://github.com/mrc-ide/global_lmic_projections_esft}
 "icl_data"
 
-#' @title World Bank estimates of number of hospital beds per country
-#'
-#' @description Number of hospital beds per 1,000 people by country by year. The
-#' most recent year of data varies across countries.
-#'
-#' @format A data frame with 264 rows and 65 variables:
-#' \describe{
-#'   \item{country_name}{Country name}
-#'   \item{country_code}{Iso3c codes}
-#'   \item{indicator_name}{Indicator name, in this case, hospital beds per 1,000
-#'   people.}
-#'   \item{indicator_code}{Indicator code,in this case, SH.MED.BEDS.ZS.}
-#'   \item{1960...2019}{Years}
-#'   \item{most_recent}{Most recent bed value: either reported, or income group
-#'   average if not available.}
-#' }
-#' @source \url{https://data.worldbank.org/indicator/SH.MED.BEDS.ZS}
-"wb_beds"
-
 #' @title Health care work force data
 #'
 #' @description HWFE tool methodology, combined with LMIC-specific inputs from

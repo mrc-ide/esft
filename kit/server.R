@@ -19,7 +19,5 @@ function(input, output, session) {
     esft::get_country_capacity(iso3c=input$country_code)
   })
 
-  # output$table <- DT::renderDataTable({
-  #   DT::datatable(cars)
-  # })
+
 }

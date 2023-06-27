@@ -13,6 +13,14 @@ navbarPage("ESFT",
                                     choices = unique(who$country_code)),
                         h5("Country Selected:"),
                         verbatimTextOutput("country_name"),
+                        numericInput("forecast_period",
+                                     "Forecast Period (in weeks)",
+                                     min = 1, value = 12, max = 52, step=1),
+                        dateInput('week1',
+                                  label = 'First date of forecast: yyyy-mm-dd',
+                                  value = '2022-01-01'
+                        ),
+                        # option to put in delivery lead time
                       ),
                       mainPanel(
                         h4("Set Parameters"),
@@ -114,36 +122,36 @@ navbarPage("ESFT",
            ),
            tabPanel("Capacity",
                     uiOutput("capacity")
-           # ),
-           # tabPanel("Country Model Fits",
-           #          verbatimTextOutput("summary")
-           # ),
-           # tabPanel("Weekly Summaries",
-           #          verbatimTextOutput("summary")
-           # ),
-           # tabPanel("Equipment Forecast",
-           #          verbatimTextOutput("summary")
-           # ),
-           # navbarMenu("More",
-           #            tabPanel("Reference Data",
-           #                     DT::dataTableOutput("table")
-           #            ),
-           #            tabPanel("Sources",
-           #                     fluidRow(
-           #                       column(3,
-           #                              img(class="img-polaroid",
-           #                                  src=paste0("http://upload.wikimedia.org/",
-           #                                             "wikipedia/commons/9/92/",
-           #                                             "1919_Ford_Model_T_Highboy_Coupe.jpg")),
-           #                              tags$small(
-           #                                "Source: Photographed at the Bay State Antique ",
-           #                                "Automobile Club's July 10, 2005 show at the ",
-           #                                "Endicott Estate in Dedham, MA by ",
-           #                                a(href="http://commons.wikimedia.org/wiki/User:Sfoskett",
-           #                                  "User:Sfoskett")
-           #                              )
-           #                       )
-           #                     )
-           #            )
+           ),
+           tabPanel("Country Model Fits",
+                    verbatimTextOutput("Imperial SEIR fit data")
+           ),
+           tabPanel("Weekly Summaries",
+                    verbatimTextOutput("summary")
+           ),
+           tabPanel("Commodities Forecast",
+                    verbatimTextOutput("summary")
+           ),
+           navbarMenu("More",
+                      tabPanel("Reference Data",
+                               verbatimTextOutput("table")
+                      ),
+                      tabPanel("Sources",
+                               fluidRow(
+                                 column(3,
+                                        img(class="img-polaroid",
+                                            src=paste0("http://upload.wikimedia.org/",
+                                                       "wikipedia/commons/9/92/",
+                                                       "1919_Ford_Model_T_Highboy_Coupe.jpg")),
+                                        tags$small(
+                                          "Source: Photographed at the Bay State Antique ",
+                                          "Automobile Club's July 10, 2005 show at the ",
+                                          "Endicott Estate in Dedham, MA by ",
+                                          a(href="http://commons.wikimedia.org/wiki/User:Sfoskett",
+                                            "User:Sfoskett")
+                                        )
+                                 )
+                               )
+                      )
            )
 )
