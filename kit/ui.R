@@ -19,14 +19,15 @@ navbarPage("ESFT",
                         dateInput('week1',
                                   label = 'First date of forecast: yyyy-mm-dd',
                                   value = '2022-01-01'
-                        ),
+                        )
                         # option to put in delivery lead time
+                        # add in an action button t
                       ),
                       mainPanel(
-                        h4("Set Parameters"),
+                        h4("Parameters"),
                         tabsetPanel(
-                          tabPanel("Main",
-                            h5("Proportions of Severity"),
+                          # add checks to sum to 1
+                          tabPanel("Proportions of Severity",
                             numericInput("mild_i_proportion",
                                          "Proportion of cases that are mild",
                                          min = 0, value = 0.4, max=1, step=0.1),
@@ -38,8 +39,9 @@ navbarPage("ESFT",
                                          min = 0, value = 0.15, max=1, step=0.1),
                             numericInput("crit_i_proportion",
                                          "Proportion of cases that are critical",
-                                         min = 0, value = 0.05, max=1, step=0.1),
-                            h5("Length of Stay in Weeks"),
+                                         min = 0, value = 0.05, max=1, step=0.1)
+                          ),
+                          tabPanel("Length of Stay",
                             numericInput("stay_mild",
                                          "Weeks of illness/isolation for mild cases",
                                          min = 0, value = 2),
@@ -51,25 +53,20 @@ navbarPage("ESFT",
                                          min = 0, value = 1),
                             numericInput("stay_crit",
                                          "Weeks of illness/hospitalisation for critical cases",
-                                         min = 0, value = 2),
-                            h5("Infection Fatality Rates"),
+                                         min = 0, value = 2)
+                          ),
+                          tabPanel("Infection Fatality Rates",
                             numericInput("ifr_sev",
                                          "Infection fatality rate of severe infections",
                                          min = 0, value = 0.134, max=1, step=0.01),
                             numericInput("ifr_crit",
                                          "Infection fatality rate of critical infections",
-                                         min = 0, value = 0.5, max=1, step=0.01),
-                            h5("Proportion of Health-Care Workers Allocated to COVID Response"),
+                                         min = 0, value = 0.5, max=1, step=0.01)
+                          ),
+                          tabPanel("Health-Care Workers",
                             numericInput("perc_hcws_not_covid",
                                          "Percent of HCWS not allocated to COVID-19 response",
                                          min = 0, value = 0.4, max=1, step=0.01),
-                            numericInput("perc_hcws_treat_covid",
-                                         "Percent of HCWS allocated to COVID-19 response",
-                                         min = 0, value = 0.53, max=1, step=0.01),
-                            numericInput("perc_hcws_screen_covid",
-                                         "Percent of HCWS allocated to COVID-19 screening",
-                                         min = 0, value = 0.07, max=1, step=0.01),
-                            h5("Health-Care Worker and Bed Parameters"),
                             numericInput("n_hosp_beds_per_care_unit",
                                          "Number of hospital beds per care unit",
                                          min = 0, value = 40, step=1),
@@ -84,18 +81,18 @@ navbarPage("ESFT",
                                          min = 0, value = 0),
                             numericInput("n_inf_caregivers_isol",
                                          "Number of informal caregivers per isolating case",
-                                         min = 0, value = 1),
-                            numericInput("cases_screened_per_hcw_per_day",
-                                         "Cases screened per HCW per day",
-                                         min = 0, value = 10),
-                            h5("Percent ventilated"),
+                                         min = 0, value = 1)
+                          ),
+                          # add checks to sum to 1
+                          tabPanel("Percent ventilated",
                             numericInput("perc_crit_inv_mv",
                                          "Percent of critical patients invasively ventilated",
                                          min = 0, value = 0.66, max=1,step=0.01),
                             numericInput("perc_crit_noninv_mv",
                                          "Percent of critical patients noninvasively ventilated",
-                                         min = 0, value = 0.33, max=1,step=0.01),
-                            h5("Oxygen Flow"),
+                                         min = 0, value = 0.33, max=1,step=0.01)
+                          ),
+                          tabPanel("Oxygen Flow",
                             numericInput("o2_flow_sev",
                                          "O2 flow of severe patients in LPM",
                                          min = 0, value = 10, step=1),
@@ -104,7 +101,7 @@ navbarPage("ESFT",
                                          min = 0, value = 30, step=1),
                             numericInput("o2_flow_crit_noninv_mv",
                                          "O2 flow of critical patients (noninvasive) in LPM",
-                                         min = 0, value = 30, step=1),
+                                         min = 0, value = 30, step=1)
                           ),
                           tabPanel("Diagnostics",
                                    "Left blank for now"),
@@ -112,11 +109,11 @@ navbarPage("ESFT",
                                    "Left blank, from get_lab")
 
 
-                        ),
+                        )
 
                         # Diagnostic parameters, get_diagnostic_parameters
                         # Lab parameters, get_lab_parameters
-                      ),
+                      )
 
                     )
            ),
