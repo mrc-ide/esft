@@ -1,0 +1,166 @@
+---
+title: "ESFT Manual"
+author: "Ines Gerard-Ursin"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{ESFT Manual}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(esft)
+```
+
+# Overview
+
+The goal for this vignette is to be stand alone documentation so that you do not have to open up any other vignette or document in order to run the full set of analyses.
+
+I hope to additionally add vignettes with sources, greater details, and explanations of equations, so that if any further questions arise, they can help answer them, or provide greater detail on customizing the outputs.\
+
+### Package build warning
+
+There is one overlapping function between two
+of the dependencies that are loaded. This
+warning can be ignored:
+
+```
+replacing previous import ‘dplyr::last’ by ‘data.table::last’ when loading ‘esft’
+
+```
+
+## Order of calculations
+
+1.  *User input*
+
+Here the user would specify the same items that are in the User Input tab of the ESFT excel file, which would include the country, the forecast period, the first date of the forecast, and potentially the delivery lead time (although that is currently) not included. Note: the time period for which we can forecast is between `2020-01-01` to `2022-12-31`, and is limited to the countries for which have model fits. 
+
+2.  *Load data*
+
+Using the data loaded with the package, subset according to country name and transmission scenario. 
+
+3.  *Parameter setting*
+
+This category of calculations refers to the universal parameters that stay the same across groups of countries, and tend to be based either on collated clinical opinion, on available literature, or estimates from available data.
+
+4.  *Capacity mapping*
+
+This category refers to estimates based on data collated from various sources, that is country specific. Where recent or country-specific estimates are not available, this group of calculations tends to provide estimates based on the World Bank income group to which the specified country belongs.
+
+5.  *Weekly summaries*
+
+This includes summaries of cases, health care workers, tests, and patients per week. In short, these are 'people' calculations.
+
+6.  *Forecasts*
+
+These are 'object' calculations. This includes commodity forecasts (which includes hygiene, case management, PPE, and diagnostic commodities), pharmaceutical forecasts, and non-COVID 19 essential equipment forecasts.
+
+**Right now** there is no option for users to input existing equipment or capacity.
+
+## User Input
+
+Here we set the user inputs and country specified. Note there is an option to manually specify the country code in most calculations, but this helps for consistency/clarity.
+
+```{r userinput}
+user <- user_input()
+
+# we set the country to be afghanistan
+iso3c <- "AFG"
+
+```
+
+## Load Data
+
+```{r load_data}
+data(icl_data, package = "esft")
+data <- subset(icl_data, icl_data$iso3c == iso3c)
+# data <- subset(data, data$scenario == )
+```
+
+## Parameter Setting
+
+```{r params}
+test_strat <- set_testing_strategy()
+params <- get_parameters()
+test_params <- get_diagnostic_parameters()
+lab_params <- get_lab_parameters()
+
+```
+
+## Capacity Mapping
+
+```{r capacity}
+capacity <- get_country_capacity(iso3c=iso3c)
+country_test_capacity <- get_country_test_capacity(iso3c="AFG", diagnostics)
+diagnostic_capacity <- calc_diagnostic_capacity(country_diagnostic_capacity =
+                                                  country_test_capacity,
+                                                throughput, hours_per_shift =
+                                                  hours_per_shift,
+                                                shifts_per_day = 1)
+t_labs <- total_labs(diagnostic_capacity)
+max_tests <- max_tests_per_day(diagnostic_capacity)
+```
+
+
+## Weekly Summaries
+
+
+```{r summaries}
+cases <- cases_weekly(params, capacity, test_strategy_params=test_strat,
+                      data=afg_data)
+
+# note - error occurred when subset by date like this: afg_data$date > as.Date("2022-01-01"))
+# have to subset before or you get carried over values from discharged and occupancy
+cases <- subset(cases, cases$week_ends > as.Date("2022-01-01"))
+
+# but patients still gives weird values for stay - it gives zeros, since those conditions havent been found and theyre super recursively difficlt to solve
+patients <- patients_weekly(params, capacity, data = cases)
+caps <- list(
+  hcws_inpatients_cap = 5448,
+  hcws_screening_cap = 919
+)
+patients <- patients[c(2:13),]
+# subsetting gets the per bed stuff correct
+# but the cleaner cap is sitll shit
+hcw_caps <- hcw_caps(params,capacity,throughput,hwfe, patients, overrides=caps)
+# also did weird stuff when subset by date - but tend only to be for diagnosis
+# patients <- subset(patients, patients$week_ends > as.Date("2022-01-01"))
+
+tests <- diagnostics_weekly(params = params, patients, cases,
+                            diagnostic_parameters = test_params,
+                            testing_scenario = test_strat)
+# NOTE: THERE IS AN ERROR IN THE WAY HCW CAPS ARE CALCULATED IN THE ESFT SHEET
+
+hcws <- hcws_weekly(params, # from get_parameters
+                    capacity, # from get_country_capacity
+                    lab_params, # get_lab_parameters
+                    tests, # from diagnostics_weekly
+                    patients, # patients_weekly
+                    t_labs, # total_labs
+                    hcw_caps)
+screening_hcws <- screening_hcws_weekly(tests, hcw_caps,
+                                        capacity)
+added_tests <- additional_testing(hcws, # from hcws_weekly
+                                  screening_hcws, # from screening_hcws_weekly
+                                  test_strat, # from set_testing_strategy
+                                  tests)
+n_tests <- total_tests(tests, added_tests, max_tests)
+test_ratios <- test_ratio(diagnostic_capacity, test_params)
+```
+
+Also a quote using `>`:
+
+> "He who gives up [code] safety for [code] speed deserves neither." ([via](https://twitter.com/hadleywickham/status/504368538874703872))
+
+## Forecasts
+
+```{r, fig.show='hold'}
+plot(1:10)
+plot(10:1)
+```

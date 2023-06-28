@@ -19,7 +19,12 @@ default = 12
 note - if this is set to 1, this pushed the forecast period out 1 week to
 factor in delivery time; default = 0
 * week1 - date from which the forecast starts (year-month-date);
-default = "2022-01-02"}
+default = "2022-01-02"
+*scenario Default is medium transmission, with an R(0) number or R(eff)
+number of 0.94. Other options include "Low", with an R(0) or R(eff) of 0.47,
+which simulates a 50 percent decrease in transmission, or "High", with an
+R(0) or R(eff) of 1.41, which simulates a 50 percent increase in
+transmission.}
 }
 \description{
 Given that these are just three - don't know if these are

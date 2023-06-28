@@ -56,8 +56,8 @@
 #' }
 #'
 #' @import dplyr
-#' @import data.table
 #' @import countrycode
+#' @importFrom data.table last
 #' @importFrom magrittr %>%
 #' @importFrom rlang .data
 #' @importFrom tidyr pivot_wider

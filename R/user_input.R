@@ -20,6 +20,11 @@
 #' factor in delivery time; default = 0
 #' * week1 - date from which the forecast starts (year-month-date);
 #' default = "2022-01-02"
+#' *scenario Default is medium transmission, with an R(0) number or R(eff)
+#' number of 0.94. Other options include "Low", with an R(0) or R(eff) of 0.47,
+#' which simulates a 50 percent decrease in transmission, or "High", with an
+#' R(0) or R(eff) of 1.41, which simulates a 50 percent increase in
+#' transmission.
 #'
 #' @export
 user_input <- function(overrides = list()) {
@@ -27,7 +32,8 @@ user_input <- function(overrides = list()) {
     # case severity distribution
     forecast_period = 12,
     delivery_leadtime = 0,
-    week1 = "2022-01-02"
+    week1 = "2022-01-02",
+    scenario = "Medium"
   )
   # Override parameters with any client specified ones
   if (!is.list(overrides)) {

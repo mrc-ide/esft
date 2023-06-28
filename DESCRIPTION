@@ -15,3 +15,5 @@ Depends:
 Imports:
     countrycode, gh, magrittr, rlang, data.table, dplyr, tidyr, tidyselect
 RoxygenNote: 7.2.3
+VignetteBuilder: knitr
+Suggests: knitr, rmarkdown
