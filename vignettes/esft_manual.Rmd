@@ -71,26 +71,46 @@ Here we set the user inputs and country specified. Note there is an option to ma
 user <- user_input()
 
 # we set the country to be afghanistan
-iso3c <- "AFG"
+country <- "AFG"
 
 ```
 
 ## Load Data
 
-```{r load_data}
+So here you could either load the data from the package or download it directly from github. 
+
+For loading it from the package, the easiest is to lazy load the actual dataset and then subset by the country code and the transmission scenario (High, low, or medium). Unfortunately you need to "translate" the transmission scenario from laymans terms into the label it has on the website. 
+**I might want to add a translation function**
+
+```{r load_data_package}
+# loads data
 data(icl_data, package = "esft")
-data <- subset(icl_data, icl_data$iso3c == iso3c)
-# data <- subset(data, data$scenario == )
+
+# subsets by country
+data <- subset(icl_data, icl_data$iso3c == country)
+
+scenario_label <-
+    transmission_scenarios$imperial_category_labels[transmission_scenarios$imperial_scenario == user$scenario]
+
+data <- subset(data, data$scenario == scenario_label)
+```
+
+The alternate route is to download the dataset from github. Scenario will default to medium. This contains in effect the same data however with a larger range. **Need to double check here why the calling to the raw data file doesnt work - currently the below throws an error**
+
+```{r download_data, eval=FALSE}
+
+downloaded_data <- load_imperial_data(country_code = "AFG")
+
 ```
 
 ## Parameter Setting
 
 ```{r params}
-test_strat <- set_testing_strategy()
 params <- get_parameters()
+
+test_strat <- set_testing_strategy()
 test_params <- get_diagnostic_parameters()
 lab_params <- get_lab_parameters()
-
 ```
 
 ## Capacity Mapping
