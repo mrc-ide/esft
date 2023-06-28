@@ -95,43 +95,80 @@ scenario_label <-
 data <- subset(data, data$scenario == scenario_label)
 ```
 
-The alternate route is to download the dataset from github. Scenario will default to medium. This contains in effect the same data however with a larger range. **Need to double check here why the calling to the raw data file doesnt work - currently the below throws an error**
+The alternate route is to download the dataset from github. Scenario will default to medium. This contains the death calibrated data. **ASK SOMEONE SPECIFICALLY ABOUT THE DIFFERENCES** - its the differences between the all.Rds file downloaded from that repo
 
 ```{r download_data, eval=FALSE}
-
-downloaded_data <- load_imperial_data(country_code = "AFG")
+downloaded_data <- load_imperial_data(country_code == country)
 
 ```
 
 ## Parameter Setting
 
+We then obtain the parameters. We can manually set any parameters by passing a named list of parameters we would like to use to any of the functions, which we name `overrides`. 
+
 ```{r params}
+
+# This is the standard list of all parameters, many from inputs tab of excel sheet
 params <- get_parameters()
 
+# Testing strategy parameters - population level testing parameters (i.e. percent tested)
 test_strat <- set_testing_strategy()
+
+# Diagnostic parameters - individual level testing parameters (i.e. number of tests per case per diagnosis, etc.)
 test_params <- get_diagnostic_parameters()
+
+# Diagnostic lab parameters - number of lab staff per lab, safety boxes per unit, etc.
 lab_params <- get_lab_parameters()
 ```
 
+Example of how to pass overriding parameters to the functions.
+```{r overrides, eval=FALSE}
+# initialising list in the function call
+params <- get_parameters(overrides=list(stay_mild=3,
+                                        o2_flow_sev = 5)
+                         )
+# initialising list outside the function call (if many parameters to be overridden)
+overrides <- list(perc_crit_inv_mv = 0.3)
+params <- get_parameters(overrides)
+```
+\
 ## Capacity Mapping
 
+Once we get the parameters, it's time to use the country specified and some pre-loaded datasets to calculate basically how many machines each country already has and thus how many tests they can process. 
+
+It is not strictly necessary to calculate capacity after setting the parameters, but thematically it makes sense to start with broad parameter setting and then drill down into country specific details.
+
 ```{r capacity}
-capacity <- get_country_capacity(iso3c=iso3c)
-country_test_capacity <- get_country_test_capacity(iso3c="AFG", diagnostics)
+# load data for the diagnostic capacity functions
+data(throughput, package = "esft")
+data(hours_per_shift, package = "esft")
+
+# This functions pulls in data from the UN, the World Bank, the WHO, Imperial College London to collect country wide parameters which include population, number of HCWs, number of lab staff, etc. 
+capacity <- get_country_capacity(iso3c=country)
+
+# This subsets the diagnostics dataframe to find the baseline estimates of diagnostic testing capacity provided in the WHO ESFT, in terms of number of modules (which are sub units of machines) activated for COVID-19 test processing.
+country_test_capacity <- get_country_test_capacity(iso3c=country)
+
+# This function then translates modules activated to total tests and total tests for COVID-19 that can be processed per day, given assumptions about hours per shift, number of shifts a day, how many tests can be processed in different shifts, how much the machines capacity are allocated to COVID-19 processing.  
 diagnostic_capacity <- calc_diagnostic_capacity(country_diagnostic_capacity =
                                                   country_test_capacity,
                                                 throughput, hours_per_shift =
                                                   hours_per_shift,
                                                 shifts_per_day = 1)
+
+# Calculates the total labs available for COVID-19 given the diagnostic capacity (number of modules and machines) available
 t_labs <- total_labs(diagnostic_capacity)
+
+# Uses the country specific diagnostic capacity estimates to calculate the max number of tests per day.
 max_tests <- max_tests_per_day(diagnostic_capacity)
 ```
 
-
+## UP TO HERE - but there's still a bit to double check
 ## Weekly Summaries
 
-
 ```{r summaries}
+data(hwfe, package = "esft")
+
 cases <- cases_weekly(params, capacity, test_strategy_params=test_strat,
                       data=afg_data)
 
@@ -174,13 +211,46 @@ n_tests <- total_tests(tests, added_tests, max_tests)
 test_ratios <- test_ratio(diagnostic_capacity, test_params)
 ```
 
-Also a quote using `>`:
-
-> "He who gives up [code] safety for [code] speed deserves neither." ([via](https://twitter.com/hadleywickham/status/504368538874703872))
-
+\
 ## Forecasts
 
-```{r, fig.show='hold'}
-plot(1:10)
-plot(10:1)
+```{r forecasts}
+ref_hcws <- reference_hcw(iso3c = "AFG", params, who, throughput,
+                          default = list(
+                            n_docs = 8000,
+                            n_nurses = 5000,
+                            n_labs = 300,
+                            n_midwives = 500,
+                            n_dentists = 10,
+                            n_physiotherapists = 50,
+                            n_trad_comp_med = 4000,
+                            n_chws = 245,
+                            n_pharmacists = 818
+                          ))
+noncovid_ess <-noncovid_essentials(noncovid, ref_hcws,
+                                forecast_length = 12,
+                                days_week = 5)
+
+cases <- cases[c(2:13),]
+pharma <- pharma_forecast(pharmaceuticals, cases)
+# hygiene is all good
+hygiene <- hygiene_forecast(
+  equipment, hcws, patients, cases, tests,
+  screening_hcws, params
+)
+
+case_management <- case_management_forecast(equipment, patients)
+case_management <- subset(case_management, case_management$week_begins < "2022-01-14")
+
+ppe <- ppe_forecast(
+  equipment, hcws, patients, cases, tests,
+  screening_hcws, params
+)
+ppe <- subset(ppe, ppe$week_begins < "2022-01-14")
+
+diagnostic_supplies <- diagnostics_forecast(
+  lab_params, equipment, test_ratios,
+  n_tests, patients
+)
+diagnostic_supplies <- subset(diagnostic_supplies, diagnostic_supplies$week_begins < "2022-01-14")
 ```
