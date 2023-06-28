@@ -23,8 +23,8 @@
 #' @export
 load_imperial_data <- function(warnings = FALSE, country_code = NULL,
                                scenario = "Medium") {
-  iso3 <- utils::read.csv("data-raw/countries.csv")
-  colnames(iso3)[1] <- "country_code"
+  iso3 <- esft::who
+  iso3 <- unique(iso3$country_code)
   iso3 <- iso3[!is.na(iso3)]
   if (!(is.null(country_code))) {
     iso3 <- subset(iso3, iso3 == country_code)
