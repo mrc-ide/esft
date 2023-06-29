@@ -45,7 +45,7 @@ reference_hcw <- function(iso3c = NULL, params, who, throughput,
   # iso3c route
   if (!is.null(iso3c)) {
     iso3c <- as.character(iso3c)
-    if (!iso3c %in% unique(who$country_code)) {
+    if (!iso3c %in% unique(esft::who$country_code)) {
       stop("Iso3c not found")
     }
     country <- countrycode::countrycode(iso3c,
@@ -54,23 +54,23 @@ reference_hcw <- function(iso3c = NULL, params, who, throughput,
     )
   }
 
-  throughput <- throughput[, c("type", "covid_capacity")]
+  throughput <- esft::throughput[, c("type", "covid_capacity")]
   throughput <- throughput[!duplicated(throughput), ]
   avg_lab <- mean(throughput$covid_capacity)
 
   # this is calculated as the backup if the default values are not available
   overrides <- list(
-    n_docs = who$doctors[who$country_code == iso3c] *
+    n_docs = esft::who$doctors[esft::who$country_code == iso3c] *
       params$perc_hcws_not_covid,
-    n_nurses = who$nurses[who$country_code == iso3c] *
+    n_nurses = esft::who$nurses[esft::who$country_code == iso3c] *
       params$perc_hcws_not_covid,
-    n_labs = who$labs[who$country_code == iso3c] * (1 - avg_lab),
-    n_midwives = who$midwives[who$country_code == iso3c],
-    n_dentists = who$dentists[who$country_code == iso3c],
-    n_physiotherapists = who$physiotherapists[who$country_code == iso3c],
-    n_trad_comp_med = who$trad_comp_med[who$country_code == iso3c],
-    n_chws = who$chws[who$country_code == iso3c],
-    n_pharmacists = who$pharmacists[who$country_code == iso3c]
+    n_labs = esft::who$labs[esft::who$country_code == iso3c] * (1 - avg_lab),
+    n_midwives = esft::who$midwives[esft::who$country_code == iso3c],
+    n_dentists = esft::who$dentists[esft::who$country_code == iso3c],
+    n_physiotherapists = esft::who$physiotherapists[esft::who$country_code == iso3c],
+    n_trad_comp_med = esft::who$trad_comp_med[esft::who$country_code == iso3c],
+    n_chws = esft::who$chws[esft::who$country_code == iso3c],
+    n_pharmacists = esft::who$pharmacists[esft::who$country_code == iso3c]
   )
 
   default <- utils::modifyList(default, overrides[intersect(

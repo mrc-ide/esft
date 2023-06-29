@@ -59,7 +59,8 @@ This includes summaries of cases, health care workers, tests, and patients per w
 
 These are 'object' calculations. This includes commodity forecasts (which includes hygiene, case management, PPE, and diagnostic commodities), pharmaceutical forecasts, and non-COVID 19 essential equipment forecasts.
 
-**Right now** there is no option for users to input existing equipment or capacity.
+**Right now there is no option for users to input existing equipment or capacity.**
+**Another limitation is that right now the subsetting is largely manual, even though we specify the first date and the forecast period in the user input section.** Future work would be to incorporate that into the code.
 
 ## User Input
 
@@ -79,6 +80,7 @@ In order to acquire the Imperial SEIR fit data used to inform the forecasts of t
 
 ```{r download_data, eval=FALSE}
 mydata <- load_imperial_data(country_code = country)
+head(mydata)
 
 ```
 
@@ -91,17 +93,25 @@ We then obtain the parameters. We can manually set any parameters by passing a n
 # This is the standard list of all parameters, many from inputs tab of excel sheet
 params <- get_parameters()
 
+head(params)
+
 # Testing strategy parameters - population level testing parameters (i.e. percent
 # tested)
 test_strat <- set_testing_strategy()
+
+head(test_strat)
 
 # Diagnostic parameters - individual level testing parameters (i.e. number of tests
 # per case per diagnosis, etc.)
 test_params <- get_diagnostic_parameters()
 
+head(test_params)
+
 # Diagnostic lab parameters - number of lab staff per lab, safety boxes per unit,
 # etc.
 lab_params <- get_lab_parameters()
+head(lab_params)
+
 ```
 
 Example of how to pass overriding parameters to the functions.
@@ -180,6 +190,8 @@ cases <- cases_weekly(params,
 # and so discharge and occupancy will be off if included
 cases <- subset(cases, cases$week_ends > as.Date("2022-01-01"))
 
+head(cases)
+
 # Patients will still give leading 0s for certain columns, as they are dependent 
 # on the previous week - this includes mod_patients_nocap, mild_patients_nocap,
 # em_mod_patients, rem_mild_patients, discharged_crit_patients, and
@@ -194,6 +206,8 @@ patients <- patients_weekly(params,
 # and HCWs weekly depend on the forecast period as a whole.
 patients <- patients[c(2:13),]
 
+head(patients)
+
 # We can use the patients and previously set parameters to calculate the tests
 # required per week per different categories
 tests <- diagnostics_weekly(params = params, 
@@ -201,6 +215,8 @@ tests <- diagnostics_weekly(params = params,
                             cases, 
                             diagnostic_parameters = test_params, 
                             testing_scenario = test_strat)
+
+head(tests)
 
 # Loading Healthcare Work Force Estimates
 data(hwfe, package = "esft")
@@ -222,6 +238,8 @@ hcw_caps <- hcw_caps(params,
                      patients, 
                      overrides=caps)
 
+head(hcw_caps)
+
 # We can then use the HCW caps to estimate the HCWs required weekly, based on
 # HCWs available, parameters, levels of illness in the country, and other elements
 hcws <- hcws_weekly(params,
@@ -231,6 +249,8 @@ hcws <- hcws_weekly(params,
                     patients, # patients_weekly
                     t_labs, # total_labs
                     hcw_caps)
+
+head(hcws)
 
 # We use the capacity estimates, tests, and caps to calculate the number of HCWs
 # needed weekly to screen COVID-19 patients
@@ -256,17 +276,36 @@ test_ratios <- test_ratio(diagnostic_capacity, test_params)
 
 ## Forecasts
 
+Now that we have the weekly summaries in addition to some intermediary calculations, we can go on to calculating what we might need to respond to this epidemic: i.e. the pharmaceutical, equipment, and non-covid essential items forecasts.
+
 ```{r forecasts}
+# First, we start with loading the reference data for items required per case or
+# per HCW
 data(noncovid, package="esft")
 data(pharmaceuticals, package="esft")
 data(equipment, package="esft")
+data(who, package="esft")
+data(throughput, package="esft")
 
-ref_hcws <- reference_hcw(iso3c = "AFG")
+# We start then by calculating the number of HCWs in the country, based on
+# WHO data sources
+ref_hcws <- reference_hcw(iso3c = "AFG", params, who, throughput)
+
+# These outputs are used to calculate the number of items needed for the 
+# non-COVID-19 focused HCWs.
 noncovid_ess <-noncovid_essentials(noncovid, ref_hcws)
 
+head(noncovid_ess)
+
+# Case counts and pharmaceutical recommendations are used to forecast total
+# pharmaceutical needs for the period at hand.
 pharma <- pharma_forecast(pharmaceuticals, 
                           cases)
 
+head(pharma)
+
+# Weekly summary outputs and the WHO recommendations are used to forecast the
+# total hygiene equipment need each week during the forecast period.
 hygiene <- hygiene_forecast(equipment, 
                             hcws, 
                             patients, 
@@ -275,9 +314,17 @@ hygiene <- hygiene_forecast(equipment,
                             screening_hcws, 
                             params)
 
+head(hygiene)
+
+# Patient counts and WHO recommendations are used to forecast case
+# management equipment need each week during the forecast period.
 case_management <- case_management_forecast(equipment, 
                                             patients)
 
+head(case_management)
+
+# Weekly summary outputs and WHO recommendations are used to forecast total PPE
+# demand each week during the forecast period.
 ppe <- ppe_forecast(equipment, 
                     hcws, 
                     patients, 
@@ -286,10 +333,15 @@ ppe <- ppe_forecast(equipment,
                     screening_hcws,
                     params)
 
+head(ppe)
+
+# Testing outputs and WHO recommendations are used to forecast total diagnostic
+# supply need each week during the forecast period.
 diagnostic_supplies <- diagnostics_forecast(lab_params, 
                                             equipment, 
                                             test_ratios,
                                             n_tests, 
                                             patients)
 
+head(diagnostic_supplies)
 ```
