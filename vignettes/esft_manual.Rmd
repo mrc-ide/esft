@@ -7,6 +7,7 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
+
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -22,28 +23,25 @@ library(esft)
 
 The goal for this vignette is to be stand alone documentation so that you do not have to open up any other vignette or document in order to run the full set of analyses.
 
-I hope to additionally add vignettes with sources, greater details, and explanations of equations, so that if any further questions arise, they can help answer them, or provide greater detail on customizing the outputs.\
+I hope to additionally add vignettes with sources, greater details, and explanations of equations, so that if any further questions arise, they can help answer them, or provide greater detail on customizing the outputs.
 
 ### Package build warning
 
-There is one overlapping function between two
-of the dependencies that are loaded. This
-warning can be ignored:
+There is one overlapping function between two of the dependencies that are loaded. This warning can be ignored:
 
-```
+```         
 replacing previous import ‘dplyr::last’ by ‘data.table::last’ when loading ‘esft’
-
 ```
 
 ## Order of calculations
 
 1.  *User input*
 
-Here the user would specify the same items that are in the User Input tab of the ESFT excel file, which would include the country, the forecast period, the first date of the forecast, and potentially the delivery lead time (although that is currently) not included. Note: the time period for which we can forecast is between `2020-01-01` to `2022-12-31`, and is limited to the countries for which have model fits. 
+Here the user would specify the same items that are in the User Input tab of the ESFT excel file, which would include the country, the forecast period, the first date of the forecast, and potentially the delivery lead time (although that is currently) not included. Note: the time period for which we can forecast is between `2020-01-01` to `2022-12-31`, and is limited to the countries for which have model fits.
 
 2.  *Load data*
 
-Using the data loaded with the package, subset according to country name and transmission scenario. 
+Using the data loaded with the package, subset according to country name and transmission scenario.
 
 3.  *Parameter setting*
 
@@ -77,51 +75,37 @@ country <- "AFG"
 
 ## Load Data
 
-So here you could either load the data from the package or download it directly from github. 
-
-For loading it from the package, the easiest is to lazy load the actual dataset and then subset by the country code and the transmission scenario (High, low, or medium). Unfortunately you need to "translate" the transmission scenario from laymans terms into the label it has on the website. 
-**I might want to add a translation function**
-
-```{r load_data_package}
-# loads data
-data(icl_data, package = "esft")
-
-# subsets by country
-data <- subset(icl_data, icl_data$iso3c == country)
-
-scenario_label <-
-    transmission_scenarios$imperial_category_labels[transmission_scenarios$imperial_scenario == user$scenario]
-
-data <- subset(data, data$scenario == scenario_label)
-```
-
-The alternate route is to download the dataset from github. Scenario will default to medium. This contains the death calibrated data. **ASK SOMEONE SPECIFICALLY ABOUT THE DIFFERENCES** - its the differences between the all.Rds file downloaded from that repo
+In order to acquire the Imperial SEIR fit data used to inform the forecasts of the model, the first step is to download it directly from github. The scenario will default to medium, which is equivalent to a scenario where there are no changes in transmission and the status quo is maintained. These fits contain the death calibrated data.
 
 ```{r download_data, eval=FALSE}
-downloaded_data <- load_imperial_data(country_code = country)
+mydata <- load_imperial_data(country_code = country)
 
 ```
 
 ## Parameter Setting
 
-We then obtain the parameters. We can manually set any parameters by passing a named list of parameters we would like to use to any of the functions, which we name `overrides`. 
+We then obtain the parameters. We can manually set any parameters by passing a named list of parameters we would like to use to any of the functions, which we name `overrides`.
 
 ```{r params}
 
 # This is the standard list of all parameters, many from inputs tab of excel sheet
 params <- get_parameters()
 
-# Testing strategy parameters - population level testing parameters (i.e. percent tested)
+# Testing strategy parameters - population level testing parameters (i.e. percent
+# tested)
 test_strat <- set_testing_strategy()
 
-# Diagnostic parameters - individual level testing parameters (i.e. number of tests per case per diagnosis, etc.)
+# Diagnostic parameters - individual level testing parameters (i.e. number of tests
+# per case per diagnosis, etc.)
 test_params <- get_diagnostic_parameters()
 
-# Diagnostic lab parameters - number of lab staff per lab, safety boxes per unit, etc.
+# Diagnostic lab parameters - number of lab staff per lab, safety boxes per unit,
+# etc.
 lab_params <- get_lab_parameters()
 ```
 
 Example of how to pass overriding parameters to the functions.
+
 ```{r overrides, eval=FALSE}
 # initialising list in the function call
 params <- get_parameters(overrides=list(stay_mild=3,
@@ -131,10 +115,10 @@ params <- get_parameters(overrides=list(stay_mild=3,
 overrides <- list(perc_crit_inv_mv = 0.3)
 params <- get_parameters(overrides)
 ```
-\
+
 ## Capacity Mapping
 
-Once we get the parameters, it's time to use the country name and some pre-loaded datasets to calculate how many machines each country already has and thus how many tests they can process. 
+Once we get the parameters, it's time to use the country name and some pre-loaded datasets to calculate how many machines each country already has and thus how many tests they can process.
 
 It is not strictly necessary to calculate capacity after setting the parameters, but thematically it makes sense to start with broad parameter setting and then drill down into country specific details.
 
@@ -143,112 +127,169 @@ It is not strictly necessary to calculate capacity after setting the parameters,
 data(throughput, package = "esft")
 data(hours_per_shift, package = "esft")
 
-# This functions pulls in data from the UN, the World Bank, the WHO, Imperial College London to collect country wide parameters which include population, number of HCWs, number of lab staff, etc. 
+# This functions pulls in data from the UN, the World Bank, the WHO, Imperial
+# College London to collect country wide parameters which include population,
+# number of HCWs, number of lab staff, etc. 
 capacity <- get_country_capacity(iso3c=country)
 
-# This subsets the diagnostics dataframe to find the baseline estimates of diagnostic testing capacity provided in the WHO ESFT, in terms of number of modules (which are sub units of machines) activated for COVID-19 test processing.
+# This subsets the diagnostics dataframe to find the baseline estimates of
+# diagnostic testing capacity provided in the WHO ESFT, in terms of number of
+# modules (which are sub units of machines) activated for COVID-19 test processing.
 country_test_capacity <- get_country_test_capacity(iso3c=country)
 
-# This function then translates modules activated to total tests and total tests for COVID-19 that can be processed per day, given assumptions about hours per shift, number of shifts a day, how many tests can be processed in different shifts, how much the machines capacity are allocated to COVID-19 processing.  
-diagnostic_capacity <- calc_diagnostic_capacity(country_diagnostic_capacity =
-                                                  country_test_capacity,
-                                                throughput, hours_per_shift =
-                                                  hours_per_shift,
-                                                shifts_per_day = 1)
+# This function then translates modules activated to total tests and total tests
+# for COVID-19 that can be processed per day, given assumptions about hours per
+# shift, number of shifts a day, how many tests can be processed in different
+# shifts, how much the machines capacity are allocated to COVID-19 processing.  
+diagnostic_capacity <- calc_diagnostic_capacity(
+  country_diagnostic_capacity = country_test_capacity,
+  throughput, 
+  hours_per_shift =  hours_per_shift,
+  shifts_per_day = 1)
 
-# Calculates the total labs available for COVID-19 given the diagnostic capacity (number of modules and machines) available
+# Calculates the total labs available for COVID-19 given the diagnostic capacity
+# (number of modules and machines) available
 t_labs <- total_labs(diagnostic_capacity)
 
-# Uses the country specific diagnostic capacity estimates to calculate the max number of tests per day. This is then used to help cap tests by total testing capacity in total_tests.
+# Uses the country specific diagnostic capacity estimates to calculate the max
+# number of tests per day. This is then used to help cap tests by total testing
+# capacity in total_tests.
 max_tests <- max_tests_per_day(diagnostic_capacity)
 ```
 
-## UP TO HERE - but there's still a bit to double check
 ## Weekly Summaries
 
+Up until now the outputs have been pretty easily modifiable and verifiable - these outputs tend to not change with time. However, now we get to the meat of the calculations, which are highly dependent on the input data provided to them. Depending on the country, the time during the pandemic, in addition to the time at which the model outputs were run, there will be different forecasted need. Furthermore, depending on when you set your start forecast, there will be different outputs. Additionally, the original ESFT had a different calculation for HCW caps than this one (it was assumed that the ESFT had an error, as it capped the HCWs twice), and so outputs related to HCWs are different here (but exact outputs can be replicated by passing the HCW caps manually as an overrides list).
+
+That is all to say, while these calculations have been painstakingly manually checked and line up with the calculations in the ESFT, just like the ESFT, the outputs are highly sensitive to input parameters.
+
 ```{r summaries}
+# Need to load the data within the same code snippet, or else an error is thrown
+mydata <- load_imperial_data(country_code = country)
 
-# This calculates cases weekly
-cases <- cases_weekly(params, capacity, test_strategy_params=test_strat,
-                      data=afg_data)
+# This calculates new and cumulative cases weekly broken down by severity, by
+# making certain assumptions about the proportions of infections and incidence
+# at hospitals and ICUs that are of different case severities
+cases <- cases_weekly(params, 
+                      capacity,
+                      test_strategy_params=test_strat,
+                      data=mydata)
 
-# note - error occurred when subset by date like this: afg_data$date > as.Date("2022-01-01"))
-# have to subset before or you get carried over values from discharged and occupancy
+# Cases are calculated first, and then must be subset by date. 
+# This is because patients calculations are dependent on previous occupancy - 
+# and so discharge and occupancy will be off if included
 cases <- subset(cases, cases$week_ends > as.Date("2022-01-01"))
 
-# but patients still gives weird values for stay - it gives zeros, since those conditions havent been found and theyre super recursively difficlt to solve
-patients <- patients_weekly(params, capacity, data = cases)
+# Patients will still give leading 0s for certain columns, as they are dependent 
+# on the previous week - this includes mod_patients_nocap, mild_patients_nocap,
+# em_mod_patients, rem_mild_patients, discharged_crit_patients, and
+# crit_patients_admitted_cap. This could be potentially solved by adding some
+# tinkering with the first week's date.
+patients <- patients_weekly(params, 
+                            capacity, 
+                            data = cases)
+
+# Patients are then subset as well (and we can use the forecast period to subset
+# by instead). But patients must be subset before the next step as the HCW caps
+# and HCWs weekly depend on the forecast period as a whole.
+patients <- patients[c(2:13),]
+
+# We can use the patients and previously set parameters to calculate the tests
+# required per week per different categories
+tests <- diagnostics_weekly(params = params, 
+                            patients, 
+                            cases, 
+                            diagnostic_parameters = test_params, 
+                            testing_scenario = test_strat)
+
+# Loading Healthcare Work Force Estimates
+data(hwfe, package = "esft")
+
+# Note: in the ESFT spreadsheet, there is an error in the HCW caps calculations:
+# the HCWs are subject to two levels of caps. In this package, the HCWs are only
+# capped once. In order to replicate the calculations exactly, we manually pass
+# on the caps calculated in the spreadsheet (these are for Afghanistan) through 
+# an overrides list.
 caps <- list(
   hcws_inpatients_cap = 5448,
   hcws_screening_cap = 919
 )
-patients <- patients[c(2:13),]
 
-data(hwfe, package = "esft")
-hcw_caps <- hcw_caps(params,capacity,throughput,hwfe, patients, overrides=caps)
+hcw_caps <- hcw_caps(params,
+                     capacity,
+                     throughput,
+                     hwfe, 
+                     patients, 
+                     overrides=caps)
 
-tests <- diagnostics_weekly(params = params, patients, cases,
-                            diagnostic_parameters = test_params,
-                            testing_scenario = test_strat)
-# NOTE: THERE IS AN ERROR IN THE WAY HCW CAPS ARE CALCULATED IN THE ESFT SHEET
-
-hcws <- hcws_weekly(params, # from get_parameters
+# We can then use the HCW caps to estimate the HCWs required weekly, based on
+# HCWs available, parameters, levels of illness in the country, and other elements
+hcws <- hcws_weekly(params,
                     capacity, # from get_country_capacity
                     lab_params, # get_lab_parameters
                     tests, # from diagnostics_weekly
                     patients, # patients_weekly
                     t_labs, # total_labs
                     hcw_caps)
+
+# We use the capacity estimates, tests, and caps to calculate the number of HCWs
+# needed weekly to screen COVID-19 patients
 screening_hcws <- screening_hcws_weekly(tests, hcw_caps,
                                         capacity)
+
+# We also calculate the tests for contacts and HCWs every week, in addition to 
+# the tests of the populations for diagnosis and release
 added_tests <- additional_testing(hcws, # from hcws_weekly
                                   screening_hcws, # from screening_hcws_weekly
                                   test_strat, # from set_testing_strategy
                                   tests)
+
+# We use these inputs to calculate the total number of tests per week, capped or
+# uncapped by testing capacity
 n_tests <- total_tests(tests, added_tests, max_tests)
+
+# This can be calculated using only parameter and capacity level calculations.
+# Basically gives the percentage of allocations of the different types of machines
+# to COVID-19 processing.
 test_ratios <- test_ratio(diagnostic_capacity, test_params)
 ```
 
-\
 ## Forecasts
 
 ```{r forecasts}
-ref_hcws <- reference_hcw(iso3c = "AFG", params, who, throughput,
-                          default = list(
-                            n_docs = 8000,
-                            n_nurses = 5000,
-                            n_labs = 300,
-                            n_midwives = 500,
-                            n_dentists = 10,
-                            n_physiotherapists = 50,
-                            n_trad_comp_med = 4000,
-                            n_chws = 245,
-                            n_pharmacists = 818
-                          ))
-noncovid_ess <-noncovid_essentials(noncovid, ref_hcws,
-                                forecast_length = 12,
-                                days_week = 5)
+data(noncovid, package="esft")
+data(pharmaceuticals, package="esft")
+data(equipment, package="esft")
 
-cases <- cases[c(2:13),]
-pharma <- pharma_forecast(pharmaceuticals, cases)
-# hygiene is all good
-hygiene <- hygiene_forecast(
-  equipment, hcws, patients, cases, tests,
-  screening_hcws, params
-)
+ref_hcws <- reference_hcw(iso3c = "AFG")
+noncovid_ess <-noncovid_essentials(noncovid, ref_hcws)
 
-case_management <- case_management_forecast(equipment, patients)
-case_management <- subset(case_management, case_management$week_begins < "2022-01-14")
+pharma <- pharma_forecast(pharmaceuticals, 
+                          cases)
 
-ppe <- ppe_forecast(
-  equipment, hcws, patients, cases, tests,
-  screening_hcws, params
-)
-ppe <- subset(ppe, ppe$week_begins < "2022-01-14")
+hygiene <- hygiene_forecast(equipment, 
+                            hcws, 
+                            patients, 
+                            cases, 
+                            tests,
+                            screening_hcws, 
+                            params)
 
-diagnostic_supplies <- diagnostics_forecast(
-  lab_params, equipment, test_ratios,
-  n_tests, patients
-)
-diagnostic_supplies <- subset(diagnostic_supplies, diagnostic_supplies$week_begins < "2022-01-14")
+case_management <- case_management_forecast(equipment, 
+                                            patients)
+
+ppe <- ppe_forecast(equipment, 
+                    hcws, 
+                    patients, 
+                    cases, 
+                    tests,
+                    screening_hcws,
+                    params)
+
+diagnostic_supplies <- diagnostics_forecast(lab_params, 
+                                            equipment, 
+                                            test_ratios,
+                                            n_tests, 
+                                            patients)
+
 ```
