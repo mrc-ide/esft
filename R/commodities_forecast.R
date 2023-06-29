@@ -275,7 +275,27 @@ case_management_forecast <- function(equipment, patients) {
     amounts$week_begins != min(first_amounts$week_begins)
   )
   # substitute these rows back in - generates a lot of text, maybe fix?
-  amounts <- full_join(first_amounts, amounts)
+  amounts <- full_join(first_amounts, amounts, by = c(
+    "category", "group", "item", "unit", "reusable",
+    "supplied_with", "price", "amount_per_inpatient_hcw_per_day",
+    "amount_per_inpatient_cleaner_per_day",
+    "amount_per_inpatient_inf_caregiver_per_day",
+    "amount_per_inpatient_ambworker_per_day",
+    "amount_per_inpatient_biomed_eng_per_day",
+    "amount_per_inpatient_sev_patient_per_day",
+    "amount_per_inpatient_crit_patient_per_day",
+    "amount_per_inpatient_sev_crit_patient_per_day",
+    "amount_per_inpatient_sev_bed_per_day",
+    "amount_per_inpatient_crit_bed_per_day",
+    "amount_per_inpatient_sev_crit_bed_per_day",
+    "amount_per_isolation_inf_caregiver_per_day",
+    "amount_per_isolation_patient_per_day", "amount_per_screening_hcw_per_day",
+    "amount_per_screening_patient_per_day", "amount_per_lab_tech_per_day",
+    "amount_per_lab_cleaner_per_day", "week_begins", "week_ends",
+    "sev_patients_admitted_cap", "crit_patients_admitted_cap", "sev_beds_inuse",
+    "crit_beds_inuse", "total_beds_inuse", "demand_sev_patient",
+    "demand_crit_patient", "demand_sev_crit_patient"
+  ))
   # order by date and item
   amounts <- amounts[
     with(amounts, order(item, week_begins)),
@@ -409,13 +429,15 @@ ppe_forecast <- function(equipment, hcws, patients, cases, tests,
         ) +
           ifelse(
             df$amount_per_isolation_patient_per_day[n] > 0, df$tests_mild[n] +
-            df$tests_mod[n], 0)
+              df$tests_mod[n], 0
+          )
         amount_screening <- ifelse(df$amount_per_screening_hcw_per_day[n] > 0,
           df$screening_hcw_capped[n], 0
         ) +
           ifelse(
             df$amount_per_screening_patient_per_day[n] > 0, df$tests_mild[n] +
-            df$tests_mod[n], 0)
+              df$tests_mod[n], 0
+          )
         amount_lab <-
           (ifelse(df$amount_per_lab_tech_per_day[n] > 0,
             df$lab_staff_capped[n], 0
@@ -445,15 +467,15 @@ ppe_forecast <- function(equipment, hcws, patients, cases, tests,
         amount_isolation <- (df$inf_caregivers_isol_uncapped[n] *
           df$amount_per_isolation_inf_caregiver_per_day[n] * params$stay_mild) +
           (df$tests_mild[n] * params$stay_mild *
-             df$amount_per_isolation_patient_per_day[n]) +
+            df$amount_per_isolation_patient_per_day[n]) +
           (df$tests_mod[n] * params$stay_mod *
-             df$amount_per_isolation_patient_per_day[n])
+            df$amount_per_isolation_patient_per_day[n])
         amount_screening <- (df$screening_hcw_capped[n] *
-                               df$amount_per_screening_hcw_per_day[n]) +
+          df$amount_per_screening_hcw_per_day[n]) +
           (df$tests_mod[n] * df$amount_per_screening_patient_per_day[n] *
-             params$stay_mod) +
+            params$stay_mod) +
           (df$tests_mild[n] * df$amount_per_screening_patient_per_day[n] *
-             params$stay_mild
+            params$stay_mild
           )
         amount_lab <-
           (df$lab_staff_capped[n] * df$amount_per_lab_tech_per_day[n]) +
@@ -463,21 +485,21 @@ ppe_forecast <- function(equipment, hcws, patients, cases, tests,
           (df$amount_per_inpatient_hcw_per_day[n] *
             df$hcws_inpatient_capped[n]) +
             (df$cleaners_inpatient_capped[n] *
-               df$amount_per_inpatient_cleaner_per_day[n]) +
+              df$amount_per_inpatient_cleaner_per_day[n]) +
             (df$inf_caregivers_hosp_uncapped[n] *
               df$amount_per_inpatient_inf_caregiver_per_day[n]) +
             (df$amb_personnel_inpatient_capped[n] *
               df$amount_per_inpatient_ambworker_per_day[n]) +
             (df$bio_eng_inpatient_capped[n] *
-               df$amount_per_inpatient_biomed_eng_per_day[n])
+              df$amount_per_inpatient_biomed_eng_per_day[n])
         )
       }
       amount_inpatient_patient <- (df$total_beds_inuse[n] *
         df$amount_per_inpatient_sev_crit_patient_per_day[n]) +
         (df$sev_beds_inuse[n] *
-           df$amount_per_inpatient_sev_patient_per_day[n]) +
+          df$amount_per_inpatient_sev_patient_per_day[n]) +
         (df$crit_beds_inuse[n] *
-           df$amount_per_inpatient_crit_patient_per_day[n])
+          df$amount_per_inpatient_crit_patient_per_day[n])
 
       df$amount_isolation[n] <- amount_isolation
       df$amount_screening[n] <- amount_screening
@@ -549,9 +571,9 @@ diagnostics_forecast <- function(lab_params, equipment, test_ratios,
   # the issue here is that i only did it for the first week,
   dx$total_amount[grep("manual PCR", dx$item)] <-
     dx$total_tests_capped[grep("manual PCR", dx$item)] *
-    test_ratios$ratio[test_ratios$type == "manual"] / (100 -
-      (lab_params$perc_wastage_manual_test_kits *
-        lab_params$num_tests_manual_test_kits))
+      test_ratios$ratio[test_ratios$type == "manual"] / (100 -
+        (lab_params$perc_wastage_manual_test_kits *
+          lab_params$num_tests_manual_test_kits))
   dx$total_amount[grep("Triple packaging", dx$item)] <-
     dx$hosp_facilities_inuse[grep("Triple packaging", dx$item)] *
       lab_params$triple_packaging_per_unit
@@ -559,10 +581,10 @@ diagnostics_forecast <- function(lab_params, equipment, test_ratios,
     dx$total_tests_capped[grep("Swab and Viral", dx$item)]
   dx$total_amount[grep("high-throughput", dx$item)] <-
     dx$total_tests_capped[grep("high-throughput", dx$item)] *
-    test_ratios$ratio[test_ratios$type == "high_throughput"]
+      test_ratios$ratio[test_ratios$type == "high_throughput"]
   dx$total_amount[grep("RT-PCR cartridge", dx$item)] <-
     dx$total_tests_capped[grep("RT-PCR cartridge", dx$item)] *
-    test_ratios$ratio[test_ratios$type == "near_patient"]
+      test_ratios$ratio[test_ratios$type == "near_patient"]
   dx$total_amount[grep("Antigen Rapid Diagnostic Tests", dx$item)] <-
     dx$total_tests_capped[grep("Antigen Rapid Diagnostic Tests", dx$item)] *
       test_ratios$ratio[test_ratios$type == "antigen"]
