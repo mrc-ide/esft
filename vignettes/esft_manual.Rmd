@@ -98,7 +98,7 @@ data <- subset(data, data$scenario == scenario_label)
 The alternate route is to download the dataset from github. Scenario will default to medium. This contains the death calibrated data. **ASK SOMEONE SPECIFICALLY ABOUT THE DIFFERENCES** - its the differences between the all.Rds file downloaded from that repo
 
 ```{r download_data, eval=FALSE}
-downloaded_data <- load_imperial_data(country_code == country)
+downloaded_data <- load_imperial_data(country_code = country)
 
 ```
 
@@ -134,7 +134,7 @@ params <- get_parameters(overrides)
 \
 ## Capacity Mapping
 
-Once we get the parameters, it's time to use the country specified and some pre-loaded datasets to calculate basically how many machines each country already has and thus how many tests they can process. 
+Once we get the parameters, it's time to use the country name and some pre-loaded datasets to calculate how many machines each country already has and thus how many tests they can process. 
 
 It is not strictly necessary to calculate capacity after setting the parameters, but thematically it makes sense to start with broad parameter setting and then drill down into country specific details.
 
@@ -159,7 +159,7 @@ diagnostic_capacity <- calc_diagnostic_capacity(country_diagnostic_capacity =
 # Calculates the total labs available for COVID-19 given the diagnostic capacity (number of modules and machines) available
 t_labs <- total_labs(diagnostic_capacity)
 
-# Uses the country specific diagnostic capacity estimates to calculate the max number of tests per day.
+# Uses the country specific diagnostic capacity estimates to calculate the max number of tests per day. This is then used to help cap tests by total testing capacity in total_tests.
 max_tests <- max_tests_per_day(diagnostic_capacity)
 ```
 
@@ -167,8 +167,8 @@ max_tests <- max_tests_per_day(diagnostic_capacity)
 ## Weekly Summaries
 
 ```{r summaries}
-data(hwfe, package = "esft")
 
+# This calculates cases weekly
 cases <- cases_weekly(params, capacity, test_strategy_params=test_strat,
                       data=afg_data)
 
@@ -183,11 +183,9 @@ caps <- list(
   hcws_screening_cap = 919
 )
 patients <- patients[c(2:13),]
-# subsetting gets the per bed stuff correct
-# but the cleaner cap is sitll shit
+
+data(hwfe, package = "esft")
 hcw_caps <- hcw_caps(params,capacity,throughput,hwfe, patients, overrides=caps)
-# also did weird stuff when subset by date - but tend only to be for diagnosis
-# patients <- subset(patients, patients$week_ends > as.Date("2022-01-01"))
 
 tests <- diagnostics_weekly(params = params, patients, cases,
                             diagnostic_parameters = test_params,
