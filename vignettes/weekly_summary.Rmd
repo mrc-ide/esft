@@ -13,57 +13,429 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
-
 ```
-
-```{r setup}
+**to do: add actual equations to the vignettes**
+```{r package}
 library(esft)
 ```
 
-Vignettes are long form documentation commonly included in packages. Because they are part of the distribution of the package, they need to be as compact as possible. The `html_vignette` output type provides a custom style sheet (and tweaks some options) to ensure that the resulting html is as small as possible. The `html_vignette` format:
+This vignette will go over the details of the weekly summary calculations and explain them in laymans' terms.
 
-- Never uses retina figures
-- Has a smaller default figure size
-- Uses a custom CSS stylesheet instead of the default Twitter Bootstrap style
+The first step is to prepare the data and parameters required for the summary functions. Further details on the parameters can be found in the specific function files.
 
-## Vignette Info
+## Set up 
 
-Note the various macros within the `vignette` section of the metadata block above. These are required in order to instruct R how to build the vignette. Note that you should change the `title` field and the `\VignetteIndexEntry` to match the title of your vignette.
+```{r setup}
+# User input - we set the country to be afghanistan
+country <- "AFG"
+user <- user_input()
 
-## Styles
+# data loading
+data(throughput, package = "esft")
+data(hours_per_shift, package = "esft")
 
-The `html_vignette` template includes a basic CSS theme. To override this theme you can specify your own CSS in the document metadata as follows:
+# parameters
+params <- get_parameters()
+test_strat <- set_testing_strategy()
+test_params <- get_diagnostic_parameters()
+lab_params <- get_lab_parameters()
 
-    output: 
-      rmarkdown::html_vignette:
-        css: mystyles.css
+# capacity mapping
+capacity <- get_country_capacity(iso3c=country)
+country_test_capacity <- get_country_test_capacity(iso3c=country)
+diagnostic_capacity <- calc_diagnostic_capacity(
+  country_diagnostic_capacity = country_test_capacity,
+  throughput, 
+  hours_per_shift =  hours_per_shift,
+  shifts_per_day = 1)
+t_labs <- total_labs(diagnostic_capacity)
+max_tests <- max_tests_per_day(diagnostic_capacity)
 
-## Figures
-
-The figure sizes have been customised so that you can easily put two images side-by-side. 
-
-```{r, fig.show='hold'}
-plot(1:10)
-plot(10:1)
 ```
 
-You can enable figure captions by `fig_caption: yes` in YAML:
+## Cases Weekly
 
-    output:
-      rmarkdown::html_vignette:
-        fig_caption: yes
+This function calls cases weekly, which outputs the beginning segment of the first section of the Weekly Summary tab in the ESFT.
 
-Then you can use the chunk option `fig.cap = "Your figure caption."` in **knitr**.
+```{r cases}
+mydata <- load_imperial_data(country_code = country)
 
-## More Examples
+cases <- cases_weekly(params, 
+                      capacity,
+                      test_strategy_params=test_strat,
+                      data=mydata)
+# This bookends the cases forecast by the user-specified starting date 
+cases <- subset(cases, cases$week_begins > as.Date(user$week1))
+```
+### Outputs
 
-You can write math expressions, e.g. $Y = X\beta + \epsilon$, footnotes^[A footnote here.], and tables, e.g. using `knitr::kable()`.
+1. *week_begins*
 
-```{r, echo=FALSE, results='asis'}
-knitr::kable(head(mtcars, 10))
+Date that the week begins. **Double check if inclusive**
+
+2. *week_ends*    
+
+Date that the week ends. **Double check if inclusive**
+
+3. *hospital_demand*
+
+Max of hospital demand for the dates inclusive in the week specified. **Potential to add more explanation of the squire outputs here and below**
+
+4. *ICU_demand*
+
+Max of ICU demand for the dates inclusive in the week specified.
+
+5. *hospital_incidence*
+
+Sum of hospital incidence for the dates included in the week specified.
+
+6. *ICU_incidence*
+
+Sum of ICU incidence for the dates included in the week specified.
+
+7. *infections*
+
+Sum of all infections for the dates included in the week specified.
+
+8. *cumulative_infections* 
+
+Cumulative infections for the dates included in the week specified.
+
+9. *new_critical_cases*
+
+Equivalent to the ICU incidence.
+
+10. *new_severe_cases* 
+
+Equivalent to the hospital incidence.
+
+11. *new_mod_cases*
+
+The new moderate cases is the sum of the new severe and critical cases times the proportion of moderate cases over the sum of the proportions of severe and critical cases.
+
+$$
+Cases_{moderate} = (Cases_{severe} + Cases_{critical})*\frac{P_{moderate}}{(P_{severe} + P_{critical})}
+$$
+There was an alternate method of multiplying the total new infections by the moderate proportion of cases, however this method was not used further in the ESFT and additionally resulted in much higher case counts than any other calculation.
+
+12. *new_mild_cases*
+
+The new mild cases is the sum of the new severe and critical cases times the proportion of mild cases over the sum of the proportions of severe and critical cases.
+
+$$
+Cases_{mild} = (Cases_{severe} + Cases_{critical})*\frac{P_{mild}}{(P_{severe} + P_{critical})}
+$$
+There was an alternate method of multiplying the total new infections by the moderate mild of cases, however this method was not used further in the ESFT and additionally resulted in much higher case counts than any other calculation.
+
+13. *cum_critical_cases*
+
+Cumulative sum of ICU incidence up to that week in time. **Specify which dates this includes**
+
+14. *cum_severe_cases*
+
+Cumulative sum of hospital incidence up to that week in time. **Specify which dates this includes**
+
+15. *cum_mod_cases*
+
+Cumulative sum of new moderate cases.
+
+16. *cum_mild_cases* 
+
+Cumulative sum of new mild cases.
+
+17. *sus_cases_but_negative*
+
+Equivalent to the sum of all new mild, moderate, severe, and critical cases, multiplied by the number of negatives per positive test. These are the cases that are suspected to be positive but are in fact true negative (**verify**)
+
+
+## Patients Weekly
+
+This function calls patients weekly, which outputs the middle segment of the first section in the Weekly Summary tab in the ESFT.
+
+```{r patients}
+patients <- patients_weekly(params, 
+                            capacity, 
+                            data = cases)
+patients <- patients[c(1:(user$forecast_period)),]
 ```
 
-Also a quote using `>`:
+### Outputs
 
-> "He who gives up [code] safety for [code] speed deserves neither."
-([via](https://twitter.com/hadleywickham/status/504368538874703872))
+1. *week_begins*
+
+Date that the week begins. **Double check if inclusive**
+
+2. *week_ends*    
+
+Date that the week ends. **Double check if inclusive**
+
+3. *crit_patients_nocap*
+
+ICU demand for that week.
+
+4. *sev_patients_nocap*  
+
+Hospital demand for that week.
+
+5. *mod_patients_nocap*
+
+Cumulative moderate cases minus the cumulative removed moderate cases (which are cumulative moderate cases shifted back by the length of stay of moderate cases in hospital/isolation).
+
+6. *mild_patients_nocap* 
+
+Cumulative mild cases minus the cumulative removed mild cases (which are cumulative mild cases shifted back by the length of stay of mild cases in isolation).
+
+7. *crit_beds_inuse*
+
+The minimum of crit_patients_nocap (uncapped critical patients) and the number of beds allocated to critical COVID-19 patients.
+
+8. *sev_beds_inuse*
+
+The minimum of sev_patients_nocap (uncapped severe patients) and the number of beds allocated to severe COVID-19 patients.
+
+9. *total_beds_inuse*
+
+Sum of critical and severe beds in use by week.
+
+10. *hosp_facilities_inuse*   
+
+Sum of severe and critical beds in use divided by the number of hospital beds per care unit, specified in the parameters.
+
+11. *rem_crit_patients*
+
+Cumulative removed critical cases are calculated weekly by taking the difference between the cumulative critical cases (cum_critical_cases) and the uncapped critical patients (crit_patients_nocap). Then you find the removed critical patients by taking the difference between each week's cumulative removed critical cases and the cumulative removed critical cases from the week before. 
+
+12. *rem_sev_patients* 
+
+Cumulative removed severe cases are calculated weekly by taking the difference between the cumulative severe cases (cum_severe_cases) and the uncapped severe patients (sev_patients_nocap). Then you find the removed severe patients by taking the difference between each week's cumulative removed severe cases and the cumulative removed severe cases from the week before.
+
+13. *rem_mod_patients*
+
+The removed moderate patients are the new moderate cases shifted back by the average number of weeks of stay in isolation of moderate cases.
+
+14. *rem_mild_patients*
+
+The removed mild patients are the new mild cases shifted back by the average number of weeks of stay in isolation of mild cases.
+
+\
+
+For the _following calculations_:
+
+The outcomes are dependent on the average length of stay in hospital of severe and critical patients, and of the previous week's bed occupancy levels. At the moment, these calculations take a 0 occupancy starting point, and so the first rows up to the average length of stay for critical and severe patients are 0. Further package development could focus on incorporating existing levels of bed occupancy. 
+
+15. *discharged_crit_patients*
+
+For discharged critical patients, this is approximately equal to the number of admitted critical patients capped by bed use (crit_patients_admitted_cap) the number of weeks ago that comprise average stay for critical patients.
+
+16. *discharged_sev_patients*
+
+For discharged severe patients, this is approximately equal to the number of admitted severe patients capped by bed use (sev_patients_admitted_cap) the number of weeks ago that comprise average stay for severe patients.
+
+17. *sev_patients_admitted_cap*
+
+If the severe beds in use the week previous plus the new severe cases of this week minus the discharged severe patients this week is more than the total number of severe beds allocated for COVID-19 patients, then the admitted number of severe patients capped by bed use is equal to the number of total severe beds for covid use minus the currently occupied beds (i.e. the beds in use the week previous minus the weeks discharged severe patients). If the number of new severe cases needing beds is less than the number of severe beds available for COVID-19, then the number of admitted capped severe patients is equal to the number of severe beds allocated to COVID-19 patients.
+
+18. *crit_patients_admitted_cap*
+
+If the critical beds in use the week previous plus the new critical cases of this week minus the discharged critical patients this week is more than the total number of critical beds allocated for COVID-19 patients, then the admitted number of critical patients capped by bed use is equal to the number of total critical beds for covid use minus the currently occupied beds (i.e. the beds in use the week previous minus the weeks discharged critical patients). If the number of new critical cases needing beds is less than the number of critical beds available for COVID-19, then the number of admitted capped critical patients is equal to the number of critical beds allocated to COVID-19 patients.
+
+## Diagnostics Weekly
+
+This function calls patients weekly, which outputs the end segment of the first section in the Weekly Summary tab in the ESFT.
+
+```{r diagnostics}
+tests <- diagnostics_weekly(params = params, 
+                            patients, 
+                            cases, 
+                            diagnostic_parameters = test_params, 
+                            testing_scenario = test_strat)
+```
+
+### Outputs
+
+1. *week_begins*
+
+Date that the week begins. **Double check if inclusive**
+
+2. *week_ends*    
+
+Date that the week ends. **Double check if inclusive**
+
+3. *tests_diagnosis_uncapped_sev_crit*
+
+Sum of new severe and critical cases multiplied by the number of tests for diagnosis for severe or critica cases.
+
+4. *tests_release_uncapped_sev_crit*  
+
+The sum of the removed severe patients times 1 minus the infection fatality rate of severe patients times the number of tests for release for severe or critical patients and the removed critical patients times 1 minus the infection fatality rate of critical patients times the number of tests for release for severe or critical patients.
+
+5. *tests_diagnosis_capped_sev_crit*  
+
+Sum of capped severe and critical patients that were admitted multiplied by the number of tests for diagnosis for severe or critical patients.
+
+6. *tests_release_capped_sev_crit*
+
+The sum of the discharged severe patients times 1 minus the infection fatality rate of severe patients times the number of tests for release for severe or critical patients and the discharged critical patients times 1 minus the infection fatality rate of critical patients times the number of tests for release for severe or critical patients.
+
+7. *tests_mod*   
+
+New moderate cases times the number of tests for diagnosis for mild or moderate cases.
+
+8. *tests_mild* 
+
+New mild cases times the number of tests for diagnosis for mild or moderate cases.
+
+9. *tests_suspected*
+
+Number of suspected positive cases that are negative times the number of tests for diagnosis for mild or moderate cases.
+
+10. *testing_strategy* 
+
+Testing strategy as specified in the parameter setting segment.
+
+## Healthcare Workers Weekly
+
+This function calls patients weekly, which outputs the end segment of the first section in the Weekly Summary tab in the ESFT.
+
+```{r hcws}
+# Loading Healthcare Work Force Estimates
+data(hwfe, package = "esft")
+
+caps <- list(
+  hcws_inpatients_cap = 5448,
+  hcws_screening_cap = 919
+)
+
+hcw_caps <- hcw_caps(params,
+                     capacity,
+                     throughput,
+                     hwfe, 
+                     patients, 
+                     overrides=caps)
+
+hcws <- hcws_weekly(params,
+                    capacity, # from get_country_capacity
+                    lab_params, # get_lab_parameters
+                    tests, # from diagnostics_weekly
+                    patients, # patients_weekly
+                    t_labs, # total_labs
+                    hcw_caps)
+
+```
+
+
+### HCW Caps
+
+1. *iso3c*
+
+Country code.
+
+2. *bed_cap*
+
+Number of hospital beds in country, calculated from the capacity function. Used as the maximum for number of available hospital beds.
+
+3. *cases_screened_per_hcw_per_day* 
+
+Number of cases screened per HCW per day. Equal to eight divided by the sum of all the time devoted over 24 hours to screening for every kind of HCW. 
+
+4. *cleaners_inpatient_cap* 
+
+Number of beds (or beds allocated to covid) times the hygienists per bed. (see nr. 10)
+
+5. *hcws_inpatients_cap*            
+6. *hcws_per_bed*                   
+7. *hcws_per_inpatient*             
+8. *hcws_per_outpatient*            
+9. *hcws_screening_cap*             
+10. *hygienists_per_bed*             
+11. *lab_staff_cap*                  
+12. *perc_crit_cases*                
+13. *perc_screening_covid*           
+14. *perc_sev_cases*                 
+15. *perc_treating_covid*            
+16. *prob_inpatient*                 
+17. *prob_outpatient*                
+18. *ratio_hcws_inpatient_outpatient*
+
+### HCW Weekly Outputs
+
+1. *week_begins*
+
+Date that the week begins. **Double check if inclusive**
+
+2. *week_ends*    
+
+Date that the week ends. **Double check if inclusive**
+
+3. *hcws_inpatient_capped*         
+4. *hcws_inpatient_uncapped*       
+5. *inf_caregivers_hosp_uncapped*  
+6. *cleaners_inpatient_capped*     
+7. *amb_personnel_inpatient_capped*
+8. *bio_eng_inpatient_capped*      
+9. *inf_caregivers_isol_uncapped*  
+10. *lab_staff_capped*              
+11. *cleaners_lab* 
+
+## Healthcare Workers and Additional Testing 
+
+This function calls patients weekly, which outputs the end segment of the first section in the Weekly Summary tab in the ESFT.
+
+```{r misc}
+screening_hcws <- screening_hcws_weekly(tests, hcw_caps,
+                                        capacity)
+
+added_tests <- additional_testing(hcws, 
+                                  screening_hcws,
+                                  test_strat,
+                                  tests)
+
+n_tests <- total_tests(tests, added_tests, max_tests)
+
+test_ratios <- test_ratio(diagnostic_capacity, test_params)
+```
+
+### Screening HCWs
+
+1. *week_begins*
+
+Date that the week begins. **Double check if inclusive**
+
+2. *week_ends*    
+
+Date that the week ends. **Double check if inclusive**
+
+3. *screening_hcw_uncapped*
+4. *screening_hcw_capped* 
+
+### Additional Tests
+
+1. *week_begins*
+
+Date that the week begins. **Double check if inclusive**
+
+2. *week_ends*    
+
+Date that the week ends. **Double check if inclusive**
+
+3. *tests_hcws_weekly*
+4. *tests_contacts_weekly*
+
+### Number of Tests
+
+1. *week_begins*
+
+Date that the week begins. **Double check if inclusive**
+
+2. *week_ends*    
+
+Date that the week ends. **Double check if inclusive**
+
+3. *total_tests_capped*
+4. *total_tests_uncapped*
+
+### Test Ratios
+
+1. *type*
+2. *covid_test_capacity* 
+3. *ratio* 
