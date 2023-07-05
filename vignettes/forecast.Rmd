@@ -1,0 +1,22 @@
+---
+title: "Forecasted Commodity Needs"
+author: "Ines Gerard-Ursin"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Forecasted Commodity Needs}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+Here we will talk about forecasted commodity needs.
+This will include a break down of how each different kind of commodity is forecasted, and a guide on how to adjust maybe input values ??
+
+Unclear.
+

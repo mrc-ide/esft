@@ -15,7 +15,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-**to do: add actual equations to the vignettes**
 
 ```{r package}
 library(esft)
@@ -86,33 +85,29 @@ Max of hospital demand for the dates inclusive in the week specified. Hospital d
 
 $$
 \text{Hospital demand} = \max\limits_{t_{0}\rightarrow t_{n}} (\text{Hospital demand})
-$$ 
-\
+$$\
 4. *ICU_demand*
 
 Max of ICU demand for the dates inclusive in the week specified. ICU demand is the number of people who would be using an ICU bed given enough healthcare capacity
 
 $$
 \text{ICU demand} = \max\limits_{t_{0}\rightarrow t_{n}} (\text{ICU demand})
-$$
-\
+$$\
 5. *hospital_incidence*
 
 Sum of hospital incidence for the dates included in the week specified. Hospital incidence is the number of people who would be getting a hospital bed at the current time.
 
 $$
 \text{Hospital incidence} = \sum_{t_{0}}^{t_{n}}\text{Hospital incidence}
-$$
-\
-6.  *ICU_incidence*
+$$\
+6. *ICU_incidence*
 
 Sum of ICU incidence for the dates included in the week specified. ICU incidence is the number of people who would be getting an ICU bed at the current time.
 
 $$
 \text{ICU incidence} = \sum_{t_{0}}^{t_{n}}\text{ICU incidence}
-$$
-\
-7.  *infections*
+$$\
+7. *infections*
 
 Sum of all infections for the dates included in the week specified.
 
@@ -140,18 +135,16 @@ $$
 Cases_{moderate} = (Cases_{severe} + Cases_{critical})*\frac{P_{moderate}}{(P_{severe} + P_{critical})}
 $$
 
-There was an alternate method of multiplying the total new infections by the moderate proportion of cases, however this method was not used further in the ESFT and additionally resulted in much higher case counts than any other calculation.
-\
+There was an alternate method of multiplying the total new infections by the moderate proportion of cases, however this method was not used further in the ESFT and additionally resulted in much higher case counts than any other calculation.\
 12. *new_mild_cases*
 
 The new mild cases is the sum of the new severe and critical cases times the proportion of mild cases over the sum of the proportions of severe and critical cases.
 
 $$
 Cases_{mild} = (Cases_{severe} + Cases_{critical})*\frac{P_{mild}}{(P_{severe} + P_{critical})}
-$$ 
+$$
 
-There was an alternate method of multiplying the total new infections by the moderate mild of cases, however this method was not used further in the ESFT and additionally resulted in much higher case counts than any other calculation.
-\
+There was an alternate method of multiplying the total new infections by the moderate mild of cases, however this method was not used further in the ESFT and additionally resulted in much higher case counts than any other calculation.\
 13. *cum_critical_cases*
 
 Cumulative sum of ICU incidence up to the end date of the specified week ($t_{n}$).
@@ -174,8 +167,7 @@ Equivalent to the sum of all new mild, moderate, severe, and critical cases, mul
 
 $$
 Cases_{suspected} = (Cases_{mild} + Cases_{moderate} + Cases_{severe} + Cases_{critical})*\text{(Number of negatives per positive test)}
-$$
-\
+$$\
 
 ## Patients Weekly
 
@@ -200,7 +192,7 @@ Date that the week ends, inclusive ($t_{n}$).
 
 3.  *crit_patients_nocap*
 
-ICU demand for that week (nr. 4, `cases_weekly`). 
+ICU demand for that week (nr. 4, `cases_weekly`).
 
 4.  *sev_patients_nocap*
 
@@ -208,30 +200,23 @@ Hospital demand for that week (nr. 3, `cases_weekly`).
 
 5.  *mod_patients_nocap*
 
-Cumulative moderate cases minus the cumulative removed moderate cases (which are cumulative moderate cases shifted back by the length of stay of moderate cases in hospital/isolation).
-$$
+Cumulative moderate cases minus the cumulative removed moderate cases (which are cumulative moderate cases shifted back by the length of stay of moderate cases in hospital/isolation). $$
 \text{Moderate Patients Uncapped} =  \text{Cumulative}(Cases_{moderate}) - \text{Cumulative Removed}(Cases_{moderate})
-$$
-where
+$$ where
 
 $$
 \text{Cumulative Removed}(Cases_{moderate}) = \text{Cumulative}(Cases_{moderate})\text{ at }t_{n - stay_{moderate}}
-$$
-6.  *mild_patients_nocap*
+$$ 6. *mild_patients_nocap*
 
-Cumulative mild cases minus the cumulative removed mild cases (which are cumulative mild cases shifted back by the length of stay of mild cases in isolation).
-$$
+Cumulative mild cases minus the cumulative removed mild cases (which are cumulative mild cases shifted back by the length of stay of mild cases in isolation). $$
 \text{Mild Patients Uncapped} =  \text{Cumulative}(Cases_{mild}) - \text{Cumulative Removed}(Cases_{mild})
-$$
-where
-$$
+$$ where $$
 \text{Cumulative Removed}(Cases_{mild}) = \text{Cumulative}(Cases_{mild})\text{ at }t_{n - stay_{mild}}
 $$
 
 7.  *crit_beds_inuse*
 
-The minimum of crit_patients_nocap (uncapped critical patients, nr. 3) and the number of beds allocated to critical COVID-19 patients.
-$$
+The minimum of crit_patients_nocap (uncapped critical patients, nr. 3) and the number of beds allocated to critical COVID-19 patients. $$
 \text{Critical beds in use} = \min(\text{Critical Patients Uncapped}, n_{\text{Critical COVID-19 beds}})
 $$
 
@@ -261,13 +246,12 @@ $$
 
 11. *rem_crit_patients*
 
-Cumulative removed critical cases are calculated weekly by taking the difference between the cumulative critical cases (cum_critical_cases) and the uncapped critical patients (crit_patients_nocap, nr. 3). 
+Cumulative removed critical cases are calculated weekly by taking the difference between the cumulative critical cases (cum_critical_cases) and the uncapped critical patients (crit_patients_nocap, nr. 3).
 
 $$
 \text{Cumulative Removed}(Cases_{critical}) = \text{Cumulative}(Cases_{critical}) - 
 \text{Critical Patients Uncapped} 
-$$
-Then you find the removed critical patients by taking the difference between each week's cumulative removed critical cases and the cumulative removed critical cases from the week before.
+$$ Then you find the removed critical patients by taking the difference between each week's cumulative removed critical cases and the cumulative removed critical cases from the week before.
 
 $$
 \text{Removed}(Patients_{critical}) = \text{Cumulative Removed}(Cases_{critical})_{t_n} - 
@@ -276,7 +260,7 @@ $$
 
 12. *rem_sev_patients*
 
-Cumulative removed severe cases are calculated weekly by taking the difference between the cumulative severe cases (cum_severe_cases) and the uncapped severe patients (sev_patients_nocap, nr. 4). 
+Cumulative removed severe cases are calculated weekly by taking the difference between the cumulative severe cases (cum_severe_cases) and the uncapped severe patients (sev_patients_nocap, nr. 4).
 
 $$
 \text{Cumulative Removed}(Cases_{severe}) = \text{Cumulative}(Cases_{severe}) - 
@@ -292,18 +276,15 @@ $$
 
 13. *rem_mod_patients*
 
-The removed moderate patients are the new moderate cases shifted back by the average number of weeks of stay in isolation of moderate cases.
-$$
+The removed moderate patients are the new moderate cases shifted back by the average number of weeks of stay in isolation of moderate cases. $$
 \text{Removed}(Patients_{moderate}) = Cases_{moderate}({t_{(n-stay_{moderate})}})
 $$
 
 14. *rem_mild_patients*
 
-The removed mild patients are the new mild cases shifted back by the average number of weeks of stay in isolation of mild cases.
-$$
+The removed mild patients are the new mild cases shifted back by the average number of weeks of stay in isolation of mild cases. $$
 \text{Removed}(Patients_{mild}) = Cases_{mild}({t_{(n-stay_{mild})}})
-$$
-\
+$$\
 
 For the *following calculations*:
 
@@ -327,7 +308,8 @@ $$
 
 17. *sev_patients_admitted_cap*
 
-If the severe beds in use the week previous plus the new severe cases of this week minus the discharged severe patients this week is more than the total number of severe beds allocated for COVID-19 patients, then the admitted number of severe patients capped by bed use is equal to the number of total severe beds for covid use minus the currently occupied beds (i.e. the beds in use the week previous minus the weeks discharged severe patients). If the number of new severe cases needing beds is less than or equal to the number of severe beds available for COVID-19, then the number of admitted capped severe patients is equal to the number of severe beds allocated to COVID-19 patients.
+If the severe beds in use the week previous plus the new severe cases of this week minus the discharged severe patients this week is more than the total number of severe beds allocated for COVID-19 patients, then the admitted number of severe patients capped by bed use is equal to the number of total severe beds for covid use minus the currently occupied beds (i.e. the beds in use the week previous minus the weeks discharged severe patients). If the number of new severe cases needing beds is less than or equal to the number of severe beds available for COVID-19, then the number of admitted capped severe patients is equal to the number of severe beds allocated to COVID-19 patients. 
+
 $$
  \text{Let } x = \text{Severe beds in use}_{t(n-1)} - \text{Discharged}(Patients_{severe}) \\
  \text{Admitted}(Patients_{severe}) = 
@@ -335,7 +317,8 @@ $$
        n_{\text{Severe COVID-19 beds}} - x, & Cases_{severe} - x > n_{\text{Severe COVID-19 beds}}  \\
        n_{\text{Severe COVID-19 beds}}
     \end{array}\right.
-$$
+$$ 
+
 18. *crit_patients_admitted_cap*
 
 If the critical beds in use the week previous plus the new critical cases of this week minus the discharged critical patients this week is more than the total number of critical beds allocated for COVID-19 patients, then the admitted number of critical patients capped by bed use is equal to the number of total critical beds for covid use minus the currently occupied beds (i.e. the beds in use the week previous minus the weeks discharged critical patients). If the number of new critical cases needing beds is less than the number of critical beds available for COVID-19, then the number of admitted capped critical patients is equal to the number of critical beds allocated to COVID-19 patients.
@@ -411,7 +394,8 @@ $$
 
 7.  *tests_mod*
 
-New moderate cases times the number of tests for diagnosis for mild or moderate cases.
+New moderate cases times the number of tests for diagnosis for mild or moderate cases. 
+
 $$
 Tests_{moderate} = Cases_{moderate}*N_{diagnosis}
 $$
@@ -424,13 +408,15 @@ $$
 Tests_{mild} = Cases_{mild}*N_{diagnosis}
 $$
 
-9.  *tests_suspected*
+9.  *tests_suspected*\
 
-Number of suspected positive cases that are negative times the number of tests for diagnosis for mild or moderate cases.
+Number of suspected positive cases that are negative times the number of tests for diagnosis for mild or moderate cases. 
+
 $$
 Tests_{suspected} = Cases_{suspected}*N_{diagnosis}
-$$
-10. *testing_strategy*
+$$ 
+
+10. *testing_strategy*\
 
 Testing strategy as specified in the parameter setting segment, in string form.
 
@@ -512,7 +498,7 @@ $$
 
 8.  *hcws_per_inpatient*\
 
-This is equivalent to hcws_per_bed (nr. 7).
+This is equivalent to hcws_per_bed (nr. 7). 
 $$
 \text{HCWs per inpatient} = \text{HCWs per bed}
 $$
@@ -523,14 +509,16 @@ This is the reciprocal of nr. 3, or one divided by the number of cases screened 
 
 $$
 \text{HCWs per outpatient} = \frac{1}{\text{Cases screened per HCW per day}}
-$$
+$$ 
+
 10. *hcws_screening_cap*\
 
 This is the percent of HCWs dedicated to screening COVID-19 cases (nr. 14) multiplied by the number of HCWs available.
 
 $$
 \text{Cap of HCWs for Screening} = P_{\text{screening COVID}}*n_{HCWs}
-$$
+$$ 
+
 11. *hygienists_per_bed*\
 
 Calculated as the sum of hygienists per severe bed and hygienists per critical bed. The hygienists per severe bed is calculated as follows: severe patient time per 24 hours per cleaner is found from the HWFE dataset and is then divided by eight. This term is multiplied by the sum of severe beds in use over the sum of total beds in use through the whole forecast period, which is then multiplied by 10. Hygienists per critical bed is the equivalent for critical patients.
@@ -545,7 +533,7 @@ Number of lab staff from capacity multiplied by the lab cap. The lab cap is the 
 
 $$
 Lab_{cap} = \sf{mean}(capacity_{\text{high throughput COVID}}, capacity_{\text{near patient COVID}}, capacity_{\text{manual covid}})
-$$ 
+$$
 
 where
 
@@ -569,7 +557,7 @@ The percent of HCWS dedicated to screening COVID-19 cases, these are the proport
 
 $$ 
 P_{\text{screening COVID}} = 1 - P_{\text{non COVID-19}} - P_{\text{treating COVID-19}}
-$$ 
+$$
 
 15. *perc_sev_cases*\
 
@@ -593,10 +581,10 @@ Probability of a new case being inpatient is the sum of proportions of infection
 
 $$
 prob_{inpatient} = prop_{severe}+prop_{critical}
-$$
-18. *prob_outpatient*\
+$$ 18. *prob_outpatient*\
 
-Probability of a new case being outpatient is the sum of proportions of infections that are mild and moderate.
+Probability of a new case being outpatient is the sum of proportions of infections that are mild and moderate. 
+
 $$
 prob_{outpatient} = prop_{mild}+prop_{moderate}
 $$
@@ -607,7 +595,7 @@ The ratio of inpatient to outpatient HCWs is equal to the probability of a patie
 
 $$
 ratio_{\frac{HCW_{inpatient}}{HCW_{outpatient}}} = \frac{prob_{inpatient}*HCW_{inpatient}}{prob_{inpatient}*HCW_{inpatient} + prob_{outpatient}*HCW_{outpatient}}
-$$ 
+$$
 
 ### HCW Weekly Outputs
 
@@ -633,8 +621,9 @@ Total beds in use multiplied by the HCWs per bed.
 
 $$
 \text{Uncapped HCW}_{inpatient} = \text{Total beds in use}*HCW_{\text{per bed}}
-$$
-5.  *inf_caregivers_hosp_uncapped*\
+$$ 
+
+5. *inf_caregivers_hosp_uncapped*\
 
 Total beds in use multiplied by the number of recommended informal caregivers per hospitalised patient.
 
@@ -656,10 +645,12 @@ Total beds in use multiplied by the number of ambulance workers per bed.
 
 $$
 \text{Capped Ambulance Personnel}_{inpatient}= \text{Total beds in use}*Ambulancier_{\text{per bed}}
-$$
-8.  *bio_eng_inpatient_capped*\
+$$ 
 
-Total beds in use multiplied by the number of biological engineers per bed.
+8. *bio_eng_inpatient_capped*\
+
+Total beds in use multiplied by the number of biological engineers per bed. 
+
 $$
 \text{Capped Bio Eng}_{inpatient}= \text{Total beds in use}*BioEng_{\text{per bed}}
 $$
@@ -682,7 +673,8 @@ $$
 
 11. *cleaners_lab*
 
-The total number of labs multiplied by the number of hygienists per lab.
+The total number of labs multiplied by the number of hygienists per lab. 
+
 $$
 \text{Total Cleaners Lab} = T_{labs}*Hygienists_{\text{per lab}}
 $$
@@ -715,8 +707,15 @@ Date that the week begins, inclusive ($t_{0}$).
 
 Date that the week ends, inclusive ($t_{n}$).
 
-3.  *screening_hcw_uncapped*
-4.  *screening_hcw_capped*
+3.  *screening_hcw_uncapped*  
+$$
+\text{Uncapped HCW}_{screening} = \frac{(Tests_{suspected} + Tests_{mild} + Tests_{moderate})}{8}*\text{Cases Screened Per HCW per Day}
+$$
+5.  *screening_hcw_capped*
+
+$$
+\text{Capped HCW}_{screening} = min(\text{Uncapped HCW}_{screening}, \text{Cap of HCWs for Screening})
+$$
 
 ### Additional Tests
 
@@ -729,7 +728,31 @@ Date that the week begins, inclusive ($t_{0}$).
 Date that the week ends, inclusive ($t_{n}$).
 
 3.  *tests_hcws_weekly*
+
+The number of tests for HCWs every week is equal to the sum of all of the capped inpatient or lab staff and personnel multiplied by the number of tests per HCW per week as specified in the parameters.
+
+$$
+\begin{align*}
+  \text{Tests}_{HCW} = \text{Tests per HCW per Week} * \\ 
+  (\text{Capped HCW}_{inpatient} + \text{Capped Cleaner}_{inpatient} + \\
+  \text{Capped Ambulance Personnel}_{inpatient} + \text{Capped Bio Eng}_{inpatient} + \\
+  \text{Capped HCW}_{screening} + \text{Capped Lab Staff} + \text{Total Cleaners Lab})
+\end{align*}
+$$
 4.  *tests_contacts_weekly*
+
+If the condition for testing contacts weekly is true & specified, the number of total tests for contacts weekly is equal to the sum of potential uncapped tests for all categories and conditions multiplied by the percentage of contacts tested ($p_{\text{contacts tested}}$) and the average number of contacts per positive case ($n_{\text{avg contacts per positive case}}$).
+
+$$
+ \text{Let } x = \text{Uncapped Tests for Diagnosis of Severe and Critical Cases} + \\
+ \text{Uncapped Tests for Release of Severe and Critical Cases} + \\
+ Tests_{mild} + Tests_{moderate}\\
+ Tests_{contacts} = 
+   \left\{\begin{array}{lr}
+       p_{\text{contacts tested}}*n_{\text{avg contacts per positive case}}*x, & \text{Testing Contacts = True}  \\
+       0
+    \end{array}\right.
+$$
 
 ### Number of Tests
 
@@ -742,10 +765,22 @@ Date that the week begins, inclusive ($t_{0}$).
 Date that the week ends, inclusive ($t_{n}$).
 
 3.  *total_tests_capped*
+
+The capped number of total tests is the minimum of the uncapped total tests and the max tests per day multiplied by seven.
+$$
+\begin{align*}
+\text{Capped Tests}_{total} = min(\text{Uncapped Tests}_{total}, Tests_{max}*7)
+\end{align*}
+$$
 4.  *total_tests_uncapped*
 
-### Test Ratios
+Uncapped total tests equals the sum of the capped tests for diagnosis for severe and critical patients, for release of severe and critical patients, the tests for mild, moderate, and suspected cases, in addition to the tests for HCWs and contacts of cases.
 
-1.  *type*
-2.  *covid_test_capacity*
-3.  *ratio*
+$$
+\begin{align*}
+\text{Uncapped Tests}_{total} = \text{Capped Tests Diagnosis Severe and Critical} + \\
+\text{Capped Tests for Release Severe and Critical} + Tests_{mild} + \\
+Tests_{moderate} + Tests_{suspected} + Tests_{HCW} + Tests_{contacts}
+\end{align*}
+$$
+
