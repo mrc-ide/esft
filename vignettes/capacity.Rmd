@@ -1,0 +1,23 @@
+---
+title: "Capacity"
+author: "Ines Gerard-Ursin"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Capacity}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+**To do:**
+
+1. Introduce capacity data
+2. talk about sources + assumptions
+
+
