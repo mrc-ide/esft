@@ -28,3 +28,4 @@ The package can then be loaded like so:
 ``` r
 library(esft)
 ```
+More information can be found in the vignettes.
