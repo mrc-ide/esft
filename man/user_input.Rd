@@ -9,22 +9,7 @@ user_input(overrides = list())
 \arguments{
 \item{overrides}{a named list of parameter values to use instead of defaults
 The parameters are defined below, and are taken from the default values of
-the ESFT.
-
-misc user input parameters:
-
-* forecast_period - weeks from start date that you want to forecast from;
-default = 12
-* delivery_leadtime - time in weeks until shipment received (between 0-1).
-note - if this is set to 1, this pushed the forecast period out 1 week to
-factor in delivery time; default = 0
-* week1 - date from which the forecast starts (year-month-date);
-default = "2022-01-01"
-*scenario Default is medium transmission, with an R(0) number or R(eff)
-number of 0.94. Other options include "Low", with an R(0) or R(eff) of 0.47,
-which simulates a 50 percent decrease in transmission, or "High", with an
-R(0) or R(eff) of 1.41, which simulates a 50 percent increase in
-transmission.}
+the ESFT.}
 }
 \description{
 Given that these are just three - don't know if these are
@@ -33,4 +18,21 @@ captured through other parameter-setting functions.
 Plus, there are no checks of type in this function, nor is it entirely clear
 where this leads into. So there's a potential to get rid of this one or
 consolidate it with another.
+}
+\details{
+User Input Parameters:
+\itemize{
+\item{forecast_period}{ - weeks from start date that you want to forecast
+from; default = 12}
+\item{delivery_leadtime}{ - time in weeks until shipment received
+(between 0-1). note - if this is set to 1, this pushed the forecast period
+out 1 week to factor in delivery time; default = 0}
+\item{week1}{ - date from which the forecast starts (year-month-date);
+default = "2022-01-01"}
+\item{scenario}{ - Default is medium transmission, with an R(0) number or
+R(eff) number of 0.94. Other options include "Low", with an R(0) or R(eff) of
+0.47, which simulates a 50 percent decrease in transmission, or "High", with
+an R(0) or R(eff) of 1.41, which simulates a 50 percent increase in
+transmission.}
+}
 }

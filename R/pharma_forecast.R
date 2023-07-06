@@ -22,7 +22,7 @@
 #'   severe patients}
 #'   \item{total_drug_form_all_crit_treated}{Total drug form needed for all
 #'   critical patients}
-#'}
+#' }
 #'
 #' @import dplyr
 #' @importFrom tidyselect everything

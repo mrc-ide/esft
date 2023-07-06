@@ -9,10 +9,10 @@ who <- readxl::read_excel("data-raw/who_summary_data.xlsx",
 )
 usethis::use_data(who, overwrite = TRUE, internal = FALSE)
 
-wb_beds <- readxl::read_excel("data-raw/who_summary_data.xlsx",
-  sheet = "wb_beds"
-)
-usethis::use_data(wb_beds, overwrite = TRUE, internal = FALSE)
+# wb_beds <- readxl::read_excel("data-raw/who_summary_data.xlsx",
+#   sheet = "wb_beds"
+# )
+# usethis::use_data(wb_beds, overwrite = TRUE, internal = FALSE)
 
 hwfe <- readxl::read_excel("data-raw/who_summary_data.xlsx", sheet = "hwfe")
 # names(hwfe)
@@ -42,7 +42,8 @@ pharmaceuticals <- readxl::read_excel("data-raw/who_summary_data.xlsx",
   sheet = "pharmaceutical"
 )
 pharmaceuticals$covid_specific <- ifelse(pharmaceuticals$covid_specific == "No",
-                                         FALSE, TRUE)
+  FALSE, TRUE
+)
 usethis::use_data(pharmaceuticals, overwrite = TRUE, internal = FALSE)
 
 # Diagnostics ---------------------

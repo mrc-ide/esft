@@ -10,7 +10,7 @@
 #' @details
 #'
 #' Case Severity Distributions:
-#'\itemize{
+#' \itemize{
 #'  \item{mild_i_proportion}{ - proportion of cases that are mild, considered to
 #'  be isolating to reduce onward transmission; default = 0.4}
 #'  \item{mod_i_proportion}{ - proportion of cases that are moderate, considered
@@ -21,43 +21,43 @@
 #'  \item{crit_i_proportion}{ - proportion of cases that are critical, depending
 #'  on critical bed availability, admitted to hospital and require ventilation;
 #'  default = 0.05}
-#'}
+#' }
 #'
 #' Weeks of Stay in Isolation (WHO recommendation based on incubation period of
 #' COVID-19 and case management guidelines):
-#'\itemize{
+#' \itemize{
 #'  \item{stay_mild}{ - average length of stay (in weeks) of mild cases in
 #'  isolation; default = 2}
 #'  \item{stay_mod}{ - average length of stay (in weeks) of moderate cases in
 #'  isolation; default = 2}
-#'}
+#' }
 #'
 #' Weeks of Stay in Hospital (based on studies of case severity):
-#'\itemize{
+#' \itemize{
 #'  \item{stay_sev}{ - average length of stay (in weeks) of severe cases in
 #'  hospital; default = 1}
 #'  \item{stay_crit}{ - average length of stay (in weeks) of critical cases in
 #'  hospital; default = 2}
-#'}
+#' }
 #'
 #' Infection Fatality Rates (note: could be updated based on newer research):
-#'\itemize{
-#'  \item{ifr_sev}{ - infection fatality rate of severe cases, based on WHO China
-#'  Joint Mission Report; default = 0.134}
+#' \itemize{
+#'  \item{ifr_sev}{ - infection fatality rate of severe cases, based on WHO
+#'  China Joint Mission Report; default = 0.134}
 #'  \item{ifr_crit}{ - infection fatality rate of critical cases, based on
 #'  Imperial College Report nr. 9; default = 0.5}
-#'}
+#' }
 #'
 #' Miscellaneous Parameters:
 #' \itemize{
-#'  \item{perc_hcws_not_covid}{ - assumption of percentage of HCWs not working on
-#'  COVID; default = 0.4}
+#'  \item{perc_hcws_not_covid}{ - assumption of percentage of HCWs not working
+#'  on COVID; default = 0.4}
 #'  \item{n_hosp_beds_per_care_unit}{ - assumption, used to estimate triple
-#' packaging boxes (might not be necessary); default = 40}
+#'  packaging boxes (might not be necessary); default = 40}
 #' }
 #'
 #' Healthcare Workers per Bed or Patient:
-#'\itemize{
+#' \itemize{
 #' \item{ambulancews_per_bed}{ - ambulance personnel ratio assumes 1 ambulance
 #' per 100 bed hospital with 2 operators (paramedic + driver) at all times
 #' (3x8 hour shifts) so 6/100 beds; default = 0.06}
@@ -70,23 +70,23 @@
 #' care guidance, with estimates of 1 caregiver per patient for the duration of
 #' the roughly 2-week isolation - his calculation estimates the quantity of PPE
 #' required (e.g., masks and gloves) for the patient and caregiver; default = 1}
-#'}
+#' }
 #'
 #' Percent of Critical Patients that are Mechanically Ventilated:
-#'\itemize{
+#' \itemize{
 #' \item{perc_crit_inv_mv}{ - WHO recommendation; default = 0.667}
 #' \item{perc_crit_noninv_mv}{ - WHO recommendation; default = 0.333}
-#'}
+#' }
 #'
 #' Oxygen Flow by Case Severity, in LPM:
-#'\itemize{
+#' \itemize{
 #' \item{o2_flow_sev}{ - severe patients require 5-15 LPM, so median taken;
 #' default = 10}
 #' \item{o2_flow_crit_inv_mv}{ - critical patients with invasive mechanical
 #' ventilation; default = 30}
 #' \item{o2_flow_crit_noninv_mv}{ - critical patients with non-invasive
 #' mechanical ventilation; default = 30}
-#'}
+#' }
 #'
 #' @export
 get_parameters <- function(overrides = list()) {

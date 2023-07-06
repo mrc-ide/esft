@@ -9,36 +9,37 @@
 #' in these projections, and these are dependent on the length of stay of
 #' various case types specified in the get_parameters() function.
 #'
-#'
 #' Here is the description of the additional patient calculations:
-#'
-#' * crit_patients_nocap - ICU_demand
-#' * sev_patients_nocap - hospital_demand
-#' * mod_patients_nocap - cum_mod_cases - cum_rem_mod_cases
-#' * mild_patients_nocap - cum_mild_cases - cum_rem_mild_cases
-#' * crit_beds_inuse - crit_patients_nocap capped by beds allocated to critical
-#' COVID
-#' * sev_beds_inuse - sev_patients_nocap capped by beds allocated to severe
-#' COVID
-#' * total_beds_inuse - severe + critical beds in use
-#' * hosp_facilities_inuse - total beds in use / avg. hosp beds per care centre
-#' * rem_crit_patients - cumulative removed critical patients - cumulative
-#' removed critical patients shifted by avg. length of hospital stay
-#' * rem_sev_patients - cumulative removed severe patients - cumulative removed
-#' severe patients shifted by avg. length of hospital stay
-#' * rem_mod_patients - same as rem_mod_cases - new moderate cases shifted by
-#' avg. length of stay in isolation
-#' * rem_mild_patients - same as rem_mild_cases - new mild cases shifted by avg.
-#' length of stay in isolation
-#' * discharged_sev_patients - admitted severe patients shifted back by avg.
-#' length of hospital stay
-#' * discharged_crit_patients - admitted critical patients shifted back by avg.
-#' length of hospital stay
-#' * sev_patients_admitted_cap - admitted severe patients capped by severe beds,
-#' number of beds in use, and number of patients discharged
-#' * crit_patients_admitted_cap - admitted critical patients capped by critical
-#' beds, number of beds in use, and number of patients discharged
-#'
+#' \itemize{
+#'  \item{crit_patients_nocap}{ - ICU_demand}
+#'  \item{sev_patients_nocap}{ - hospital_demand}
+#'  \item{mod_patients_nocap}{ - cum_mod_cases - cum_rem_mod_cases}
+#'  \item{mild_patients_nocap}{ - cum_mild_cases - cum_rem_mild_cases}
+#'  \item{crit_beds_inuse}{ - crit_patients_nocap capped by beds allocated to
+#'  critical COVID}
+#'  \item{sev_beds_inuse}{ - sev_patients_nocap capped by beds allocated to
+#'  severe COVID}
+#'  \item{total_beds_inuse}{ - severe + critical beds in use}
+#'  \item{hosp_facilities_inuse}{ - total beds in use / avg. hosp beds per care
+#'  centre}
+#'  \item{rem_crit_patients}{ - cumulative removed critical patients -
+#'  cumulative removed critical patients shifted by avg. length of hospital
+#'  stay}
+#'  \item{rem_sev_patients}{ - cumulative removed severe patients - cumulative
+#'  removed severe patients shifted by avg. length of hospital stay}
+#'  \item{rem_mod_patients}{ - same as rem_mod_cases - new moderate cases
+#'  shifted by avg. length of stay in isolation}
+#'  \item{rem_mild_patients}{ - same as rem_mild_cases - new mild cases shifted
+#'  by avg. length of stay in isolation}
+#'  \item{discharged_sev_patients}{ - admitted severe patients shifted back by
+#'  avg. length of hospital stay}
+#'  \item{discharged_crit_patients}{ - admitted critical patients shifted back
+#'  by avg. length of hospital stay}
+#'  \item{sev_patients_admitted_cap}{ - admitted severe patients capped by
+#'  severe beds, number of beds in use, and number of patients discharged}
+#'  \item{crit_patients_admitted_cap}{ - admitted critical patients capped by
+#'  critical beds, number of beds in use, and number of patients discharged}
+#' }
 #' @param params From get_parameters
 #' @param country_capacity From get_country_capacity
 #' @param data Weekly summary dataframe - from cases_weekly

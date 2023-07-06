@@ -6,13 +6,16 @@
 #' The parameters are defined below, and are taken from the default settings in
 #' the ESFT.
 #'
+#' @details
 #' Total tests and percent antigen:
-#'
-#' * total_tests_mild_mod - total tests, used for diagnosis only; default = 1
-#' * total_tests_sev_crit - total tests, used for diagnosis and release;
-#' default = 2
-#' * perc_antigen_tests - percent testing done in hospital via antigen testing,
-#' max 80 percent; default = 20 percent
+#' \itemize{
+#'  \item{total_tests_mild_mod}{ - total tests, used for diagnosis only;
+#'  default = 1}
+#'  \item{total_tests_sev_crit}{ - total tests, used for diagnosis and release;
+#'  default = 2}
+#'  \item{perc_antigen_tests}{ - percent testing done in hospital via antigen
+#'  testing, max 80 percent; default = 20 percent}
+#' }
 #'
 #' @return List of diagnostic parameters.
 #'
@@ -56,20 +59,21 @@ get_diagnostic_parameters <- function(overrides = list()) {
 #'
 #' @param iso3c Country code, in iso3c format.
 #' @param overrides a named list of parameter values to use instead of defaults.
-#' Notably might include hologic_panther_fusion counts.
-#' The values are described below and are taken from data provided in the ESFT.
+#' Notably might include hologic_panther_fusion counts. The values are described
+#' below and are taken from data provided in the ESFT.
 #'
+#' @details
 #' Counts of various machines in country:
-#'
-#' * roche_6800 - high throughput conventional platform
-#' * roche_8800 - high throughput conventional platform
-#' * abbott_m2000 - high throughput conventional platform
-#' * hologic_panther - high throughput conventional platform
-#' * hologic_panther_fusion - high throughput conventional platform
-#' * genexpert - near-patient PCR machine modules (not platforms: here, one
-#' machine contains several modules)
-#' * manual - manual real-time PCR platform
-#'
+#' \itemize{
+#'  \item{roche_6800}{ - high throughput conventional platform}
+#'  \item{roche_8800}{ - high throughput conventional platform}
+#'  \item{abbott_m2000}{ - high throughput conventional platform}
+#'  \item{hologic_panther}{ - high throughput conventional platform}
+#'  \item{hologic_panther_fusion}{ - high throughput conventional platform}
+#'  \item{genexpert}{ - near-patient PCR machine modules (not platforms: here,
+#'  one machine contains several modules)}
+#'  \item{manual}{ - manual real-time PCR platform}
+#' }
 #' @importFrom tidyr pivot_longer
 #' @importFrom magrittr %>%
 #'
@@ -129,35 +133,38 @@ get_country_test_capacity <- function(iso3c = NULL,
 #' The parameters are defined below, and are taken from the default settings in
 #' the ESFT.
 #'
-#' testing strategies:
+#' @details
+#' Testing Strategies:
+#' \itemize{
+#'  \item{all}{ - all cases that present, regardless of severity, using standard
+#'  number of negatives per positive test}
+#'  \item{targeted}{ - restricted testing of mild/moderate presenting cases may
+#'  be employed if limited tests available. all required severe and critical
+#'  cases will still be tested. if selected, only the percent of
+#'  suspected/mild/moderate cases input here will be tested (typically high-risk
+#'  patients)}
+#' }
 #'
-#' * all - all cases that present, regardless of severity, using standard number
-#' of negatives per positive test
-#' * targeted - restricted testing of mild/moderate presenting cases may be
-#' employed if limited tests available. all required severe and critical cases
-#' will still be tested. if selected, only the percent of
-#' suspected/mild/moderate cases input here will be tested (typically high-risk
-#' patients)
-#'
-#' further testing parameters:
-#'
-#' * perc_tested_sev_crit - percent of severe or critical cases tested, always
-#' 100%; default = 1
-#' * num_neg_per_pos_test - estimated average number of negative tests per
-#' positive test; default = 10
-#' * tests_per_hcw_per_week - tests per HCW or staff member per week. includes
-#' tests for inpatient HCW, screening/triage HCW, ambulance personnel, cleaners,
-#' lab techs, and biomedical engineers. input can also be 0 (for no tests) or a
-#' decimal (e.g. 0.5, to represent tests every other week); default = 1
-#' * testing_contacts - is testing done for contacts of positive cases;
-#' default = TRUE
-#' * avg_contacts_pos_case - average number of contacts per positive case.
-#' suggested options are 5 (High/Strong, e.g. stay at home regulations),
-#' 10 (Medium/Weak social distancing, e.g. travel restrictions),
-#' 15 (Low/No social distancing, e.g. advice only); default = 10
-#' * perc_contacts_tested - percent of contacts of a positive case who get
-#' tested; default = 0.6
-#'
+#' Testing Parameters:
+#' \itemize{
+#'  \item{perc_tested_sev_crit}{ - percent of severe or critical cases tested,
+#'  always 100\%; default = 1}
+#'  \item{num_neg_per_pos_test}{ - estimated average number of negative tests
+#'  per positive test; default = 10}
+#'  \item{tests_per_hcw_per_week}{ - tests per HCW or staff member per week.
+#'  Includes tests for inpatient HCW, screening/triage HCW, ambulance personnel,
+#'  cleaners, lab techs, and biomedical engineers. input can also be 0 (for no
+#'  tests) or a decimal (e.g. 0.5, to represent tests every other week);
+#'  default = 1}
+#'  \item{testing_contacts}{ - is testing done for contacts of positive cases;
+#'  default = TRUE}
+#'  \item{avg_contacts_pos_case}{ - average number of contacts per positive
+#'  case. Suggested options are 5 (High/Strong, e.g. stay at home regulations),
+#'  10 (Medium/Weak social distancing, e.g. travel restrictions),
+#'  15 (Low/No social distancing, e.g. advice only); default = 10}
+#'  \item{perc_contacts_tested}{ - percent of contacts of a positive case who
+#'  get tested; default = 0.6}
+#' }
 #'
 #' @return Testing strategy parameters.
 #'
@@ -224,21 +231,22 @@ set_testing_strategy <- function(strategy = "all",
 #' The parameters are defined below, and are taken from the default settings in
 #' the ESFT.
 #'
-#' requirements per lab:
-#'
-#' * lab_staff_per_lab - multiplier that helps estimate lab staff equipment
-#' requirements; default = 3
-#' * hygienists_per_lab - multiplier that helps estimate lab hygienist/cleaner
-#' equipment requirements; default = 3
-#' * safety_boxes_per_unit_week - WHO recommendation for safe sharp disposal;
-#' default = 8
-#' * triple_packaging_per_unit - WHO recommendation for sample transport;
-#' default = 4
-#' * perc_wastage_manual_test_kits - percentage wastage, only of manual test
-#' kits; default = 10 %
-#' * num_tests_manual_test_kits - number of tests in an RT-PCR manual test kit;
-#' default = 100
-#'
+#' @details
+#' Requirements per Lab:
+#' \itemize{
+#'  \item{lab_staff_per_lab}{ - multiplier that helps estimate lab staff
+#'  equipment requirements; default = 3}
+#'  \item{hygienists_per_lab}{ - multiplier that helps estimate lab
+#'  hygienist/cleaner equipment requirements; default = 3}
+#'  \item{safety_boxes_per_unit_week}{ - WHO recommendation for safe sharp
+#'  disposal; default = 8}
+#'  \item{triple_packaging_per_unit}{ - WHO recommendation for sample transport;
+#'  default = 4}
+#'  \item{perc_wastage_manual_test_kits}{ - percentage wastage, only of manual
+#'  test kits; default = 10 \%}
+#'  \item{num_tests_manual_test_kits}{ - number of tests in an RT-PCR manual
+#'  test kit; default = 100}
+#' }
 #'
 #' @export
 get_lab_parameters <- function(overrides = list()) {

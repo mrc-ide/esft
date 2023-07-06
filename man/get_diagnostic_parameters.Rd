@@ -9,19 +9,22 @@ get_diagnostic_parameters(overrides = list())
 \arguments{
 \item{overrides}{Named list of values to use instead of defaults
 The parameters are defined below, and are taken from the default settings in
-the ESFT.
-
-Total tests and percent antigen:
-
-* total_tests_mild_mod - total tests, used for diagnosis only; default = 1
-* total_tests_sev_crit - total tests, used for diagnosis and release;
-default = 2
-* perc_antigen_tests - percent testing done in hospital via antigen testing,
-max 80 percent; default = 20 percent}
+the ESFT.}
 }
 \value{
 List of diagnostic parameters.
 }
 \description{
 Sets the baseline diagnostic parameters.
+}
+\details{
+Total tests and percent antigen:
+\itemize{
+ \item{total_tests_mild_mod}{ - total tests, used for diagnosis only;
+ default = 1}
+ \item{total_tests_sev_crit}{ - total tests, used for diagnosis and release;
+ default = 2}
+ \item{perc_antigen_tests}{ - percent testing done in hospital via antigen
+ testing, max 80 percent; default = 20 percent}
+}
 }

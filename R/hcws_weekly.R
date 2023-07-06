@@ -72,9 +72,9 @@ hcws_weekly <- function(params, # from get_parameters
       ),
       # double check if i want to add the HCW caps to data or params
       amb_personnel_inpatient_capped = round(.data$total_beds_inuse *
-                                               params$ambulancews_per_bed),
+        params$ambulancews_per_bed),
       bio_eng_inpatient_capped = round(.data$total_beds_inuse *
-                                         params$bioengs_per_bed),
+        params$bioengs_per_bed),
       # it's basically calculated this way i think to accommodate for mild
       # + mod testing in outpatient setting
       inf_caregivers_isol_uncapped = (
