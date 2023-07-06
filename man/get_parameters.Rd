@@ -49,18 +49,18 @@ Weeks of Stay in Hospital (based on studies of case severity):
 
 Infection Fatality Rates (note: could be updated based on newer research):
 \itemize{
- \item{ifr_sev}{ - infection fatality rate of severe cases, based on WHO China
- Joint Mission Report; default = 0.134}
+ \item{ifr_sev}{ - infection fatality rate of severe cases, based on WHO
+ China Joint Mission Report; default = 0.134}
  \item{ifr_crit}{ - infection fatality rate of critical cases, based on
  Imperial College Report nr. 9; default = 0.5}
 }
 
 Miscellaneous Parameters:
 \itemize{
- \item{perc_hcws_not_covid}{ - assumption of percentage of HCWs not working on
- COVID; default = 0.4}
+ \item{perc_hcws_not_covid}{ - assumption of percentage of HCWs not working
+ on COVID; default = 0.4}
  \item{n_hosp_beds_per_care_unit}{ - assumption, used to estimate triple
-packaging boxes (might not be necessary); default = 40}
+ packaging boxes (might not be necessary); default = 40}
 }
 
 Healthcare Workers per Bed or Patient:

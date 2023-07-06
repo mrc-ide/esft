@@ -9,23 +9,25 @@ get_lab_parameters(overrides = list())
 \arguments{
 \item{overrides}{Named list of parameter values to use instead of defaults
 The parameters are defined below, and are taken from the default settings in
-the ESFT.
-
-requirements per lab:
-
-* lab_staff_per_lab - multiplier that helps estimate lab staff equipment
-requirements; default = 3
-* hygienists_per_lab - multiplier that helps estimate lab hygienist/cleaner
-equipment requirements; default = 3
-* safety_boxes_per_unit_week - WHO recommendation for safe sharp disposal;
-default = 8
-* triple_packaging_per_unit - WHO recommendation for sample transport;
-default = 4
-* perc_wastage_manual_test_kits - percentage wastage, only of manual test
-kits; default = 10 %
-* num_tests_manual_test_kits - number of tests in an RT-PCR manual test kit;
-default = 100}
+the ESFT.}
 }
 \description{
 Sets the baseline lab parameters.
+}
+\details{
+Requirements per Lab:
+\itemize{
+ \item{lab_staff_per_lab}{ - multiplier that helps estimate lab staff
+ equipment requirements; default = 3}
+ \item{hygienists_per_lab}{ - multiplier that helps estimate lab
+ hygienist/cleaner equipment requirements; default = 3}
+ \item{safety_boxes_per_unit_week}{ - WHO recommendation for safe sharp
+ disposal; default = 8}
+ \item{triple_packaging_per_unit}{ - WHO recommendation for sample transport;
+ default = 4}
+ \item{perc_wastage_manual_test_kits}{ - percentage wastage, only of manual
+ test kits; default = 10 \%}
+ \item{num_tests_manual_test_kits}{ - number of tests in an RT-PCR manual
+ test kit; default = 100}
+}
 }

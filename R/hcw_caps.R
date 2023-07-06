@@ -4,45 +4,48 @@
 #' `Weekly Summary`, `Inputs`, and `Back Calculations` tabs in the ESFT.
 #'
 #' Here is the description of the bed cap calculations:
-#' * bed_cap - Bed cap to calculate max bed occupancy, equal to total number of
-#' beds available per country.
-#' * cases_screened_per_hcw_per_day - Screening/triage ratio is based on the
-#' assumption that each screening/triage takes approximately 48 minutes, which
-#' is 10 consultations per 8-hour shift.
-#' * cleaners_inpatient_cap - Max number of estimated cleaners needed, refers
-#' to Cleaners and Helpers (ILO ISCO code 9112).
-#' * hcws_inpatients_cap - Max number of estimated healthcare workers, refers
-#' to all medical practitioners, including physicians, nursing professionals,
-#' and paramedical practitioners (ILO ISCO codes 2240, 2211, 2212, 2221, 3221,
-#' 5321, 3256)
-#' * hcws_per_bed - Average number of health care workers per bed, derived from
-#' bed occupancy and typical/recommended hours per bed per health care worker.
-#' * hcws_per_inpatient - Same as hcws_per_bed.
-#' * hcws_per_outpatient - Number of health care workers required per outpatient
-#' (screening) case, or the inverse of cases screened per health care worker per
-#' day.
-#' * hcws_screening_cap - Max number of estimated health care workers
-#' dedicated to screening COVID-19 cases.
-#' * hygienists_per_bed - Average number of hygienists per bed, derived from bed
-#' occupancy and typical/recommended hours per bed per hygienist.
-#' * lab_staff_cap - Estimated max number of possible lab staff - either derived
-#' from the different machines and their estimated COVID-19 capacity or derived
-#' from the total number of available lab staff.
-#' * perc_crit_cases - Percent of all patients occupying beds who are of
-#' critical severity.
-#' * perc_screening_covid - Percent of all HCWs dedicated to screening COVID-19
-#' cases (usually the percent leftover after accounting for those who are and
-#' are not dedicated to COVID-19 response)
-#' * perc_sev_cases - Percent of all patients occupying beds who are of severe
-#' case severity.
-#' * perc_treating_covid - Percent of HCWs dedicated to responding to COVID-19.
-#' * prob_inpatient - Probability that a COVID-19 case is inpatient, i.e. in a
-#' care facility.
-#' * prob_outpatient - Probability that a COVID-19 case is outpatient, i.e. that
-#' it is not in a care facility.
-#' * ratio_hcws_inpatient_outpatient - Per new case, ratio of HCWs for inpatient
-#' vs. outpatient
-#'
+#' \itemize{
+#'  \item{bed_cap}{ - Bed cap to calculate max bed occupancy, equal to total
+#'  number of beds available per country.}
+#'  \item{cases_screened_per_hcw_per_day}{ - Screening/triage ratio is based on
+#'  the assumption that each screening/triage takes approximately 48 minutes,
+#'  which is 10 consultations per 8-hour shift.}
+#'  \item{cleaners_inpatient_cap}{ - Max number of estimated cleaners needed,
+#'  refers to Cleaners and Helpers (ILO ISCO code 9112).}
+#'  \item{hcws_inpatients_cap}{ - Max number of estimated healthcare workers,
+#'  refers to all medical practitioners, including physicians, nursing
+#'  professionals, and paramedical practitioners (ILO ISCO codes 2240, 2211,
+#'  2212, 2221, 3221, 5321, 3256)}
+#'  \item{hcws_per_bed}{ - Average number of health care workers per bed,
+#'  derived from bed occupancy and typical/recommended hours per bed per health
+#'  care worker.}
+#'  \item{hcws_per_inpatient}{ - Same as hcws_per_bed.}
+#'  \item{hcws_per_outpatient}{ - Number of health care workers required per
+#'  outpatient (screening) case, or the inverse of cases screened per health
+#'  care worker per day.}
+#'  \item{hcws_screening_cap}{ - Max number of estimated health care workers
+#'  dedicated to screening COVID-19 cases.}
+#'  \item{hygienists_per_bed}{ - Average number of hygienists per bed, derived
+#'  from bed occupancy and typical/recommended hours per bed per hygienist.}
+#'  \item{lab_staff_cap}{ - Estimated max number of possible lab staff - either
+#'  derived from the different machines and their estimated COVID-19 capacity or
+#'  derived from the total number of available lab staff.}
+#'  \item{perc_crit_cases}{ - Percent of all patients occupying beds who are of
+#'  critical severity.}
+#'  \item{perc_screening_covid}{ - Percent of all HCWs dedicated to screening
+#'  COVID-19 cases (usually the percent leftover after accounting for those who
+#'  are and are not dedicated to COVID-19 response)}
+#'  \item{perc_sev_cases}{ - Percent of all patients occupying beds who are of
+#'  severe case severity.}
+#'  \item{perc_treating_covid}{ - Percent of HCWs dedicated to responding to
+#'  COVID-19.}
+#'  \item{prob_inpatient}{ - Probability that a COVID-19 case is inpatient, i.e.
+#'  in a care facility.}
+#'  \item{prob_outpatient}{ - Probability that a COVID-19 case is outpatient,
+#'  i.e. that it is not in a care facility.}
+#'  \item{ratio_hcws_inpatient_outpatient}{ - Per new case, ratio of HCWs for
+#'  inpatient vs. outpatient}
+#' }
 #' @param params From get_parameters
 #' @param capacity Country capacity, get_country_capacity
 #' @param throughput Throughput dataframe, from r data file - can be altered

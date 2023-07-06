@@ -14,19 +14,8 @@ get_country_test_capacity(iso3c = NULL, overrides = list())
 \item{iso3c}{Country code, in iso3c format.}
 
 \item{overrides}{a named list of parameter values to use instead of defaults.
-Notably might include hologic_panther_fusion counts.
-The values are described below and are taken from data provided in the ESFT.
-
-Counts of various machines in country:
-
-* roche_6800 - high throughput conventional platform
-* roche_8800 - high throughput conventional platform
-* abbott_m2000 - high throughput conventional platform
-* hologic_panther - high throughput conventional platform
-* hologic_panther_fusion - high throughput conventional platform
-* genexpert - near-patient PCR machine modules (not platforms: here, one
-machine contains several modules)
-* manual - manual real-time PCR platform}
+Notably might include hologic_panther_fusion counts. The values are described
+below and are taken from data provided in the ESFT.}
 }
 \value{
 Number of diagnostic machines available within each country.
@@ -34,4 +23,17 @@ Number of diagnostic machines available within each country.
 \description{
 Using country name or country code, return baseline estimates of
 diagnostic testing capacity provided in the WHO ESFT.
+}
+\details{
+Counts of various machines in country:
+\itemize{
+ \item{roche_6800}{ - high throughput conventional platform}
+ \item{roche_8800}{ - high throughput conventional platform}
+ \item{abbott_m2000}{ - high throughput conventional platform}
+ \item{hologic_panther}{ - high throughput conventional platform}
+ \item{hologic_panther_fusion}{ - high throughput conventional platform}
+ \item{genexpert}{ - near-patient PCR machine modules (not platforms: here,
+ one machine contains several modules)}
+ \item{manual}{ - manual real-time PCR platform}
+}
 }

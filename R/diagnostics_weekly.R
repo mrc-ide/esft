@@ -49,8 +49,6 @@ diagnostics_weekly <- function(params,
   params <- merge(params, diagnostic_parameters)
   params <- merge(params, testing_scenario)
 
-  # this section produces results that are wildly different from the spreadsheet
-  # why is that?
   data <- data %>%
     dplyr::mutate(
       tests_diagnosis_uncapped_sev_crit =

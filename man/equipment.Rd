@@ -68,28 +68,31 @@ isolation) and end users (e.g., HCW, patients).
 Here is the description of care settings and personnel as outlined in the
 ESFT tool:
 
-### Care Setting Descriptions:
-Inpatient: Inpatient care for severe and critical patients
-Screening/triage: Screening and triaging all suspected COVID-19 patients at
-first point of contact with the health care system (including those who
-ultimately test negative)
-Isolation: Typically care provided at home or in a community facility (e.g.,
-stadiums, gymnasiums, hotels) for mild/moderate patients
-Laboratories: Labs where testing is conducted/processed
-
-### Personnel Descriptions (these definitions and ILO ISCO codes are in use
-### in all tabs of the tool):
-HCW: medical practitioners, including physicians, nursing professionals,
-and paramedical practitioners (ILO ISCO codes 2240, 2211, 2212, 2221, 3221,
-5321, 3256)
-Cleaners: cleaners and helpers (ILO ISCO code 9112)
-Caregiver: patient carers such as parent, spouse, partner, etc.
-Ambulancier: emergency paramedics and drivers (ILO ISCO codes 8322, 3258)
-Patient: suspected case or person diagnosed with COVID-19 (can be further
-defined as a severe or critical or applicable to both)
-Bed: equipment needed per patient bed (can be further defined as a severe or
-critical or applicable to both)
-
+\bold{Care Setting Descriptions:}
+\itemize{
+ \item{Inpatient:}{ Inpatient care for severe and critical patients}
+ \item{Screening/triage:}{ Screening and triaging all suspected COVID-19
+ patients at first point of contact with the health care system (including
+ those who ultimately test negative)}
+ \item{Isolation:}{ Typically care provided at home or in a community
+ facility (e.g., stadiums, gymnasiums, hotels) for mild/moderate patients}
+ \item{Laboratories:}{ Labs where testing is conducted/processed}
+}
+\bold{Personnel Descriptions}
+(these definitions and ILO ISCO codes are in use in all tabs of the tool):
+\itemize{
+ \item{HCW:}{ medical practitioners, including physicians, nursing
+ professionals, and paramedical practitioners (ILO ISCO codes 2240, 2211,
+ 2212, 2221, 3221, 5321, 3256)}
+ \item{Cleaners:}{ cleaners and helpers (ILO ISCO code 9112)}
+ \item{Caregiver:}{ patient carers such as parent, spouse, partner, etc.}
+ \item{Ambulancier:}{ emergency paramedics and drivers (ILO ISCO codes 8322,
+ 3258)}
+ \item{Patient:}{ suspected case or person diagnosed with COVID-19 (can be
+ further defined as a severe or critical or applicable to both)}
+ \item{Bed:}{ equipment needed per patient bed (can be further defined as a
+ severe or critical or applicable to both)}
+}
 Note: It may appear as if there is double counting, especially when it comes
 to inpatient patients and beds. This is not the case - if there is a value
 for one (either bed or patient), there is no value for the other.

@@ -67,7 +67,8 @@ reference_hcw <- function(iso3c = NULL, params, who, throughput,
     n_labs = esft::who$labs[esft::who$country_code == iso3c] * (1 - avg_lab),
     n_midwives = esft::who$midwives[esft::who$country_code == iso3c],
     n_dentists = esft::who$dentists[esft::who$country_code == iso3c],
-    n_physiotherapists = esft::who$physiotherapists[esft::who$country_code == iso3c],
+    n_physiotherapists = esft::who$physiotherapists[
+      esft::who$country_code == iso3c],
     n_trad_comp_med = esft::who$trad_comp_med[esft::who$country_code == iso3c],
     n_chws = esft::who$chws[esft::who$country_code == iso3c],
     n_pharmacists = esft::who$pharmacists[esft::who$country_code == iso3c]
