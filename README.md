@@ -26,5 +26,5 @@ devtools::install_github("mrc-ide/esft")
 The package can then be loaded like so:
 
 ``` r
-library(squire)
+library(esft)
 ```
