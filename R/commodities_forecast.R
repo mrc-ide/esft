@@ -165,7 +165,7 @@ hygiene_forecast <- function(equipment, hcws, patients, cases, tests,
         reusable == TRUE,
         (ifelse(amount_per_lab_tech_per_day > 0,
           lab_staff_capped, 0
-        ) +
+      ) +
           ifelse(amount_per_lab_cleaner_per_day > 0,
             cleaners_lab, 0
           )),
