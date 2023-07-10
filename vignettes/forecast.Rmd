@@ -15,8 +15,825 @@ knitr::opts_chunk$set(
 )
 ```
 
-Here we will talk about forecasted commodity needs.
-This will include a break down of how each different kind of commodity is forecasted, and a guide on how to adjust maybe input values ??
+This vignette will go over the different calculations for the forecasted commodity needs.
 
-Unclear.
+*Potentially* this will include also a description on how to modify input/base values, although this is low priority.
 
+## Setup
+
+The first step is to run the calculations required to produce the outputs that we will use in the forecast calculations: we'll call parameters, calculate country capacity, and estimate weekly summaries.
+
+```{r parameters}
+# User input - we set the country to be afghanistan
+country <- "AFG"
+user <- user_input()
+
+# data loading
+data(throughput, package = "esft")
+data(hours_per_shift, package = "esft")
+data(hwfe, package = "esft")
+mydata <- load_imperial_data(country_code = country)
+
+# parameters
+params <- get_parameters()
+test_strat <- set_testing_strategy()
+test_params <- get_diagnostic_parameters()
+lab_params <- get_lab_parameters()
+
+# capacity mapping
+capacity <- get_country_capacity(iso3c=country)
+country_test_capacity <- get_country_test_capacity(iso3c=country)
+diagnostic_capacity <- calc_diagnostic_capacity(
+  country_diagnostic_capacity = country_test_capacity,
+  throughput, 
+  hours_per_shift =  hours_per_shift,
+  shifts_per_day = 1)
+t_labs <- total_labs(diagnostic_capacity)
+max_tests <- max_tests_per_day(diagnostic_capacity)
+
+# weekly summary, see vignette for more
+cases <- cases_weekly(params, 
+                      capacity,
+                      test_strategy_params=test_strat,
+                      data=mydata)
+cases <- subset(cases, cases$week_ends > as.Date("2022-01-01"))
+
+patients <- patients_weekly(params, 
+                            capacity, 
+                            data = cases)
+patients <- patients[c(2:13),]
+
+tests <- diagnostics_weekly(params = params, 
+                            patients, 
+                            cases, 
+                            diagnostic_parameters = test_params, 
+                            testing_scenario = test_strat)
+# replicating exactly ESFT
+caps <- list(
+  hcws_inpatients_cap = 5448,
+  hcws_screening_cap = 919
+)
+
+hcw_caps <- hcw_caps(params,
+                     capacity,
+                     throughput,
+                     hwfe, 
+                     patients, 
+                     overrides=caps)
+
+hcws <- hcws_weekly(params,
+                    capacity, 
+                    lab_params, 
+                    tests,
+                    patients, 
+                    t_labs, 
+                    hcw_caps)
+
+screening_hcws <- screening_hcws_weekly(tests, hcw_caps,
+                                        capacity)
+
+added_tests <- additional_testing(hcws, 
+                                  screening_hcws, 
+                                  test_strat,
+                                  tests)
+n_tests <- total_tests(tests, added_tests, max_tests)
+test_ratios <- test_ratio(diagnostic_capacity, test_params)
+```
+
+## Non-COVID essentials and Reference HCWs
+
+```{r noncovid}
+# First, we start with loading the reference data for items required per case or
+# per HCW
+data(noncovid, package="esft")
+data(who, package="esft")
+data(throughput, package="esft")
+
+# We start then by calculating the number of HCWs in the country, based on
+# WHO data sources
+ref_hcws <- reference_hcw(iso3c = "AFG", params, who, throughput)
+
+# These outputs are used to calculate the number of items needed for the 
+# non-COVID-19 focused HCWs.
+noncovid_ess <- noncovid_essentials(noncovid, ref_hcws, 
+                                   forecast_length=12, days_week = 5)
+
+```
+
+### Outputs
+
+**Reference HCWs**
+
+These numbers all correspond to health professionals who are not dedicated to the COVID-19 response. 
+
+**Note**: I don't fully understand the reasoning behind the way this is calculated, as this calculation in the ESFT prioritizes a pre-set list of counts of health care workers over something that is calculated on a country by country basis. Especially given that population sizes and HCWs numbers vary significantly by country, I am uncertain as to why the calculation would prioritize static numbers over referenced ones. 
+
+That said, if you would like to reference the country specific HCWs instead of using a list of the same numbers for all countries, just copy and paste this list into the arguments and then call the function:
+
+```{r default}
+default = list(n_docs = NA,
+               n_nurses = NA,
+               n_labs = NA,
+               n_midwives = NA,
+               n_dentists = NA,
+               n_physiotherapists = NA,
+               n_trad_comp_med = NA,
+               n_chws = NA,
+               n_pharmacists = NA)
+```
+
+1.  *n_docs*
+
+Number of non-COVID-19 doctors, defaults to 8000.
+
+2.  *n_nurses*
+
+Number of non-COVID-19 nurses, defaults to 5000.
+
+3.  *n_labs*
+
+Number of non-COVID-19 laboratory technicians and staff, defaults to 300.
+
+4.  *n_midwives*
+
+Number of midwives, defaults to 500.
+
+5.  *n_dentists*
+
+Number of dentists, defaults to 10.
+
+6.  *n_physiotherapists*
+
+Number of physiotherapists, defaults to 50.
+
+7.  *n_trad_comp_med*
+
+Number of traditional and complementary medical personnel, defaults to 4000.
+
+8.  *n_chws*
+
+Number of community health workers, defaults to 245.
+
+9.  *n_pharmacists*
+
+Number of pharmacists, defaults to 818.
+
+\
+
+**Non-COVID Essentials**
+
+Calculates total amounts need for the non-COVID-19 HCWs for the forecast period. The non-COVID-19 HCWs include HCWs not directly associated with the COVID-19 response, which includes dentists, midwives, and pharmacists, amongst others. The default value for number of days HCWs work in one week is set to five, and the default value for the length of forecast is 12 weeks. 
+
+The amounts all follow the same calculation:
+
+$$
+ \text{Amount} = 
+   \left\{\begin{array}{lr}
+       n_{\text{HCW}} * amount_{HCW/day}*n_{days/week}*L_{forecast}, & \text{Reusable} = False\\
+       n_{\text{HCW}}, & \text{Reusable} = True  
+    \end{array}\right.
+$$
+
+If the item is reusable, the total amount of the item required is equal to the number of HCWs (per category). Here the effective assumption is that even if a HCW required less than a 1 of the item, the need is equal to 1 item per HCW for the whole period. If the item is not reusable, the total amount required is the number of HCWs in that category multiplied by the amount required per day for that HCW multiplied by the number of days in the week they work, multiplied by the length of the forecast in weeks.
+
+1.  *item*
+
+Item name.
+
+2.  *amount_noncovid_doctors*
+
+Total amount for non-COVID-19 doctors.
+
+$$
+ Amount_{docs} = 
+   \left\{\begin{array}{lr}
+       n_{\text{docs}} * amount_{doc/day}*n_{days/week}*L_{forecast}, & \text{Reusable} = False\\
+       n_{\text{docs}}, & \text{Reusable} = True  
+    \end{array}\right.
+$$
+
+3.  *amount_noncovid_nurses*
+
+Total amount for non-COVID-19 nurses (same equation as above).
+
+4.  *amount_noncovid_lab_techs*
+
+Total amount for non-COVID-19 laboratory technicians (same equation as above).
+
+5.  *amount_midwives*
+
+Total amount for midwives (same equation as above).
+
+6.  *amount_dentists*
+
+Total amount for dentists (same equation as above).
+
+7.  *amount_physios*
+
+Total amount for physiotherapists (same equation as above).
+
+8.  *amount_trad_comp_meds*
+
+Total amount for traditional and complementary medical personnel (same equation as above).
+
+9.  *amount_chws*
+
+Total amount for community health workers (same equation as above).
+
+10.  *amount_pharmacists*
+
+Total amount for pharmacists (same equation as above).
+
+## Pharmaceuticals
+
+```{r pharma}
+data(pharmaceuticals, package="esft")
+# Case counts and pharmaceutical recommendations are used to forecast total
+# pharmaceutical needs for the period at hand.
+pharma <- pharma_forecast(pharmaceuticals, 
+                          cases)
+```
+
+### Outputs
+
+1.   *drug*
+
+Name of drug. Can match with the pharmaceuticals dataset to extract more details on the drug, such as concentration, formulation,  units, price, etc.
+
+The following calculations go as follows:
+
+$$
+Total_{drugform} = Cases_{new}*Form_{course}*p_{treated}
+$$
+
+Total drug form per severity category is equal to the new cases within that category (i.e. moderate cases) multiplied by the drug form per course for that severity multiplied by the percent of those cases treated.
+
+2.   *total_drug_form_all_mild_treated*
+
+Total drug form needed for all mild patients.
+
+$$
+Total_{drugform-mild} = Cases_{mild}*Form_{course-mild}*p_{mild-treated}
+$$
+
+3.   *total_drug_form_all_mod_treated*
+
+Total drug form needed for all moderate patients (same equation as above).
+
+4.   *total_drug_form_all_severe_treated*
+
+Total drug form needed for all severe patients (same equation as above).
+
+5.   *total_drug_form_all_crit_treated*
+
+Total drug form needed for all critical patients (same equation as above).
+
+## Hygiene
+
+```{r hygiene}
+data(equipment, package="esft")
+
+# Weekly summary outputs and the WHO recommendations are used to forecast the
+# total hygiene equipment need each week during the forecast period.
+hygiene <- hygiene_forecast(equipment, 
+                            hcws, 
+                            patients, 
+                            cases, 
+                            tests,
+                            screening_hcws, 
+                            params)
+
+head(hygiene)
+```
+
+### Outputs
+
+For the amounts calculated in this forecast, the first step that is done is that the amount per person is calculated by a reusable multiplier. If the item is reusable, the amount per person per day is multiplied by 1, if it is not reusable, it is multiplied by 7 (which I assume is days in a week). 
+
+Therefore, for example, the `amount_per_inpatient_hcw_per_day` for a reusable item would stay the same as it was in the equipment data (as it is multiplied by one), and thus would theoretically last the week. If it is not reusable, the `amount_per_inpatient_hcw_per_day` would be seven times the original `amount_per_inpatient_hcw_per_day`.
+
+1.   *category*
+
+Category of item (in this case, Hygiene).
+
+2.   *week_begins*
+
+Date that the week begins, inclusive ($t_{0}$).
+
+3.   *week_ends*
+
+Date that the week ends, inclusive ($t_{n}$).
+ 
+4.   *item*
+
+Item name.
+
+5.   *unit*
+
+Unit of the amounts.
+
+6.   *total_amount*
+
+Sum of all the following columns, or the total amount required of the item in the units specified in the week specified.
+
+7.   *amount_inpatient_hcw*
+
+Total amount required for inpatient HCWs for the week specified. Equal to the sum of the different HCWs for inpatients and the amounts required per type of HCW per day.
+
+$$
+\begin{align*}
+Amount_{Inpatient-HCW} = \text{Capped Inpatient HCW}*Amount_{Inpatient-HCW-Day} + \\
+\text{Capped Inpatient Cleaners}*Amount_{Inpatient-Cleaner-Day} +\\
+\text{Unapped Informal Inpatient Caregivers}*Amount_{Inpatient-Caregivers-Day} +\\
+\text{Capped Inpatient Ambulance Personnel}*Amount_{Inpatient-Ambulance-Day} + \\
+\text{Capped Inpatient Bio Eng}*Amount_{Inpatient-BioEng-Day}
+\end{align*}
+$$
+ 
+8.   *amount_inpatient_patient*
+
+Amount per inpatient patient is the sum of all of the beds in use multiplied by their respective amounts per patient type per day. Totals, severe, and critical are summed and split without double counting as the contents of the input parameters are mutually exclusive.
+
+$$
+\begin{align*}
+Amount_{Inpatient-Patient} = Beds_{total}*Amount_{Inpatient-Sev-Crit-Day} + \\
+Beds_{severe}*Amount_{Inpatient-Sev-Day} +\\
+Beds_{critical}*Amount_{Inpatient-Crit-Day} 
+\end{align*}
+$$
+
+9.   *amount_isolation*
+
+The amount for those involved in isolation depends on whether or not the items are reusable. If they are reusable, they follow the following equation:
+
+$$
+\begin{align*}
+  \text{If Reusable} = True \\
+ Amount_{isolation} = \text{Uncap. Inf. Caregivers}_{isolation}*stay_{mild} + Tests_{mild}*stay_{mild} + \\
+       Tests_{moderate}*stay_{moderate}
+\end{align*}
+$$
+If the item is not reusable, the amounts are calculated using a similar equation as above with the inclusion of amount per informal caregiver or isolating patient per day.
+
+$$
+\begin{align*}
+  \text{If Reusable} = False \\
+ Amount_{isolation} = \text{Uncap. Inf. Caregivers}_{isolation}*stay_{mild}*Amount_{Inf-Caregiver-Day} + \\
+       Tests_{mild}*stay_{mild}*Amount_{Isol-Patient-Day} + \\
+       Tests_{moderate}*stay_{moderate}*Amount_{Isol-Patient-Day}
+\end{align*}
+$$
+
+10.   *amount_screening*
+
+The amount per screening HCWs calculation has nested if statements. The first condition is whether or not the item is reusable.
+
+If the item is _reusable_, then these steps are followed:
+
+$$
+\begin{align*}
+ Amount_{screening-HCW} = 
+   \left\{\begin{array}{lr}
+       \text{Capped HCW}_{screening}, Amount_{screening-HCW-day} > 0 \\
+       0 
+    \end{array}\right.
+\\
+ Amount_{screening-patient} = 
+   \left\{\begin{array}{lr}
+       Tests_{mild} + Tests_{moderate}, Amount_{screening-patient-day} > 0 \\
+       0 
+    \end{array}\right.
+\\
+Amount_{screening} = Amount_{screening-HCW}+Amount_{screening-patient}
+\end{align*}
+$$
+
+If the item is _nonreusable_, the following calculations are executed:
+
+$$
+Amount_{screening} =\text{Capped HCW}_{screening}*Amount_{screening-HCW-day}+\\
+Tests_{moderate}*Amount_{screening-patient-day}*stay_{moderate}+\\
+Tests_{mild}*Amount_{screening-patient-day}*stay_{mild}
+$$
+
+11.   *amount_lab*
+
+The amount for labs follows a similar logic as the calculation above.
+
+If the item is _reusable_, then these steps are followed:
+
+$$
+\begin{align*}
+Amount_{lab-staff} = 
+   \left\{\begin{array}{lr}
+       \text{Capped Lab Staff}, Amount_{lab-tech-day} > 0 \\
+       0 
+    \end{array}\right.
+\\
+ Amount_{lab-cleaner} = 
+   \left\{\begin{array}{lr}
+       \text{Total Cleaners Lab}, Amount_{lab-cleaner-day} > 0 \\
+       0 
+    \end{array}\right.
+\\
+Amount_{lab} = Amount_{lab-staff}+Amount_{lab-cleaner}
+\end{align*}
+$$
+
+If the item is _nonreusable_, the following calculations are executed:
+
+$$
+Amount_{lab} =\text{Capped Lab Staff}* Amount_{lab-tech-day}+\\
+\text{Total Cleaners Lab}*Amount_{lab-cleaner-day}
+$$
+
+## Case Management
+
+```{r case_management}
+data(equipment, package="esft")
+# Patient counts and WHO recommendations are used to forecast case
+# management equipment need each week during the forecast period.
+case_management <- case_management_forecast(equipment, 
+                                            patients)
+
+head(case_management)
+```
+
+### Outputs
+
+1.   *category*
+
+Category of item (in this case, Case Management).
+
+2.   *week_begins*
+
+Date that the week begins, inclusive ($t_{0}$).
+
+3.   *week_ends*
+
+Date that the week ends, inclusive ($t_{n}$).
+ 
+4.   *item*
+
+Item name.
+
+5.   *unit*
+
+Unit of the amounts.
+
+6.   *total_amount*
+
+Sum of all the following columns, or the total amount required of the item in the units specified in the week specified.
+
+The following columns follow the same process, and so will be outlined together. These columns are totals per type of patient.
+
+7.   *amount_sev_patient*
+8.   *amount_crit_patient*
+9.   *amount_sev_crit_patient*
+
+The first step is to calculate the demand per type of patient:
+
+$$
+Demand_{severity} = \text{Admitted Capped Cases}_{severity}*Amount_{inpatient-patient-day} + Beds_{severity}*Amount_{inpatient-bed-day}
+$$
+We then **round up** the demand (per severe, critical, or severe and critical) patient up to equal the amount per severe, critical, or severe and critical patient in the first week of our forecast.
+
+$$
+Amount_{week1} = ceil(Demand)
+$$
+
+Then the amounts are computed on a row by row basis (and the amount for week 1 is left as it is).
+
+First, if the item is reusable, the sum of the amounts up to the week previous (n-1) are calculated
+
+$$
+Sum_{amounts} = \sum_{t_{1}}^{t_{n-1}}Amounts_{patients}
+$$
+
+If the current week's demand ($Demand_{t=n}$) is already met by this sum, then the current week's (week n) amount is set to 0.
+
+I.e.:
+$$
+Amount_{t=n} = max(Demand_{t=n} - Sum_{amounts},0)
+$$
+If the item is not reusable, the amount for the current week (t=n) is set to the rounded up demand for that week.
+
+$$
+Amount_{t=n} = ceil(Demand_{t=n})
+$$
+This is fed back into the dataframe, and the row wise operations continue.
+
+## PPE
+
+```{r ppe}
+data(equipment, package="esft")
+
+# Weekly summary outputs and WHO recommendations are used to forecast total PPE
+# demand each week during the forecast period.
+ppe <- ppe_forecast(equipment, 
+                    hcws, 
+                    patients, 
+                    cases, 
+                    tests,
+                    screening_hcws,
+                    params)
+
+head(ppe)
+```
+
+### Outputs
+
+For the amounts calculated in this forecast, the first step that is done is that the amount per person is calculated by a reusable multiplier. If the item is reusable, the amount per person per day is multiplied by 1, if it is not reusable, it is multiplied by 7 (which I assume is days in a week). Furthermore, for the nested if statements when the items are reusable (specifically for `amount_isolation`, `amount_lab`, `amount_screening`, and `amount_inpatient_hcw`) - if the condition is not satisfied, the sub-term is equal to zero. 
+
+1.   *category*
+
+Category of item (in this case, PPE).
+
+2.   *week_begins*
+
+Date that the week begins, inclusive ($t_{0}$).
+
+3.   *week_ends*
+
+Date that the week ends, inclusive ($t_{n}$).
+ 
+4.   *item*
+
+Item name.
+
+5.   *unit*
+
+Unit of the amounts.
+
+6.   *total_amount*
+
+Sum of all the following columns, or the total amount required of the item in the units specified in the week specified.
+ 
+7.   *amount_inpatient_hcw*
+
+If the item is reusable, this term is equal to the sum of the following terms; if the amount per inpatient HCW per day is more than zero, the number of capped inpatient HCWs; if the amount per inpatient cleaner per day is more than zero, the number of capped inpatient cleaners; if the amount per inpatient informal caregiver per day is more than zero, the number of uncapped informal caregivers in hospital; if the amount per inpatient ambulance worker per day is more than zero, the number of capped inpatient ambulance personnel; and, if the amount per inpatient biomedical engineer per day is more than zero, the number of capped inpatient biomedical engineers.
+
+$$
+\begin{align*}
+Amount_{inpatient-hcw} = 
+   \left\{\begin{array}{lr}
+       \text{Capped HCW}_{inpatient}, Amount_{inpatient-hcw-day} > 0 \\
+       0 
+    \end{array}\right.
+\\
+ Amount_{inpatient-cleaner} = 
+   \left\{\begin{array}{lr}
+       \text{Capped Cleaner}_{inpatient}, Amount_{inpatient-cleaner-day} > 0 \\
+       0 
+    \end{array}\right.
+\\
+Amount_{inpatient-caregiver} = 
+   \left\{\begin{array}{lr}
+       \text{Uncapped Informal Caregivers}, Amount_{inpatient-care-day} > 0 \\
+       0 
+    \end{array}\right.
+\\
+Amount_{inpatient-amb} = 
+   \left\{\begin{array}{lr}
+       \text{Capped Ambulance Personnel}_{inpatient}, Amount_{inpatient-amb-day} > 0 \\
+       0 
+    \end{array}\right.
+\\
+Amount_{inpatient-bio} = 
+   \left\{\begin{array}{lr}
+       \text{Capped Bio Eng}_{inpatient}, Amount_{inpatient-bio-day} > 0 \\
+       0 
+    \end{array}\right.
+\\
+Amount_{inpatient-hcws} = Amount_{inpatient-hcw}+Amount_{inpatient-cleaner}
+ + \\
+Amount_{inpatient-caregiver} + Amount_{inpatient-amb} + \\
+Amount_{inpatient-bio}
+\end{align*}
+$$
+
+If the item is not reusable, this term is equal to the sum of the following terms: the number of capped inpatient HCWs multiplied by the amount per inpatient HCW per day, the number of capped inpatient cleaners multiplied by the amount per inpatient cleaner per day, and the number of uncapped informal caregivers in hospital multiplied by the amount per informal caregiver per day, the number of capped inpatient ambulance personnel multiplied by the amount per inpatient ambulance worker per day, and the number of capped inpatient biomedical engineers multiplied by the amount per inpatient biomedical engineer per day.
+
+$$
+\begin{align*}
+Amount_{inpatient-hcws} = \text{Capped HCW}_{inpatient}*Amount_{inpatient-hcw-day}+\\
+       \text{Capped Cleaner}_{inpatient}*Amount_{inpatient-cleaner-day} + \\
+       \text{Uncapped Informal Caregivers}*Amount_{inpatient-care-day} + \\
+       \text{Capped Ambulance Personnel}_{inpatient}*Amount_{inpatient-amb-day} + \\
+       \text{Capped Bio Eng}_{inpatient}*Amount_{inpatient-bio-day}
+\end{align*}
+$$
+
+
+8.   *amount_inpatient_patient*
+ 
+This calculation does not depend on reusability. Instead, it is equal to the sum of the following terms: the number of total beds in use multiplied by the amount per inpatient severe or critical patient per day, the number of severe beds in use multiplied by the amount per inpatient severe patient per day, and the number of critical beds in use multiplied by the amount per inpatient critical patient per day.
+
+$$
+\begin{align*}
+Amount_{inpatient-patient} = Beds_{total}*Amount_{inpatient-sev/crit-patient-day}+\\
+       Beds_{severe}*Amount_{sev-patient-day} + \\
+       Beds_{critical}*Amount_{crit-patient-day}
+\end{align*}
+$$
+
+9.   *amount_isolation*
+
+If the item is reusable, the amount is equal to the sum of the following terms; if the amount per informal caregiver for isolating patients per day is more than zero, the number of uncapped informal caregivers for isolation; and, if the amount per isolating patient per day is more than zero, the number of mild tests plus the number of moderate tests.
+
+$$
+\begin{align*}
+Amount_{isol-care} = 
+   \left\{\begin{array}{lr}
+       \text{Uncapped Informal Caregiver}, Amount_{isol-caregiver-day} > 0 \\
+       0 
+    \end{array}\right.
+\\
+ Amount_{isol-patient} = 
+   \left\{\begin{array}{lr}
+       Tests_{mild} + Tests_{moderate}, Amount_{isol-patient-day} > 0 \\
+       0 
+    \end{array}\right.
+\\
+Amount_{isol} = Amount_{isol-care}+Amount_{isol-patient}
+\end{align*}
+$$
+
+If the item is not reusable, the amount is equal to the sum of the following terms: the number of uncapped informal caregivers for patients in isolation multiplied by the amount per informal caregiver for isolation per day multiplied by the length of stay for mild patients in weeks, the number of tests for mild cases multiplied by the length of stay for mild cases in weeks and amount per isolating patient per day, and the number of tests for moderate cases multiplied by the length of stay for moderate cases in weeks and amount per isolating patient per day. 
+
+$$
+\begin{align*}
+Amount_{isol} = \text{Uncapped Informal Caregiver}*Amount_{isol-caregiver-day}*stay_{mild} + \\
+       Tests_{mild}*Amount_{isol-patient-day}*stay_{mild} +\\ Tests_{moderate}*Amount_{isol-patient-day}*stay_{moderate}\\
+\end{align*}
+$$
+
+10.   *amount_screening*
+
+If the item is reusable, the amount is equal to the sum of the following terms: if the amount per screening HCW per day is more than zero, the number of capped screening HCW; and if the amount per screening patient per day is more than zero, the sum of the tests for moderate and mild cases.
+
+$$
+\begin{align*}
+Amount_{screening-hcw} = 
+   \left\{\begin{array}{lr}
+       \text{Capped HCW}_{screening}, Amount_{screening-hcw-day} > 0 \\
+       0 
+    \end{array}\right.
+\\
+ Amount_{screening-patient} = 
+   \left\{\begin{array}{lr}
+       Tests_{mild} + Tests_{moderate}, Amount_{screening-patient-day} > 0 \\
+       0 
+    \end{array}\right.
+\\
+Amount_{screening} = Amount_{screening-hcw}+Amount_{screening-patient}
+\end{align*}
+$$
+
+
+If the item is not reusable, the amount is equal to the sum of the following terms: the number of capped screening HCWs multiplied by the amount per screening HCW per day, tests for moderate cases multiplied by the amount per screening patient per day multiplied by the length of stay for moderate cases in weeks, and tests for mild cases multiplied by the amount per screening patient per day multiplied by the length of stay for mild cases in weeks.
+
+
+$$
+\begin{align*}
+Amount_{screening} = \text{Capped HCW}_{screening}*Amount_{screening-hcw-day}+ \\
+      Tests_{moderate}*Amount_{screening-patient-day}*stay_{moderate} + \\
+       Tests_{mild}*Amount_{screening-patient-day}*stay_{mild}
+\end{align*}
+$$
+11.   *amount_lab*
+
+If the item is reusable, the amount is equal to the sum of the following terms: if the amount per lab tech per day is more than zero, it is the number of capped lab staff; and if the amount per lab cleaner per day is more than zero, it is the number of cleaners per lab.
+
+$$
+\begin{align*}
+Amount_{lab-staff} = 
+   \left\{\begin{array}{lr}
+       \text{Capped Lab Staff}, Amount_{lab-tech-day} > 0 \\
+       0 
+    \end{array}\right.
+\\
+ Amount_{lab-cleaner} = 
+   \left\{\begin{array}{lr}
+       \text{Total Cleaners Lab}, Amount_{lab-cleaner-day} > 0 \\
+       0 
+    \end{array}\right.
+\\
+Amount_{lab} = Amount_{lab-staff}+Amount_{lab-cleaner}
+\end{align*}
+$$
+
+If the item is not reusable, the amount is equal to the sum of the following terms: the number of capped lab staff multiplied by the amount per lab tech per day and the number of cleaners for labs multiplied by the amount per lab cleaner per day.
+
+$$
+\begin{align*}
+Amount_{lab} = \text{Capped Lab Staff}*Amount_{lab-tech-day}+ \\
+      \text{Total Cleaners Lab}*Amount_{lab-cleaner-day} 
+\end{align*}
+$$
+
+## Diagnostic Supplies
+
+```{r diagnostics}
+data(equipment, package="esft")
+
+# Testing outputs and WHO recommendations are used to forecast total diagnostic
+# supply need each week during the forecast period.
+diagnostic_supplies <- diagnostics_forecast(lab_params, 
+                                            equipment, 
+                                            test_ratios,
+                                            n_tests, 
+                                            patients)
+
+head(diagnostic_supplies)
+```
+
+### Outputs
+
+1.   *category*
+
+Category of item (in this case, Diagnostics).
+
+2.   *week_begins*
+
+Date that the week begins, inclusive ($t_{0}$).
+
+3.   *week_ends*
+
+Date that the week ends, inclusive ($t_{n}$).
+ 
+4.   *item*
+
+Item name.
+
+5.   *unit*
+
+Unit of the amounts.
+
+6.   *total_amount*
+>>>>>>> Stashed changes
+
+The calculation for the total amounts is done stepwise on an item by item basis. 
+
+The first step is calculating the amounts for all items, without assuming anything about reusability:
+
+* Test kit - manual PCR (complete kit) - total capped tests multiplied by the test ratio for manual type tests, divided by the difference between 100 and the percent wastage of manual test kits multiplied by the number of tests in a manual test kit.
+
+$$
+Amount_{total} = \frac{\text{Capped Tests}_{total}*Ratio_{manual}}{100 - (p_{manual-wastage}*n_{tests-per-manual-kit})}
+$$
+
+* Triple packaging boxes - Number of hospital facilities in use multiplied by number of triple packaging boxes per unit.
+
+$$
+Amount_{total} = n_{hospital-facilities}*n_{boxes-per-hospital-unit}
+$$
+
+* Swab and Viral transport medium - Equals the total capped tests.
+
+$$
+Amount_{total} = \text{Capped Tests}_{total}
+$$
+
+* Test kits - high-throughput PCR (complete kit) - total capped tests multiplied by the ratio of high-throughput tests.
+
+$$
+Amount_{total} = \text{Capped Tests}_{total}*Ratio_{high-throughput}
+$$
+
+* For near patient PCR machine - RT-PCR cartridge - total capped tests multiplied by the ratio of near patient tests.
+
+$$
+Amount_{total} = \text{Capped Tests}_{total}*Ratio_{near-patient}
+$$
+
+* Antigen Rapid Diagnostic Tests - total capped tests multiplied by the ratio of antigen tests.
+
+$$
+Amount_{total} = \text{Capped Tests}_{total}*Ratio_{antigen}
+$$
+
+The amounts above do not change if the item is not reusable. However, if the item is reusable, this is changed through the following procedure:
+
+1. The results are ordered by item and date
+2. The results are split by item, and iterated over by row
+3. The nth row value is stored in a separate variable, `amount_nonreusable` (this in essence is equal to a theoretical demand)
+4. If the item is reusable, the sum of what was donated so far (up to n-1) is calculated, `sum_sofar`, if not reusable than the total amount is unaltered for that item
+
+$$
+Reusable = True\\
+Sum_{so-far} = \sum_{1}^{n-1}{Amount}_{total}
+$$
+
+5. For the reusable item, if what was forecasted/supplied so far (`sum_sofar`) is greater than what is required for that week (`total_amount[n]` or `amount_nonreusable`), then the new forecast is set to zero. Else, the new forecast is set to the different between `amount_nonreusable` and `sum_sofar` to make up the difference.
+
+$$
+\text{Let } Amount_{non-reusable} = Amount_{total}\text{ at } t=n \\
+\text{(New) }Amount_{total} = 
+   \left\{\begin{array}{lr}
+       0, & Sum_{so-far} > Amount_{non-reusable}  \\
+       Amount_{non-reusable} - Sum_{so-far}
+    \end{array}\right.
+$$
+
+6. The steps 3-5 are repeated for each row, and for each item.
