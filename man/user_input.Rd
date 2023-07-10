@@ -18,8 +18,7 @@ captured through other parameter-setting functions.
 Plus, there are no checks of type in this function, nor is it entirely clear
 where this leads into. So there's a potential to get rid of this one or
 consolidate it with another.
-}
-\details{
+
 User Input Parameters:
 \itemize{
 \item{forecast_period}{ - weeks from start date that you want to forecast

@@ -1,0 +1,192 @@
+---
+title: "Capacity and Parameters"
+author: "Ines Gerard-Ursin"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Capacity and Parameters}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(esft)
+```
+**FLAG** - DATE SUBSETTING
+
+Here we will go into greater details on the user input defaults, the parameters, and the capacity calculations.
+
+## User Input
+
+```{r userinput}
+user <- user_input()
+
+# we set the country to be afghanistan
+country <- "AFG"
+```
+
+User input contains three parameters:
+
+* forecast_period - which is the length of time we are forecasting for, in weeks. The default is 12 weeks.
+* delivery_leadtime - this is the lead time between forecast and impacted delivery. This only impacts calculations of the amounts in the first week in the ESFT sheet, and is not used in our calculations. Default is 0.
+* week1 - this is one of the dates included in week 1 of our forecast. The default is "2022-01-01". I guess this should not be named like this. In the end everything is later than this - because this ends up being one of the dates in week 1 (because it's subset by week_end > date) and then patients needs that to get the correct patient count, but the correct patients weekly doesnt show up until the second week of that one
+* scenario - default is medium transmission, with an R(0) number or R(eff) number of 0.94. This signifies no change, or keeping the status quo of transmission. Other options include "Low", with an R(0) or R(eff) of 0.47, which simulates a 50 percent decrease in transmission, or "High", with an R(0) or R(eff) of 1.41, which simulates a 50 percent increase in transmission.
+
+## Parameter Setting
+
+```{r params}
+# This is the standard list of all parameters, many from inputs tab of excel sheet
+params <- get_parameters()
+
+```
+
+Case Severity Distributions:
+
+* mild_i_proportion - proportion of cases that are mild, considered to be isolating to reduce onward transmission; default = 0.4
+* mod_i_proportion - proportion of cases that are moderate, considered to be isolating to minimize onward transmission; default = 0.4
+* sev_i_proportion - proportion of cases that are severe, depending on severe bed availability, are admitted to hospital and require oxygen; default = 0.15
+* crit_i_proportion - proportion of cases that are critical, depending on critical bed availability, admitted to hospital and require ventilation; default = 0.05
+
+Weeks of Stay in Isolation (WHO recommendation based on incubation period of COVID-19 and case management guidelines):
+
+* stay_mild - average length of stay (in weeks) of mild cases in isolation; default = 2
+* stay_mod - average length of stay (in weeks) of moderate cases in isolation; default = 2
+
+Weeks of Stay in Hospital (based on studies of case severity):
+
+* stay_sev - average length of stay (in weeks) of severe cases in hospital; default = 1
+* stay_crit - average length of stay (in weeks) of critical cases in hospital; default = 2
+
+Infection Fatality Rates (note: could be updated based on newer research):
+
+* ifr_sev - infection fatality rate of severe cases, based on WHO China Joint Mission Report; default = 0.134
+* ifr_crit - infection fatality rate of critical cases, based on Imperial College Report nr. 9; default = 0.5
+
+Miscellaneous Parameters:
+
+* perc_hcws_not_covid - assumption of percentage of HCWs not working on COVID; default = 0.4
+* n_hosp_beds_per_care_unit - assumption, used to estimate triple packaging boxes (might not be necessary); default = 40
+
+Healthcare Workers per Bed or Patient:
+
+* ambulancews_per_bed - ambulance personnel ratio assumes 1 ambulance per 100 bed hospital with 2 operators (paramedic + driver) at all times (3x8 hour shifts) so 6/100 beds; default = 0.06
+* bioengs_per_bed - biomedical engineer ratio assumes 2 biomedical engineers (on 8-hour shifts) per 100 bed hospital; default = 0.02
+* n_inf_caregivers_hosp - reference assumption of zero is based on current guidance that no family members or other caretakers should be in hospitals; default = 0
+* n_inf_caregivers_isol - reference is based on management of home care guidance, with estimates of 1 caregiver per patient for the duration of the roughly 2-week isolation - his calculation estimates the quantity of PPE required (e.g., masks and gloves) for the patient and caregiver; default = 1
+
+Percent of Critical Patients that are Mechanically Ventilated:
+
+* perc_crit_inv_mv - WHO recommendation; default = 0.667
+* perc_crit_noninv_mv - WHO recommendation; default = 0.333
+
+Oxygen Flow by Case Severity, in LPM:
+
+* o2_flow_sev - severe patients require 5-15 LPM, so median taken; default = 10
+* o2_flow_crit_inv_mv - critical patients with invasive mechanical ventilation; default = 30
+* o2_flow_crit_noninv_mv - critical patients with non-invasive mechanical ventilation; default = 30
+
+## Testing Strategy
+
+```{r test_strat}
+# Testing strategy parameters - population level testing parameters (i.e. percent
+# tested)
+test_strat <- set_testing_strategy()
+```
+
+Testing Strategies (there are two choices, input as string values):
+
+* all - all cases that present, regardless of severity, using standard number of negatives per positive test
+* targeted - restricted testing of mild/moderate presenting cases may be employed if limited tests available. all required severe and critical cases will still be tested. if selected, only the percent of suspected/mild/moderate cases input here will be tested (typically high-risk patients)
+
+Testing Parameters (the rest of the testing strategy parameters, some of which depend on the testing strategy chosen):
+
+* perc_tested_sev_crit - percent of severe or critical cases tested, always 100%; default = 1
+* num_neg_per_pos_test - estimated average number of negative tests per positive test; default = 10
+* tests_per_hcw_per_week - tests per HCW or staff member per week. Includes tests for inpatient HCW, screening/triage HCW, ambulance personnel, cleaners, lab techs, and biomedical engineers. input can also be 0 (for no tests) or a decimal (e.g. 0.5, to represent tests every other week); default = 1
+* testing_contacts - is testing done for contacts of positive cases; default = TRUE
+* avg_contacts_pos_case - average number of contacts per positive case. Suggested options are 5 (High/Strong, e.g. stay at home regulations), 10 (Medium/Weak social distancing, e.g. travel restrictions), 15 (Low/No social distancing, e.g. advice only); default = 10
+* perc_contacts_tested - percent of contacts of a positive case who get tested; default = 0.6
+
+## Diagnostic Parameters
+
+```{r diagnostic_params}
+# Diagnostic parameters - individual level testing parameters (i.e. number of tests
+# per case per diagnosis, etc.)
+test_params <- get_diagnostic_parameters()
+
+```
+
+Total tests and percent antigen:
+
+* total_tests_mild_mod - total tests, used for diagnosis only; default = 1
+* total_tests_sev_crit - total tests, used for diagnosis and release; default = 2
+* perc_antigen_tests - percent testing done in hospital via antigen testing, max 80 percent; default = 20 percent
+* tests_diagnosis_mild_mod - the number of tests for diagnosis for mild or moderate cases; default = 1
+* tests_diagnosis_sev_crit - the number of tests for diagnosis for severe or critical cases; default = 1
+* tests_release_mild_mod - the number of tests for release for mild or moderate cases; default = 0
+* tests_release_sev_crit - the number of tests for release for severe or critical cases; default = 1
+
+## Lab Parameters
+
+```{r lab_params}
+# Diagnostic lab parameters - number of lab staff per lab, safety boxes per unit,
+# etc.
+lab_params <- get_lab_parameters()
+```
+
+Requirements per Lab:
+
+* lab_staff_per_lab - multiplier that helps estimate lab staff equipment requirements; default = 3
+* hygienists_per_lab - multiplier that helps estimate lab hygienist/cleaner equipment requirements; default = 3
+* safety_boxes_per_unit_week - WHO recommendation for safe sharp disposal; default = 8
+* triple_packaging_per_unit - WHO recommendation for sample transport; default = 4
+* perc_wastage_manual_test_kits - percentage wastage, only of manual test kits; default = 10\%
+* num_tests_manual_test_kits - number of tests in an RT-PCR manual test kit; default = 100
+
+## Capacity Mapping
+
+```{r capacity}
+capacity <- get_country_capacity(iso3c = country)
+```
+
+## Test Capacity
+
+```{r test_capacity}
+country_test_capacity <- get_country_test_capacity(iso3c = country)
+```
+
+
+```{r diagnostic_cap}
+data(throughput, package = "esft")
+data(hours_per_shift, package = "esft")
+
+diagnostic_capacity <- calc_diagnostic_capacity(
+  country_diagnostic_capacity = country_test_capacity,
+  throughput,
+  hours_per_shift = hours_per_shift,
+  shifts_per_day = 1
+)
+```
+
+## Total Labs
+
+```{r total_labs}
+# Calculates the total labs available for COVID-19 given the diagnostic capacity
+# (number of modules and machines) available
+t_labs <- total_labs(diagnostic_capacity)
+```
+
+## Max Tests
+
+```{r max_tests}
+# Uses the country specific diagnostic capacity estimates to calculate the max
+# number of tests per day. This is then used to help cap tests by total testing
+# capacity in total_tests.
+max_tests <- max_tests_per_day(diagnostic_capacity)
+```

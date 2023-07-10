@@ -1,5 +1,9 @@
 #' @title User input
 #'
+#' @param overrides a named list of parameter values to use instead of defaults
+#' The parameters are defined below, and are taken from the default values of
+#' the ESFT.
+#'
 #' @description
 #' Given that these are just three - don't know if these are
 #' useful. Basically this is what is in the input/user dashboard tab that isn't
@@ -8,11 +12,6 @@
 #' where this leads into. So there's a potential to get rid of this one or
 #' consolidate it with another.
 #'
-#' @param overrides a named list of parameter values to use instead of defaults
-#' The parameters are defined below, and are taken from the default values of
-#' the ESFT.
-#'
-#' @details
 #' User Input Parameters:
 #' \itemize{
 #' \item{forecast_period}{ - weeks from start date that you want to forecast

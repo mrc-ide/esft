@@ -15,6 +15,14 @@
 #'  default = 2}
 #'  \item{perc_antigen_tests}{ - percent testing done in hospital via antigen
 #'  testing, max 80 percent; default = 20 percent}
+#'  \item{tests_diagnosis_mild_mod}{ - the number of tests for diagnosis for
+#'  mild or moderate cases; default = 1}
+#'  \item{tests_diagnosis_sev_crit}{ - the number of tests for diagnosis for
+#'  severe or critical cases; default = 1}
+#'  \item{tests_release_mild_mod}{ - the number of tests for release for mild or
+#'  moderate cases; default = 0}
+#'  \item{tests_release_sev_crit}{ - the number of tests for release for severe
+#'  or critical cases; default = 1}
 #' }
 #'
 #' @return List of diagnostic parameters.
