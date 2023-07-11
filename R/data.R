@@ -346,3 +346,12 @@
 #'   pharmacist per day.}
 #' }
 "noncovid"
+
+#' @title Capacity as translated to percent
+#'
+#' @format A data frame with 4 rows and 2 variables:
+#' \describe{
+#'   \item{capacity}{Capacity is string form}
+#'   \item{perc}{What the string translated to as percent}
+#' }
+"capacity_perc"
