@@ -31,7 +31,7 @@ user <- user_input()
 country <- "AFG"
 ```
 
-User input contains three parameters:
+User input contains four parameters:
 
 * forecast_period - which is the length of time we are forecasting for, in weeks. The default is 12 weeks.
 * delivery_leadtime - this is the lead time between forecast and impacted delivery. This only impacts calculations of the amounts in the first week in the ESFT sheet, and is not used in our calculations. Default is 0.
@@ -106,7 +106,7 @@ Testing Strategies (there are two choices, input as string values):
 
 Testing Parameters (the rest of the testing strategy parameters, some of which depend on the testing strategy chosen):
 
-* perc_tested_sev_crit - percent of severe or critical cases tested, always 100%; default = 1
+* perc_tested_sev_crit - percent of severe or critical cases tested, always 100\%; default = 1
 * num_neg_per_pos_test - estimated average number of negative tests per positive test; default = 10
 * tests_per_hcw_per_week - tests per HCW or staff member per week. Includes tests for inpatient HCW, screening/triage HCW, ambulance personnel, cleaners, lab techs, and biomedical engineers. input can also be 0 (for no tests) or a decimal (e.g. 0.5, to represent tests every other week); default = 1
 * testing_contacts - is testing done for contacts of positive cases; default = TRUE
@@ -155,12 +155,44 @@ Requirements per Lab:
 capacity <- get_country_capacity(iso3c = country)
 ```
 
-## Test Capacity
+Country-Specific Capacity Estimates:
+
+* country - country name, English
+* iso3c - country code, iso3c format
+* population - population estimate from the latest available data from the United Nations Development Programme, reported in 2020
+* yoy_growth - average year over year growth of country population, estimated from the change in growth in population between UNDP reported numbers in 2015 and 2020
+* income_group - World Bank income group
+* n_hcws - number of estimated HCWs. Combines latest available estimates of nurses (`Nursing personnel`) and doctors (`Medical doctors`) from WHO GHO with the estimates YoY growth from UNDP to yield estimates of nurses and doctors, the sum of which are the number of healthcare workers. If these are unavailable, uses a combination of income group averages and yoy growth.
+* n_labs - number of lab staff, estimated using the same method as the number of HCWs (codes: `Medical and Pathology Laboratory scientists` and `Medical and Pathology Laboratory Technicians`).
+* n_hosp_beds - estimated beds per country, calculated using similar procedure as above but with World Bank estimates of hospital beds per 1,000 people.
+* perc_beds_crit_covid - percent beds for ICU patients per country, estimated from World Bank/Imperial College Report
+* perc_beds_not_covid - percent beds not allocated to COVID, default = 0.4
+* perc_beds_sev_covid - percent beds allocated to severe COVID- cases, $1 - (\text{perc_beds_crit_covid} + \text{perc_beds_not_covid})$
+* beds_covid - number of hospital beds allocated to COVID $(\text{n_hosp_beds}* (1-\text{perc_beds_not_covid}))$
+* severe_beds_covid - number of severe beds allocated to COVID, $\text{n_hosp_beds}*\text{perc_beds_sev_covid}$
+* crit_beds_covid - number of critical beds allocated to COVID, $\text{n_hosp_beds}*\text{perc_beds_crit_covid}$
+
+## Testing Capacity
 
 ```{r test_capacity}
 country_test_capacity <- get_country_test_capacity(iso3c = country)
 ```
 
+This uses estimated provided by the WHO Operations, Supply and Logistics Team that are reviewed by diagnostics technical experts at the WHO to provide estimates of counts of various diagnostic processing machines in country.
+
+Types of machines in output:
+
+* roche_6800 - high throughput conventional platform
+* roche_8800 - high throughput conventional platform 
+* abbott_m2000 - high throughput conventional platform
+* hologic_panther - high throughput conventional platform 
+* hologic_panther_fusion - high throughput conventional platform 
+* genexpert - near-patient PCR machine modules (not platforms: here, one machine contains several modules)
+* manual - manual real-time PCR platform
+
+## Diagnostic Capacity
+
+The next function, called `calc_diagnostic_capacity`, takes these machine counts as inputs, in addition to data on their processing capability, hours per shift, and number of shifts per day to estimate the total test processing capability, what we term the diagnostic capacity.
 
 ```{r diagnostic_cap}
 data(throughput, package = "esft")
@@ -172,7 +204,26 @@ diagnostic_capacity <- calc_diagnostic_capacity(
   hours_per_shift = hours_per_shift,
   shifts_per_day = 1
 )
+
 ```
+
+Diagnostic (Total Test Processing) Capacity: 
+
+* shifts_day - these are the shifts per day specified in function call
+* platform_key - snake case version of the testing platform name
+* platform - platform name in plain english
+* type - type of diagnostics machine
+* days_week - days it operates per week
+* covid_capacity - capacity of test processing function dedicated to COVID-19
+* country_name - country for which this capacity is calculated
+* region - WHO region of that country
+* income_group - WB income group of that country
+* country_code - iso3c code of that country
+* modules_activated - number of total modules (a machine can have several modules) in active use in that country
+* hours - hours per shift
+* throughput_per_day - number of tests that can be processed by that machine per day (with day being specified by combining hours per shift, and shifts per day and cross referencing that with the throughput input data
+* total_test_capacity - this is the total number of tests that the different categories of machines can process in a week, depending on the days per week and the throughput per day ($Capacity_{test-total} = Modules_{activated}*Days_{week}*Throughput_{day}$).
+* covid_test_capacity - this is the total test capacity multiplied by the covid capacity - or the number of tests that can be run for COVID-19 on the different machines every week ($Capacity_{test-COVID} = Capacity_{test-total}*p_{covid-capacity}$)
 
 ## Total Labs
 
@@ -182,6 +233,17 @@ diagnostic_capacity <- calc_diagnostic_capacity(
 t_labs <- total_labs(diagnostic_capacity)
 ```
 
+This calculates the number of labs conducting COVID-19 testing, the reference value assumes 1 lab for every 3 high-throughput, manual or other platforms and 1 lab for every 4 GeneXpert modules.
+
+$$
+\begin{align*}
+Modules_{sum} = Modules_{roche-6800} + Modules_{roche-8800} + Modules_{abbott-m2000} +\\
+Modules_{hologic-panther}+Modules_{hologic-panther-fusion}+Modules_{manual}\\
+\\
+Labs_{total} = \frac{Modules_{sum}}{3} + \frac{Modules_{genexpert}}{4}
+\end{align*}
+$$
+
 ## Max Tests
 
 ```{r max_tests}
@@ -190,3 +252,5 @@ t_labs <- total_labs(diagnostic_capacity)
 # capacity in total_tests.
 max_tests <- max_tests_per_day(diagnostic_capacity)
 ```
+
+This calculates the total number of tests per week given covid test capacity, and divides by 7 to find the max number of tests per day (I am not certain that 7 is the correct way to calculate max tests - the machines are presumed to run for a pre-set number of days per week, so I am not sure why this would change here).

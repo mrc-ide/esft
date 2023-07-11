@@ -62,15 +62,14 @@ get_diagnostic_parameters <- function(overrides = list()) {
 
 #' @title Get diagnostic capacity
 #'
-#' @description Using country name or country code, return baseline estimates of
-#' diagnostic testing capacity provided in the WHO ESFT.
-#'
 #' @param iso3c Country code, in iso3c format.
 #' @param overrides a named list of parameter values to use instead of defaults.
 #' Notably might include hologic_panther_fusion counts. The values are described
 #' below and are taken from data provided in the ESFT.
 #'
-#' @details
+#' @description Using country name or country code, return baseline estimates of
+#' diagnostic testing capacity provided in the WHO ESFT.
+#'
 #' Counts of various machines in country:
 #' \itemize{
 #'  \item{roche_6800}{ - high throughput conventional platform}
