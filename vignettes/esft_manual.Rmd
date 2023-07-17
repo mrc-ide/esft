@@ -41,7 +41,11 @@ Here the user would specify the same items that are in the User Input tab of the
 
 2.  *Load data*
 
-Using the data loaded with the package, subset according to country name and transmission scenario.
+There are three options here: 
+
+* Using the data loaded with the package, subset according to country name and transmission scenario.
+* Downloading the data from GitHub, using the `load_imperial_data` function - although this is likely to be less sustainable in the long term, as we do not know how long the fits will be up
+* Downloading infections and deaths estimates from the WHO website. However, this will likely require a new cases_weekly function - to calculate the severe and critical cases from the WHO data instead of the ICL data.
 
 3.  *Parameter setting*
 

@@ -1,5 +1,5 @@
 #' Produce Weekly Summary of Patients
-#'
+#' **UPDATE DOCUMENTATION**
 #' @description This function corresponds to the calculations in the Weekly
 #' Summary tab under the headers 'Sick patients per week', 'Patients recovering
 #' (or dying) from illness, per week'. It takes in the model output plus the
@@ -43,6 +43,7 @@
 #' @param params From get_parameters
 #' @param country_capacity From get_country_capacity
 #' @param data Weekly summary dataframe - from cases_weekly
+#' @param data_source Either WHO or Imperial.
 #'
 #' @return Dataframe of weekly summary
 #' \describe{
@@ -86,33 +87,59 @@
 #' @export
 patients_weekly <- function(params,
                             country_capacity, # from get country capacity
-                            data) {
+                            data,
+                            data_source = "Imperial") {
   # add exists part here
   # the total bed capacity was calculated in the input excel sheet
   # basically here you take the min of the new cases by severity/num beds avail
   # and theoretically the control for time spent in bed (removal) should have
   # already been done
   params <- merge(params, country_capacity)
-  data <- data %>%
-    dplyr::mutate(
-      sev_patients_nocap = .data$hospital_demand,
-      crit_patients_nocap = .data$ICU_demand
-    )
-  # taken from cases weekly - maybe update here since admitted
-  data <- data %>%
-    dplyr::mutate(
-      cum_rem_mild_cases = data.table::shift(.data$cum_mild_cases,
-        n = params$stay_mild
-      ),
-      cum_rem_mod_cases = data.table::shift(.data$cum_mod_cases,
-        n = params$stay_mod
-      ),
-      # isnt this going to give a negative value?
-      cum_rem_severe_cases = .data$cum_severe_cases -
-        .data$sev_patients_nocap,
-      cum_rem_critical_cases = .data$cum_critical_cases -
-        .data$crit_patients_nocap
-    )
+
+  if (data_source == "Imperial") {
+    data <- data %>%
+      dplyr::mutate(
+        sev_patients_nocap = .data$hospital_demand,
+        crit_patients_nocap = .data$ICU_demand
+      )
+    # taken from cases weekly - maybe update here since admitted
+    data <- data %>%
+      dplyr::mutate(
+        cum_rem_mild_cases = data.table::shift(.data$cum_mild_cases,
+          n = params$stay_mild
+        ),
+        cum_rem_mod_cases = data.table::shift(.data$cum_mod_cases,
+          n = params$stay_mod
+        ),
+        # isnt this going to give a negative value?
+        cum_rem_severe_cases = .data$cum_severe_cases -
+          .data$sev_patients_nocap,
+        cum_rem_critical_cases = .data$cum_critical_cases -
+          .data$crit_patients_nocap
+      )
+  } else if (data_source == "WHO") {
+    data <- data %>%
+      dplyr::mutate(
+        cum_rem_mild_cases = data.table::shift(.data$cum_mild_cases,
+                                               n = params$stay_mild
+        ),
+        cum_rem_mod_cases = data.table::shift(.data$cum_mod_cases,
+                                              n = params$stay_mod
+        ),
+        cum_rem_severe_cases = data.table::shift(.data$cum_severe_cases,
+                                                  n = params$stay_sev
+        ),
+        cum_rem_critical_cases = data.table::shift(.data$cum_critical_cases,
+                                                   n = params$stay_crit
+        )
+      )
+    data <- data %>%
+      dplyr::mutate(
+        sev_patients_nocap = .data$cum_severe_cases - .data$cum_rem_severe_cases,
+        crit_patients_nocap = .data$cum_critical_cases -
+          .data$cum_rem_critical_cases
+      )
+  }
 
   data <- data %>%
     dplyr::mutate(

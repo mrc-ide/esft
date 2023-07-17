@@ -1,5 +1,5 @@
 #' Produce Weekly Summary of Cases
-#'
+#' **UPDATE OUTPUT DATAFRAME**
 #' @description Replicates the calculations in the 'Weekly Summary' tab of the
 #' ESFT. There are elements of these calculations, such as the assumption that
 #' hospital incidence = number of severe cases, that the ICL team does not make
@@ -11,8 +11,10 @@
 #' @param params Includes both estimates of beds and case severity proportions.
 #' @param capacity From get_country_capacity
 #' @param test_strategy_params From set_testing_strategy
-#' @param data Specific country fit data, from the imperial model fits
+#' @param data Specific country fit data, from the imperial model fits or from
+#' WHO data
 #' @param starting_date User specified string of starting date of weekly summary
+#' @param data_source Either WHO or Imperial.
 #'
 #' @return Dataframe of weekly summary
 #' \describe{
@@ -66,13 +68,12 @@
 cases_weekly <- function(params, # from get_parameters
                          capacity, # country capacity, from get_country_capacity
                          test_strategy_params, # from set_testing_strategy
-                         data, # imperial fit data
-                         starting_date = "2019-11-29") {
+                         data,
+                         starting_date = "2019-11-29",
+                         data_source = "Imperial") {
   params <- merge(params, capacity)
   params <- merge(params, test_strategy_params)
 
-  # add exists part here
-  data$date <- as.Date(data$date)
 
   if (!is.null(starting_date)) {
     starting_date <- as.Date(starting_date)
@@ -84,37 +85,62 @@ cases_weekly <- function(params, # from get_parameters
          the weekly summary.")
   }
 
-  data <- data %>%
-    dplyr::select(-c("death_calibrated"))
+  if (data_source == "Imperial") {
+    # add exists part here
+    data$date <- as.Date(data$date)
 
-  data <- data %>%
-    tidyr::pivot_wider(
-      names_from = "compartment",
-      values_from = "y_mean"
-    )
+    data <- data %>%
+      dplyr::select(-c("death_calibrated"))
 
-  data <- data %>%
-    dplyr::group_by(week_begins = cut(.data$date,
-      breaks = "week",
-      right = FALSE, include.lowest = T
-    )) %>%
-    dplyr::summarise(
-      week_ends = data.table::last(.data$date),
-      hospital_demand = max(.data$hospital_demand, na.rm = TRUE),
-      ICU_demand = max(.data$ICU_demand, na.rm = TRUE),
-      hospital_incidence = sum(.data$hospital_incidence, na.rm = TRUE),
-      ICU_incidence = sum(.data$ICU_incidence, na.rm = TRUE),
-      infections = sum(.data$infections, na.rm = TRUE),
-      cumulative_infections = data.table::last(.data$cumulative_infections)
-    )
+    data <- data %>%
+      tidyr::pivot_wider(
+        names_from = "compartment",
+        values_from = "y_mean"
+      )
 
-  data$week_begins <- as.Date(as.character(data$week_begins))
+    data <- data %>%
+      dplyr::group_by(week_begins = cut(.data$date,
+                                        breaks = "week",
+                                        right = FALSE, include.lowest = T
+      )) %>%
+      dplyr::summarise(
+        week_ends = data.table::last(.data$date),
+        hospital_demand = max(.data$hospital_demand, na.rm = TRUE),
+        ICU_demand = max(.data$ICU_demand, na.rm = TRUE),
+        hospital_incidence = sum(.data$hospital_incidence, na.rm = TRUE),
+        ICU_incidence = sum(.data$ICU_incidence, na.rm = TRUE),
+        infections = sum(.data$infections, na.rm = TRUE),
+        cumulative_infections = data.table::last(.data$cumulative_infections)
+      )
 
-  data <- data %>%
-    dplyr::mutate(
-      new_critical_cases = .data$ICU_incidence,
-      new_severe_cases = .data$hospital_incidence
-    )
+    data$week_begins <- as.Date(as.character(data$week_begins))
+
+    data <- data %>%
+      dplyr::mutate(
+        new_critical_cases = .data$ICU_incidence,
+        new_severe_cases = .data$hospital_incidence
+      )
+  } else if (data_source == "WHO") {
+    data$date <- as.Date(data$Date_reported)
+    data <- data %>% dplyr::select(-c("Date_reported"))
+    data <- data %>%
+      dplyr::group_by(week_begins = cut(.data$date,
+                                        breaks = "week",
+                                        right = FALSE, include.lowest = T
+      )) %>%
+      dplyr::summarise(
+        week_ends = data.table::last(.data$date),
+        cases = sum(.data$New_cases, na.rm = TRUE)
+      )
+
+    data$week_begins <- as.Date(as.character(data$week_begins))
+
+    data <- data %>%
+      dplyr::mutate(
+        new_critical_cases = .data$cases * params$crit_i_proportion,
+        new_severe_cases = .data$cases * params$sev_i_proportion
+      )
+  }
 
   data <- data %>%
     dplyr::mutate(
@@ -130,8 +156,8 @@ cases_weekly <- function(params, # from get_parameters
 
   data <- data %>%
     dplyr::mutate(
-      cum_critical_cases = cumsum(.data$ICU_incidence),
-      cum_severe_cases = cumsum(.data$hospital_incidence),
+      cum_critical_cases = cumsum(.data$new_critical_cases),
+      cum_severe_cases = cumsum(.data$new_severe_cases),
       cum_mod_cases = cumsum(.data$new_mod_cases),
       cum_mild_cases = cumsum(.data$new_mild_cases)
     )
