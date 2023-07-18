@@ -185,13 +185,14 @@ mydata <- load_imperial_data(country_code = country)
 cases <- cases_weekly(params,
   capacity,
   test_strategy_params = test_strat,
-  data = mydata
+  data = mydata,
+  user = user
 )
 
 # Cases are calculated first, and then must be subset by date.
 # This is because patients calculations are dependent on previous occupancy -
 # and so discharge and occupancy will be off if included
-cases <- subset(cases, cases$week_ends > as.Date("2022-01-01"))
+cases <- subset(cases, cases$week_ends > (as.Date("2022-01-03")-7))
 
 head(cases)
 

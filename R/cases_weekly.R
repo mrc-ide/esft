@@ -13,8 +13,8 @@
 #' @param test_strategy_params From set_testing_strategy
 #' @param data Specific country fit data, from the imperial model fits or from
 #' WHO data
-#' @param starting_date User specified string of starting date of weekly summary
 #' @param data_source Either WHO or Imperial.
+#' @param user From user_input function
 #'
 #' @return Dataframe of weekly summary
 #' \describe{
@@ -69,16 +69,10 @@ cases_weekly <- function(params, # from get_parameters
                          capacity, # country capacity, from get_country_capacity
                          test_strategy_params, # from set_testing_strategy
                          data,
-                         starting_date = "2019-11-29",
-                         data_source = "Imperial") {
+                         data_source = "Imperial",
+                         user) {
   params <- merge(params, capacity)
   params <- merge(params, test_strategy_params)
-
-
-  if (!is.null(starting_date)) {
-    starting_date <- as.Date(starting_date)
-    data <- subset(data, data$date >= starting_date)
-  }
 
   if (is.null(params)) {
     stop("Parameters must be called using get_parameters before calculating
@@ -88,86 +82,93 @@ cases_weekly <- function(params, # from get_parameters
   if (data_source == "Imperial") {
     # add exists part here
     data$date <- as.Date(data$date)
-
-    data <- data %>%
-      dplyr::select(-c("death_calibrated"))
+    # data <- data %>% dplyr::select(-any_of(death_calibrated))
+    data <- data[!(names(data) == "death_calibrated")]
 
     data <- data %>%
       tidyr::pivot_wider(
-        names_from = "compartment",
-        values_from = "y_mean"
+        names_from = compartment,
+        values_from = y_mean
       )
 
     data <- data %>%
-      dplyr::group_by(week_begins = cut(.data$date,
+      dplyr::group_by(week_begins = cut(date,
                                         breaks = "week",
                                         right = FALSE, include.lowest = T
       )) %>%
       dplyr::summarise(
-        week_ends = data.table::last(.data$date),
-        hospital_demand = max(.data$hospital_demand, na.rm = TRUE),
-        ICU_demand = max(.data$ICU_demand, na.rm = TRUE),
-        hospital_incidence = sum(.data$hospital_incidence, na.rm = TRUE),
-        ICU_incidence = sum(.data$ICU_incidence, na.rm = TRUE),
-        infections = sum(.data$infections, na.rm = TRUE),
-        cumulative_infections = data.table::last(.data$cumulative_infections)
+        week_ends = data.table::last(date),
+        hospital_demand = max(hospital_demand, na.rm = TRUE),
+        ICU_demand = max(ICU_demand, na.rm = TRUE),
+        hospital_incidence = sum(hospital_incidence, na.rm = TRUE),
+        ICU_incidence = sum(ICU_incidence, na.rm = TRUE),
+        infections = sum(infections, na.rm = TRUE),
+        cumulative_infections = data.table::last(cumulative_infections)
       )
 
     data$week_begins <- as.Date(as.character(data$week_begins))
 
     data <- data %>%
       dplyr::mutate(
-        new_critical_cases = .data$ICU_incidence,
-        new_severe_cases = .data$hospital_incidence
+        new_critical_cases = ICU_incidence,
+        new_severe_cases = hospital_incidence
       )
   } else if (data_source == "WHO") {
     data$date <- as.Date(data$Date_reported)
-    data <- data %>% dplyr::select(-c("Date_reported"))
+
+    data <- data[!(names(data) == "Date_reported")]
+
     data <- data %>%
-      dplyr::group_by(week_begins = cut(.data$date,
+      dplyr::group_by(week_begins = cut(date,
                                         breaks = "week",
                                         right = FALSE, include.lowest = T
       )) %>%
       dplyr::summarise(
-        week_ends = data.table::last(.data$date),
-        cases = sum(.data$New_cases, na.rm = TRUE)
+       week_ends = data.table::last(date),
+       cases = sum(New_cases, na.rm = TRUE)
       )
 
     data$week_begins <- as.Date(as.character(data$week_begins))
 
     data <- data %>%
       dplyr::mutate(
-        new_critical_cases = .data$cases * params$crit_i_proportion,
-        new_severe_cases = .data$cases * params$sev_i_proportion
+        new_critical_cases = cases * params$crit_i_proportion,
+        new_severe_cases = cases * params$sev_i_proportion
       )
   }
-
+  data[is.na(data)] <- 0
   data <- data %>%
     dplyr::mutate(
       # moderate and mild cases, method in patient calcs:
       # why only severe and critical here, and not moderate?
-      new_mod_cases = (.data$new_severe_cases + .data$new_critical_cases) *
+      new_mod_cases = (new_severe_cases + new_critical_cases) *
         params$mod_i_proportion / (params$sev_i_proportion
           + params$crit_i_proportion),
-      new_mild_cases = (.data$new_severe_cases + .data$new_critical_cases) *
+      new_mild_cases = (new_severe_cases + new_critical_cases) *
         params$mild_i_proportion / (params$sev_i_proportion
           + params$crit_i_proportion)
     )
 
+  # subset to the weeks needed before hand to be able to have values for the
+  # first week
+  week_behind <- max(params$stay_crit, params$stay_mild, params$stay_mod,
+                     params$stay_sev, na.rm=T)
+
+  data <- subset(data, data$week_ends > (as.Date(user$week1)-7*(week_behind+1)))
+
   data <- data %>%
     dplyr::mutate(
-      cum_critical_cases = cumsum(.data$new_critical_cases),
-      cum_severe_cases = cumsum(.data$new_severe_cases),
-      cum_mod_cases = cumsum(.data$new_mod_cases),
-      cum_mild_cases = cumsum(.data$new_mild_cases)
+      cum_critical_cases = cumsum(new_critical_cases),
+      cum_severe_cases = cumsum(new_severe_cases),
+      cum_mod_cases = cumsum(new_mod_cases),
+      cum_mild_cases = cumsum(new_mild_cases)
     )
 
   data <- data %>%
-    dplyr::mutate(sus_cases_but_negative = (.data$new_mild_cases
-      + .data$new_mod_cases
-      + .data$new_severe_cases
-      + .data$new_critical_cases) * params$num_neg_per_pos_test)
-  data[is.na(data)] <- 0
+    dplyr::mutate(sus_cases_but_negative = (new_mild_cases
+      + new_mod_cases
+      + new_severe_cases
+      + new_critical_cases) * params$num_neg_per_pos_test)
 
   return(data)
 }

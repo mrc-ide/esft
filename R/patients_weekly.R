@@ -1,5 +1,7 @@
 #' Produce Weekly Summary of Patients
+#'
 #' **UPDATE DOCUMENTATION**
+#' I think the first row of nocap isoff
 #' @description This function corresponds to the calculations in the Weekly
 #' Summary tab under the headers 'Sick patients per week', 'Patients recovering
 #' (or dying) from illness, per week'. It takes in the model output plus the
@@ -99,87 +101,87 @@ patients_weekly <- function(params,
   if (data_source == "Imperial") {
     data <- data %>%
       dplyr::mutate(
-        sev_patients_nocap = .data$hospital_demand,
-        crit_patients_nocap = .data$ICU_demand
+        sev_patients_nocap = hospital_demand,
+        crit_patients_nocap = ICU_demand
       )
     # taken from cases weekly - maybe update here since admitted
     data <- data %>%
       dplyr::mutate(
-        cum_rem_mild_cases = data.table::shift(.data$cum_mild_cases,
+        cum_rem_mild_cases = data.table::shift(cum_mild_cases,
           n = params$stay_mild
         ),
-        cum_rem_mod_cases = data.table::shift(.data$cum_mod_cases,
+        cum_rem_mod_cases = data.table::shift(cum_mod_cases,
           n = params$stay_mod
         ),
         # isnt this going to give a negative value?
-        cum_rem_severe_cases = .data$cum_severe_cases -
-          .data$sev_patients_nocap,
-        cum_rem_critical_cases = .data$cum_critical_cases -
-          .data$crit_patients_nocap
+        cum_rem_severe_cases = cum_severe_cases -
+          sev_patients_nocap,
+        cum_rem_critical_cases = cum_critical_cases -
+          crit_patients_nocap
       )
   } else if (data_source == "WHO") {
     data <- data %>%
       dplyr::mutate(
-        cum_rem_mild_cases = data.table::shift(.data$cum_mild_cases,
+        cum_rem_mild_cases = data.table::shift(cum_mild_cases,
                                                n = params$stay_mild
         ),
-        cum_rem_mod_cases = data.table::shift(.data$cum_mod_cases,
+        cum_rem_mod_cases = data.table::shift(cum_mod_cases,
                                               n = params$stay_mod
         ),
-        cum_rem_severe_cases = data.table::shift(.data$cum_severe_cases,
+        cum_rem_severe_cases = data.table::shift(cum_severe_cases,
                                                   n = params$stay_sev
         ),
-        cum_rem_critical_cases = data.table::shift(.data$cum_critical_cases,
+        cum_rem_critical_cases = data.table::shift(cum_critical_cases,
                                                    n = params$stay_crit
         )
       )
     data <- data %>%
       dplyr::mutate(
-        sev_patients_nocap = .data$cum_severe_cases - .data$cum_rem_severe_cases,
-        crit_patients_nocap = .data$cum_critical_cases -
-          .data$cum_rem_critical_cases
+        sev_patients_nocap = cum_severe_cases - cum_rem_severe_cases,
+        crit_patients_nocap = cum_critical_cases -
+          cum_rem_critical_cases
       )
   }
 
   data <- data %>%
     dplyr::mutate(
-      mild_patients_nocap = .data$cum_mild_cases - .data$cum_rem_mild_cases,
-      mod_patients_nocap = .data$cum_mod_cases - .data$cum_rem_mod_cases
+      mild_patients_nocap = cum_mild_cases - cum_rem_mild_cases,
+      mod_patients_nocap = cum_mod_cases - cum_rem_mod_cases
     )
 
   data <- data %>%
     dplyr::mutate(
       sev_beds_inuse = ifelse(
-        .data$sev_patients_nocap < params$severe_beds_covid,
-        .data$sev_patients_nocap, params$severe_beds_covid
+        sev_patients_nocap < params$severe_beds_covid,
+        sev_patients_nocap, params$severe_beds_covid
       ),
       crit_beds_inuse = ifelse(
-        .data$crit_patients_nocap < params$crit_beds_covid,
-        .data$crit_patients_nocap, params$crit_beds_covid
+        crit_patients_nocap < params$crit_beds_covid,
+        crit_patients_nocap, params$crit_beds_covid
       )
     )
 
   data <- data %>%
     dplyr::mutate(
-      total_beds_inuse = .data$sev_beds_inuse + .data$crit_beds_inuse,
+      total_beds_inuse = sev_beds_inuse + crit_beds_inuse,
       hosp_facilities_inuse = ceiling(
-        (.data$sev_beds_inuse + .data$crit_beds_inuse) /
+        (sev_beds_inuse + crit_beds_inuse) /
           params$n_hosp_beds_per_care_unit
       )
     )
 
   data <- data %>%
     dplyr::mutate(
-      rem_mild_patients = data.table::shift(.data$new_mild_cases,
+      rem_mild_patients = data.table::shift(new_mild_cases,
         n = params$stay_mild
       ),
-      rem_mod_patients = data.table::shift(.data$new_mod_cases,
+      rem_mod_patients = data.table::shift(new_mod_cases,
         n = params$stay_mod
       ),
-      rem_sev_patients = .data$cum_rem_severe_cases -
-        data.table::shift(.data$cum_rem_severe_cases, n = 1),
-      rem_crit_patients = .data$cum_rem_critical_cases -
-        data.table::shift(.data$cum_rem_critical_cases, n = 1)
+      rem_sev_patients = cum_rem_severe_cases -
+        data.table::shift(cum_rem_severe_cases, n = 1),
+      rem_crit_patients = cum_rem_critical_cases -
+        data.table::shift(cum_rem_critical_cases, n = 1)
     )
 
   # initialize the columns
@@ -263,7 +265,8 @@ patients_weekly <- function(params,
     rem_mild_patients, discharged_crit_patients, discharged_sev_patients,
     sev_patients_admitted_cap, crit_patients_admitted_cap
   ))
-
-
+# so the only
+  data <- subset(data, data$week_begins > as.Date(user$week1))
+# block it off for predicted period
   return(data)
 }
