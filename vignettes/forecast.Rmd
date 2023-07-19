@@ -15,6 +15,10 @@ knitr::opts_chunk$set(
 )
 ```
 
+```{r lib}
+library(esft)
+```
+
 This vignette will go over the different calculations for the forecasted commodity needs.
 
 *Potentially* this will include also a description on how to modify input/base values, although this is low priority.
@@ -55,13 +59,15 @@ max_tests <- max_tests_per_day(diagnostic_capacity)
 cases <- cases_weekly(params, 
                       capacity,
                       test_strategy_params=test_strat,
-                      data=mydata)
-cases <- subset(cases, cases$week_ends > as.Date("2022-01-01"))
+                      data=mydata,
+                      user=user,
+                      data_source = "Imperial")
 
 patients <- patients_weekly(params, 
                             capacity, 
-                            data = cases)
-patients <- patients[c(2:13),]
+                            data = cases,
+                            user = user,
+                            data_source = "Imperial")
 
 tests <- diagnostics_weekly(params = params, 
                             patients, 

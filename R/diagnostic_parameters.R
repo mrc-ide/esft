@@ -15,6 +15,14 @@
 #'  default = 2}
 #'  \item{perc_antigen_tests}{ - percent testing done in hospital via antigen
 #'  testing, max 80 percent; default = 20 percent}
+#'  \item{tests_diagnosis_mild_mod}{ - the number of tests for diagnosis for
+#'  mild or moderate cases; default = 1}
+#'  \item{tests_diagnosis_sev_crit}{ - the number of tests for diagnosis for
+#'  severe or critical cases; default = 1}
+#'  \item{tests_release_mild_mod}{ - the number of tests for release for mild or
+#'  moderate cases; default = 0}
+#'  \item{tests_release_sev_crit}{ - the number of tests for release for severe
+#'  or critical cases; default = 1}
 #' }
 #'
 #' @return List of diagnostic parameters.
@@ -54,15 +62,14 @@ get_diagnostic_parameters <- function(overrides = list()) {
 
 #' @title Get diagnostic capacity
 #'
-#' @description Using country name or country code, return baseline estimates of
-#' diagnostic testing capacity provided in the WHO ESFT.
-#'
 #' @param iso3c Country code, in iso3c format.
 #' @param overrides a named list of parameter values to use instead of defaults.
 #' Notably might include hologic_panther_fusion counts. The values are described
 #' below and are taken from data provided in the ESFT.
 #'
-#' @details
+#' @description Using country name or country code, return baseline estimates of
+#' diagnostic testing capacity provided in the WHO ESFT.
+#'
 #' Counts of various machines in country:
 #' \itemize{
 #'  \item{roche_6800}{ - high throughput conventional platform}

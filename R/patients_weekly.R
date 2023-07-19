@@ -5,14 +5,17 @@
 #' (or dying) from illness, per week'. It takes in the model output plus the
 #' cumulative infections calculated by cases_weekly (which is the first step in
 #' the weekly summary process). It then calculates hospital demands, including
-#' bed capping. Note: there will be a lag on the appearances of the first values
-#' in these projections, and these are dependent on the length of stay of
-#' various case types specified in the get_parameters() function.
+#' bed capping. Note: there will be a lag on the appearance of the first value
+#' for discharged_crit_patients, which is dependent on the length of stay
+#' specified in the get_parameters() function and the structure of the
+#' calculation.
 #'
 #' Here is the description of the additional patient calculations:
 #' \itemize{
-#'  \item{crit_patients_nocap}{ - ICU_demand}
-#'  \item{sev_patients_nocap}{ - hospital_demand}
+#'  \item{crit_patients_nocap}{ - ICU_demand if Imperial data, cum_crit_cases -
+#'  cum_rem_crit_cases if WHO}
+#'  \item{sev_patients_nocap}{ - hospital_demand if Imperial data,
+#'  cum_sev_cases - cum_rem_sev_cases if WHO}
 #'  \item{mod_patients_nocap}{ - cum_mod_cases - cum_rem_mod_cases}
 #'  \item{mild_patients_nocap}{ - cum_mild_cases - cum_rem_mild_cases}
 #'  \item{crit_beds_inuse}{ - crit_patients_nocap capped by beds allocated to
@@ -43,13 +46,19 @@
 #' @param params From get_parameters
 #' @param country_capacity From get_country_capacity
 #' @param data Weekly summary dataframe - from cases_weekly
+#' @param data_source Either WHO or Imperial.
+#' @param user From user_input function
 #'
 #' @return Dataframe of weekly summary
 #' \describe{
 #'   \item{week_begins}{Date the week summarized begins}
 #'   \item{week_ends}{Date the week summarized ends}
-#'   \item{crit_patients_nocap}{Uncapped ICU demand}
-#'   \item{sev_patients_nocap}{Uncapped hospital demand}
+#'   \item{crit_patients_nocap}{If data_source  = "Imperial", this is the
+#'   uncapped ICU demand, if data_source = "WHO", this is back calculated
+#'   from the difference between cum_crit_cases and cum_rem_crit_cases}
+#'   \item{sev_patients_nocap}{If data_source  = "Imperial", this is the
+#'   uncapped hospital demand, if data_source = "WHO", this is back calculated
+#'   from the difference between cum_sev_cases and cum_rem_sev_cases}
 #'   \item{mod_patients_nocap}{cum_mod_cases - cum_rem_mod_cases}
 #'   \item{mild_patients_nocap}{cum_mild_cases - cum_rem_mild_cases}
 #'   \item{crit_beds_inuse}{ICU demand capped by beds allocated to critical
@@ -86,73 +95,100 @@
 #' @export
 patients_weekly <- function(params,
                             country_capacity, # from get country capacity
-                            data) {
+                            data,
+                            data_source = "Imperial",
+                            user) {
   # add exists part here
   # the total bed capacity was calculated in the input excel sheet
   # basically here you take the min of the new cases by severity/num beds avail
   # and theoretically the control for time spent in bed (removal) should have
   # already been done
   params <- merge(params, country_capacity)
-  data <- data %>%
-    dplyr::mutate(
-      sev_patients_nocap = .data$hospital_demand,
-      crit_patients_nocap = .data$ICU_demand
-    )
-  # taken from cases weekly - maybe update here since admitted
-  data <- data %>%
-    dplyr::mutate(
-      cum_rem_mild_cases = data.table::shift(.data$cum_mild_cases,
-        n = params$stay_mild
-      ),
-      cum_rem_mod_cases = data.table::shift(.data$cum_mod_cases,
-        n = params$stay_mod
-      ),
-      # isnt this going to give a negative value?
-      cum_rem_severe_cases = .data$cum_severe_cases -
-        .data$sev_patients_nocap,
-      cum_rem_critical_cases = .data$cum_critical_cases -
-        .data$crit_patients_nocap
-    )
+
+  if (data_source == "Imperial") {
+    data <- data %>%
+      dplyr::mutate(
+        sev_patients_nocap = hospital_demand,
+        crit_patients_nocap = ICU_demand
+      )
+    # taken from cases weekly - maybe update here since admitted
+    data <- data %>%
+      dplyr::mutate(
+        cum_rem_mild_cases = data.table::shift(cum_mild_cases,
+          n = params$stay_mild
+        ),
+        cum_rem_mod_cases = data.table::shift(cum_mod_cases,
+          n = params$stay_mod
+        ),
+        # isnt this going to give a negative value?
+        cum_rem_severe_cases = cum_severe_cases -
+          sev_patients_nocap,
+        cum_rem_critical_cases = cum_critical_cases -
+          crit_patients_nocap
+      )
+  } else if (data_source == "WHO") {
+    data <- data %>%
+      dplyr::mutate(
+        cum_rem_mild_cases = data.table::shift(cum_mild_cases,
+                                               n = params$stay_mild
+        ),
+        cum_rem_mod_cases = data.table::shift(cum_mod_cases,
+                                              n = params$stay_mod
+        ),
+        cum_rem_severe_cases = data.table::shift(cum_severe_cases,
+                                                  n = params$stay_sev
+        ),
+        cum_rem_critical_cases = data.table::shift(cum_critical_cases,
+                                                   n = params$stay_crit
+        )
+      )
+    data <- data %>%
+      dplyr::mutate(
+        sev_patients_nocap = cum_severe_cases - cum_rem_severe_cases,
+        crit_patients_nocap = cum_critical_cases -
+          cum_rem_critical_cases
+      )
+  }
 
   data <- data %>%
     dplyr::mutate(
-      mild_patients_nocap = .data$cum_mild_cases - .data$cum_rem_mild_cases,
-      mod_patients_nocap = .data$cum_mod_cases - .data$cum_rem_mod_cases
+      mild_patients_nocap = cum_mild_cases - cum_rem_mild_cases,
+      mod_patients_nocap = cum_mod_cases - cum_rem_mod_cases
     )
 
   data <- data %>%
     dplyr::mutate(
       sev_beds_inuse = ifelse(
-        .data$sev_patients_nocap < params$severe_beds_covid,
-        .data$sev_patients_nocap, params$severe_beds_covid
+        sev_patients_nocap < params$severe_beds_covid,
+        sev_patients_nocap, params$severe_beds_covid
       ),
       crit_beds_inuse = ifelse(
-        .data$crit_patients_nocap < params$crit_beds_covid,
-        .data$crit_patients_nocap, params$crit_beds_covid
+        crit_patients_nocap < params$crit_beds_covid,
+        crit_patients_nocap, params$crit_beds_covid
       )
     )
 
   data <- data %>%
     dplyr::mutate(
-      total_beds_inuse = .data$sev_beds_inuse + .data$crit_beds_inuse,
+      total_beds_inuse = sev_beds_inuse + crit_beds_inuse,
       hosp_facilities_inuse = ceiling(
-        (.data$sev_beds_inuse + .data$crit_beds_inuse) /
+        (sev_beds_inuse + crit_beds_inuse) /
           params$n_hosp_beds_per_care_unit
       )
     )
 
   data <- data %>%
     dplyr::mutate(
-      rem_mild_patients = data.table::shift(.data$new_mild_cases,
+      rem_mild_patients = data.table::shift(new_mild_cases,
         n = params$stay_mild
       ),
-      rem_mod_patients = data.table::shift(.data$new_mod_cases,
+      rem_mod_patients = data.table::shift(new_mod_cases,
         n = params$stay_mod
       ),
-      rem_sev_patients = .data$cum_rem_severe_cases -
-        data.table::shift(.data$cum_rem_severe_cases, n = 1),
-      rem_crit_patients = .data$cum_rem_critical_cases -
-        data.table::shift(.data$cum_rem_critical_cases, n = 1)
+      rem_sev_patients = cum_rem_severe_cases -
+        data.table::shift(cum_rem_severe_cases, n = 1),
+      rem_crit_patients = cum_rem_critical_cases -
+        data.table::shift(cum_rem_critical_cases, n = 1)
     )
 
   # initialize the columns
@@ -237,6 +273,10 @@ patients_weekly <- function(params,
     sev_patients_admitted_cap, crit_patients_admitted_cap
   ))
 
+# make sure first week is in there
+  data <- subset(data, data$week_begins >= as.Date(user$week1))
+# subset by forecast length
+  data <- data[c(0:(user$forecast_period)),]
 
   return(data)
 }

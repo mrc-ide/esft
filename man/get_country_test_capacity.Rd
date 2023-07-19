@@ -23,8 +23,7 @@ Number of diagnostic machines available within each country.
 \description{
 Using country name or country code, return baseline estimates of
 diagnostic testing capacity provided in the WHO ESFT.
-}
-\details{
+
 Counts of various machines in country:
 \itemize{
  \item{roche_6800}{ - high throughput conventional platform}

@@ -1,5 +1,6 @@
 # data wrangling
 library(readxl)
+library(readr)
 library(usethis)
 library(countrycode)
 
@@ -9,10 +10,9 @@ who <- readxl::read_excel("data-raw/who_summary_data.xlsx",
 )
 usethis::use_data(who, overwrite = TRUE, internal = FALSE)
 
-# wb_beds <- readxl::read_excel("data-raw/who_summary_data.xlsx",
-#   sheet = "wb_beds"
-# )
-# usethis::use_data(wb_beds, overwrite = TRUE, internal = FALSE)
+who_data <- readr::read_csv("data-raw/WHO-COVID-19-global-data.csv")
+
+usethis::use_data(who_data, overwrite = TRUE, internal = FALSE)
 
 hwfe <- readxl::read_excel("data-raw/who_summary_data.xlsx", sheet = "hwfe")
 # names(hwfe)
@@ -71,10 +71,10 @@ transmission_scenarios <- readxl::read_excel("data-raw/who_summary_data.xlsx",
 )
 usethis::use_data(transmission_scenarios, overwrite = TRUE, internal = FALSE)
 
-capacity_perc <- readxl::read_excel("data-raw/who_summary_data.xlsx",
-  sheet = "capacity_perc"
-)
-usethis::use_data(capacity_perc, overwrite = TRUE, internal = FALSE)
+# capacity_perc <- readxl::read_excel("data-raw/who_summary_data.xlsx",
+#   sheet = "capacity_perc"
+# )
+# usethis::use_data(capacity_perc, overwrite = TRUE, internal = FALSE)
 
 hours_per_shift <- readxl::read_excel("data-raw/who_summary_data.xlsx",
   sheet = "hours_per_shift"

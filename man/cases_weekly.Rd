@@ -9,7 +9,8 @@ cases_weekly(
   capacity,
   test_strategy_params,
   data,
-  starting_date = "2019-11-29"
+  data_source = "Imperial",
+  user
 )
 }
 \arguments{
@@ -19,12 +20,16 @@ cases_weekly(
 
 \item{test_strategy_params}{From set_testing_strategy}
 
-\item{data}{Specific country fit data, from the imperial model fits}
+\item{data}{Specific country fit data, from the imperial model fits or from
+WHO data}
 
-\item{starting_date}{User specified string of starting date of weekly summary}
+\item{data_source}{Either WHO or Imperial.}
+
+\item{user}{From user_input function}
 }
 \value{
-Dataframe of weekly summary
+Dataframe of weekly summary, if data_source = "Imperial". If the
+data_source = "WHO", the ICU and hospital columns will not be included.
 \describe{
   \item{week_begins}{Date the week summarized begins}
   \item{week_ends}{Date the week summarized ends}
@@ -43,10 +48,14 @@ Dataframe of weekly summary
   include those who already have access to a bed.}
   \item{infections}{Estimated number of new infections, from model fits}
   \item{cumulative_infections}{Cumulative number of infections}
-  \item{new_critical_cases}{New critical cases per week as defined by
-  the ESFT: new ICU incidence}
-  \item{new_severe_cases}{New severe cases per week as defined by the ESFT:
-  hospital incidence that week}
+  \item{new_critical_cases}{For Imperial input = new critical cases per week
+  as defined by as the ICU incidence. For WHO input, this is equal to the
+  number of new cases per week multiplied by the proportion of infections
+  that are critical}
+  \item{new_severe_cases}{For Imperial input = new severe cases per week
+  as defined by as the hospital incidence. For WHO input, this is equal to
+  the number of new cases per week multiplied by the proportion of infections
+  that are severe}
   \item{new_mod_cases}{New moderate cases every week, found by doing a
   transformation of the critical and severe cases and multiplying by the
   moderate case proportion}
@@ -67,9 +76,14 @@ Dataframe of weekly summary
 }
 \description{
 Replicates the calculations in the 'Weekly Summary' tab of the
-ESFT. There are elements of these calculations, such as the assumption that
-hospital incidence = number of severe cases, that the ICL team does not make
-in its calculations. Therefore, keep in mind that this is just a replication.
+ESFT depending on the input data source (WHO or Imperial). There are elements
+of these calculations, such as the assumption that hospital incidence =
+number of severe cases in the Imperial calculations, that the ICL team does
+not make in its calculations. Therefore, keep in mind that this is just a
+duplicate of the calculations in the ESFT, and not a critical appraisal of
+these calculations. This calculation does not yield an output where the first
+row contains the start date, as rows previous to the start date are needed
+for the patient calculations.
 
 Note: since proportion of mild and moderate are the same, the estimates of
 these categories will be the same.

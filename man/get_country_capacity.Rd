@@ -14,6 +14,8 @@ Imperial College, Report 12: The Global Impact of COVID-19 and
 Strategies for Mitigation and Suppression
 
 \url{https://www.researchgate.net/figure/Health-Workforce-Estimator-HWFE-tool-applies-the-WISN-approach-to-caring-for-COVID_fig3_358174845}
+
+\url{https://apps.who.int/gho/data/node.main.HWFGRP?lang=en}
 }
 \usage{
 get_country_capacity(iso3c = NULL, overrides = list())
@@ -28,8 +30,9 @@ List of country capacity parameters.
 \describe{
   \item{country}{Country name}
   \item{iso3c}{Country code, iso3c format}
-  \item{population}{xyz}
-  \item{yoy_growth}{Year over year growth of country population.}
+  \item{population}{Population estimates from the United Nations Development
+  Programme}
+  \item{yoy_growth}{Year over year growth of country population}
   \item{income_group}{Income group}
   \item{n_hcws}{Number of HCWs (sum nurses + doctors, from HWFE data)}
   \item{n_labs}{Number of lab staff (from HWFE data)}

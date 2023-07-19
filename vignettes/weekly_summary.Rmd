@@ -70,10 +70,11 @@ mydata <- load_imperial_data(country_code = country)
 cases <- cases_weekly(params,
   capacity,
   test_strategy_params = test_strat,
-  data = mydata
+  data = mydata,
+  user = user,
+  data_source = "Imperial"
 )
-# This bookends the cases forecast by the user-specified starting date
-cases <- subset(cases, cases$week_begins > as.Date(user$week1))
+
 ```
 
 ### Outputs
@@ -216,9 +217,11 @@ the first section in the Weekly Summary tab in the ESFT.
 ```{r patients}
 patients <- patients_weekly(params,
   capacity,
-  data = cases
+  data = cases,
+  user = user,
+  data_source = "Imperial"
 )
-patients <- patients[c(1:(user$forecast_period)), ]
+
 ```
 
 ### Outputs

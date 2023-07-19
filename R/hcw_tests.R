@@ -28,16 +28,16 @@ screening_hcws_weekly <- function(diagnostics_weekly,
   data <- diagnostics_weekly
   data <- data %>%
     dplyr::mutate(screening_hcw_uncapped = (
-      .data$tests_suspected + .data$tests_mild + .data$tests_mod) / (
+      tests_suspected + tests_mild + tests_mod) / (
       7 * hcw_caps$cases_screened_per_hcw_per_day
     ))
 
   data <- data %>%
     dplyr::mutate(
       screening_hcw_capped = ifelse(
-        .data$screening_hcw_uncapped > hcw_caps$hcws_screening_cap,
+        screening_hcw_uncapped > hcw_caps$hcws_screening_cap,
         hcw_caps$hcws_screening_cap,
-        .data$screening_hcw_uncapped
+        screening_hcw_uncapped
       )
     ) %>%
     dplyr::select(c(
@@ -84,16 +84,16 @@ additional_testing <- function(hcws, # from hcws_weekly
   data <- data %>%
     dplyr::mutate(
       tests_hcws_weekly = test_strat$tests_per_hcw_per_week * (
-        .data$hcws_inpatient_capped + .data$cleaners_inpatient_capped +
-          .data$amb_personnel_inpatient_capped +
-          .data$bio_eng_inpatient_capped + .data$screening_hcw_capped +
-          .data$lab_staff_capped + .data$cleaners_lab),
+        hcws_inpatient_capped + cleaners_inpatient_capped +
+          amb_personnel_inpatient_capped +
+          bio_eng_inpatient_capped + screening_hcw_capped +
+          lab_staff_capped + cleaners_lab),
       tests_contacts_weekly = ifelse(
         test_strat$testing_contacts == TRUE,
         test_strat$perc_contacts_tested * test_strat$avg_contacts_pos_case * (
-          .data$tests_diagnosis_uncapped_sev_crit +
-            .data$tests_release_uncapped_sev_crit + .data$tests_mild +
-            .data$tests_mod), 0
+          tests_diagnosis_uncapped_sev_crit +
+            tests_release_uncapped_sev_crit + tests_mild +
+            tests_mod), 0
       )
     ) %>%
     dplyr::select(c(
@@ -130,19 +130,20 @@ additional_testing <- function(hcws, # from hcws_weekly
 total_tests <- function(tests_weekly,
                         additional_tests,
                         max_tests) {
+
   data <- merge(tests_weekly, additional_tests)
   data <- data %>%
     dplyr::mutate(
-      total_tests_uncapped = (.data$tests_diagnosis_capped_sev_crit +
-        .data$tests_release_capped_sev_crit + .data$tests_mild +
-        .data$tests_mod + .data$tests_suspected + .data$tests_hcws_weekly +
-        .data$tests_contacts_weekly),
+      total_tests_uncapped = (tests_diagnosis_capped_sev_crit +
+        tests_release_capped_sev_crit + tests_mild +
+        tests_mod + tests_suspected + tests_hcws_weekly +
+        tests_contacts_weekly),
     )
   data <- data %>%
     dplyr::mutate(
-      total_tests_capped = ifelse(.data$total_tests_uncapped > max_tests * 7,
+      total_tests_capped = ifelse(total_tests_uncapped > max_tests * 7,
         max_tests * 7,
-        .data$total_tests_uncapped
+        total_tests_uncapped
       ),
     ) %>%
     dplyr::select(c(
