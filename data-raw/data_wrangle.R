@@ -71,10 +71,10 @@ transmission_scenarios <- readxl::read_excel("data-raw/who_summary_data.xlsx",
 )
 usethis::use_data(transmission_scenarios, overwrite = TRUE, internal = FALSE)
 
-capacity_perc <- readxl::read_excel("data-raw/who_summary_data.xlsx",
-  sheet = "capacity_perc"
-)
-usethis::use_data(capacity_perc, overwrite = TRUE, internal = FALSE)
+# capacity_perc <- readxl::read_excel("data-raw/who_summary_data.xlsx",
+#   sheet = "capacity_perc"
+# )
+# usethis::use_data(capacity_perc, overwrite = TRUE, internal = FALSE)
 
 hours_per_shift <- readxl::read_excel("data-raw/who_summary_data.xlsx",
   sheet = "hours_per_shift"

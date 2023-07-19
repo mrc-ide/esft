@@ -347,14 +347,6 @@
 #' }
 "noncovid"
 
-#' @title Capacity as translated to percent
-#'
-#' @format A data frame with 4 rows and 2 variables:
-#' \describe{
-#'   \item{capacity}{Capacity is string form}
-#'   \item{percent}{What the string translated to as percent}
-#' }
-"capacity_perc"
 
 #' @title WHO Coronavirus (COVID-19) Dashboard
 #'
