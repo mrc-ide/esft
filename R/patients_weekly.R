@@ -1,20 +1,21 @@
 #' Produce Weekly Summary of Patients
 #'
-#' **UPDATE DOCUMENTATION**
-#' I think the first row of nocap isoff
 #' @description This function corresponds to the calculations in the Weekly
 #' Summary tab under the headers 'Sick patients per week', 'Patients recovering
 #' (or dying) from illness, per week'. It takes in the model output plus the
 #' cumulative infections calculated by cases_weekly (which is the first step in
 #' the weekly summary process). It then calculates hospital demands, including
-#' bed capping. Note: there will be a lag on the appearances of the first values
-#' in these projections, and these are dependent on the length of stay of
-#' various case types specified in the get_parameters() function.
+#' bed capping. Note: there will be a lag on the appearance of the first value
+#' for discharged_crit_patients, which is dependent on the length of stay
+#' specified in the get_parameters() function and the structure of the
+#' calculation.
 #'
 #' Here is the description of the additional patient calculations:
 #' \itemize{
-#'  \item{crit_patients_nocap}{ - ICU_demand}
-#'  \item{sev_patients_nocap}{ - hospital_demand}
+#'  \item{crit_patients_nocap}{ - ICU_demand if Imperial data, cum_crit_cases -
+#'  cum_rem_crit_cases if WHO}
+#'  \item{sev_patients_nocap}{ - hospital_demand if Imperial data,
+#'  cum_sev_cases - cum_rem_sev_cases if WHO}
 #'  \item{mod_patients_nocap}{ - cum_mod_cases - cum_rem_mod_cases}
 #'  \item{mild_patients_nocap}{ - cum_mild_cases - cum_rem_mild_cases}
 #'  \item{crit_beds_inuse}{ - crit_patients_nocap capped by beds allocated to
@@ -46,13 +47,18 @@
 #' @param country_capacity From get_country_capacity
 #' @param data Weekly summary dataframe - from cases_weekly
 #' @param data_source Either WHO or Imperial.
+#' @param user From user_input function
 #'
 #' @return Dataframe of weekly summary
 #' \describe{
 #'   \item{week_begins}{Date the week summarized begins}
 #'   \item{week_ends}{Date the week summarized ends}
-#'   \item{crit_patients_nocap}{Uncapped ICU demand}
-#'   \item{sev_patients_nocap}{Uncapped hospital demand}
+#'   \item{crit_patients_nocap}{If data_source  = "Imperial", this is the
+#'   uncapped ICU demand, if data_source = "WHO", this is back calculated
+#'   from the difference between cum_crit_cases and cum_rem_crit_cases}
+#'   \item{sev_patients_nocap}{If data_source  = "Imperial", this is the
+#'   uncapped hospital demand, if data_source = "WHO", this is back calculated
+#'   from the difference between cum_sev_cases and cum_rem_sev_cases}
 #'   \item{mod_patients_nocap}{cum_mod_cases - cum_rem_mod_cases}
 #'   \item{mild_patients_nocap}{cum_mild_cases - cum_rem_mild_cases}
 #'   \item{crit_beds_inuse}{ICU demand capped by beds allocated to critical
@@ -90,7 +96,8 @@
 patients_weekly <- function(params,
                             country_capacity, # from get country capacity
                             data,
-                            data_source = "Imperial") {
+                            data_source = "Imperial",
+                            user) {
   # add exists part here
   # the total bed capacity was calculated in the input excel sheet
   # basically here you take the min of the new cases by severity/num beds avail
@@ -265,8 +272,11 @@ patients_weekly <- function(params,
     rem_mild_patients, discharged_crit_patients, discharged_sev_patients,
     sev_patients_admitted_cap, crit_patients_admitted_cap
   ))
-# so the only
-  data <- subset(data, data$week_begins > as.Date(user$week1))
-# block it off for predicted period
+
+# make sure first week is in there
+  data <- subset(data, data$week_begins >= as.Date(user$week1))
+# subset by forecast length
+  data <- data[c(0:(user$forecast_period)),]
+
   return(data)
 }

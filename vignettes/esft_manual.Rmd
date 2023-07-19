@@ -43,9 +43,9 @@ Here the user would specify the same items that are in the User Input tab of the
 
 There are three options here: 
 
-* Using the data loaded with the package, subset according to country name and transmission scenario.
+* Using the data loaded with the package (`icl_data`), subset according to country name and transmission scenario.
 * Downloading the data from GitHub, using the `load_imperial_data` function - although this is likely to be less sustainable in the long term, as we do not know how long the fits will be up
-* Downloading infections and deaths estimates from the WHO website. However, this will likely require a new cases_weekly function - to calculate the severe and critical cases from the WHO data instead of the ICL data.
+* Downloading infections and deaths estimates from the [WHO website](https://covid19.who.int/data). Either you can go directly to the first link on the website, or use the pre-loaded dataset called `who_data`, which was downloaded in July 2023. 
 
 3.  *Parameter setting*
 
@@ -64,7 +64,7 @@ This includes summaries of cases, health care workers, tests, and patients per w
 These are 'object' calculations. This includes commodity forecasts (which includes hygiene, case management, PPE, and diagnostic commodities), pharmaceutical forecasts, and non-COVID 19 essential equipment forecasts.
 
 **Right now there is no option for users to input existing equipment or capacity.**
-**Another limitation is that right now the subsetting is largely manual, even though we specify the first date and the forecast period in the user input section.** Future work would be to incorporate that into the code.
+**Another limitation is that right now the order of date subsetting heavily influences the outcomes.** Future work would be to rewrite calculations to address those two issues.
 
 ## User Input
 
@@ -79,11 +79,30 @@ country <- "AFG"
 
 ## Load Data
 
-In order to acquire the Imperial SEIR fit data used to inform the forecasts of the model, the first step is to download it directly from github. The scenario will default to medium, which is equivalent to a scenario where there are no changes in transmission and the status quo is maintained. These fits contain the death calibrated data.
+In order to acquire the data used to inform the forecasts of the model, the first step is to acquire it. As mentioned before, there are three options to acquire the data: download it directly from github, load and subset the imperial data that comes with the package, load and subset the who data that comes with the package, or manually download the WHO data [here](https://covid19.who.int/data) at the first download link. 
+
+For the ICL data from GitHub, the scenario will default to medium, which is equivalent to a scenario where there are no changes in transmission and the status quo is maintained. These fits contain the death calibrated data. The preloaded data also contains death calibrated data but needs to be subset by scenario and country (see the `transmission_scenarios` dataset for more info). The preloaded who data only needs to be subset by country name.
 
 ```{r download_data, eval=FALSE}
-mydata <- load_imperial_data(country_code = country)
-head(mydata)
+# This will download specific country and scenario fits
+imperial_download <- load_imperial_data(country_code = country)
+head(imperial_download)
+
+# This includes all data, so needs to be subset by country and scenario
+data(icl_data, package="esft")
+data(transmission_scenarios, package = "esft")
+
+scenario = "Medium"
+scenario_label <-
+    transmission_scenarios$imperial_category_labels[transmission_scenarios$imperial_scenario == scenario]
+  
+icl_data <- subset(icl_data, icl_data$iso3c == country)
+icl_data <- subset(icl_data, icl_data$scenario == scenario_label)
+
+# This includes all country data (no scenario here as this is reported data), so needs to be subset by country name (as the country code is in a different format)
+data(who_data, package="esft")
+country.name <- countrycode::countrycode(sourcevar = country, origin = "iso3c", destination = "country.name")
+who_data <- subset(who_data, who_data$Country == country.name)
 ```
 
 ## Parameter Setting
@@ -186,30 +205,26 @@ cases <- cases_weekly(params,
   capacity,
   test_strategy_params = test_strat,
   data = mydata,
-  user = user
+  user = user,
+  data_source = "Imperial"
 )
 
-# Cases are calculated first, and then must be subset by date.
-# This is because patients calculations are dependent on previous occupancy -
-# and so discharge and occupancy will be off if included
-cases <- subset(cases, cases$week_ends > (as.Date("2022-01-03")-7))
+# Cases_weekly does not give the outcome with the first row = week1, but does 
+# contain all the information required for the next step. With these
+# removed, the outcomes would not map directly onto the ESFT excel sheet.
 
 head(cases)
 
-# Patients will still give leading 0s for certain columns, as they are dependent
-# on the previous week - this includes mod_patients_nocap, mild_patients_nocap,
-# em_mod_patients, rem_mild_patients, discharged_crit_patients, and
-# crit_patients_admitted_cap. This could be potentially solved by adding some
-# tinkering with the first week's date.
+# Patients will still give a leading 0 for discharged_crit_patients, as this is dependent
+# on the previous week and the structure of the calculation.
 patients <- patients_weekly(params,
   capacity,
-  data = cases
+  data = cases,
+  data_source = "Imperial",
+  user = user
 )
 
-# Patients are then subset as well (and we can use the forecast period to subset
-# by instead). But patients must be subset before the next step as the HCW caps
-# and HCWs weekly depend on the forecast period as a whole.
-patients <- patients[c(2:13), ]
+# Patients are additionally subset by the forecast period, as the next steps (HCW caps and HCWs weekly) depend on the forecast period as a whole.
 
 head(patients)
 

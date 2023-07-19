@@ -6,6 +6,7 @@ library(dplyr)
 library(magrittr)
 
 data <- subset(who_data, who_data$Country == "Afghanistan")
+user <- user_input(overrides=list(week1 = "2022-01-03"))
 source("R/cases_weekly.R")
 source("R/patients_weekly.R")
 cases <- cases_weekly(params,
@@ -19,5 +20,9 @@ cases <- cases_weekly(params,
 patients <- patients_weekly(params,
                             capacity,
                             data = cases,
-                            data_source = "WHO"
+                            data_source = "WHO",
+                            user = user
 )
+sink("mylist.txt")
+cat(paste0("#'   \\item{",names(who_data), "}{}\n"))
+sink()

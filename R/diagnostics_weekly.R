@@ -52,29 +52,29 @@ diagnostics_weekly <- function(params,
   data <- data %>%
     dplyr::mutate(
       tests_diagnosis_uncapped_sev_crit =
-        (.data$new_severe_cases +
-          .data$new_critical_cases) * params$tests_diagnosis_sev_crit,
+        (new_severe_cases +
+          new_critical_cases) * params$tests_diagnosis_sev_crit,
       tests_release_uncapped_sev_crit =
-        .data$rem_sev_patients * (
+        rem_sev_patients * (
           1 - params$ifr_sev) * params$tests_release_sev_crit +
-          .data$rem_crit_patients * (
+          rem_crit_patients * (
             1 - params$ifr_crit) * params$tests_release_sev_crit,
       tests_diagnosis_capped_sev_crit =
-        (.data$sev_patients_admitted_cap +
-          .data$crit_patients_admitted_cap) * params$tests_diagnosis_sev_crit,
+        (sev_patients_admitted_cap +
+          crit_patients_admitted_cap) * params$tests_diagnosis_sev_crit,
       tests_release_capped_sev_crit =
-        .data$discharged_sev_patients * (
+        discharged_sev_patients * (
           1 - params$ifr_sev) * params$tests_release_sev_crit +
-          .data$discharged_crit_patients * (
+          discharged_crit_patients * (
             1 - params$ifr_crit) * params$tests_release_sev_crit
     )
 
   if (params$strategy == "all") {
     data <- data %>%
       dplyr::mutate(
-        tests_mild = .data$new_mild_cases * params$tests_diagnosis_mild_mod,
-        tests_mod = .data$new_mod_cases * params$tests_diagnosis_mild_mod,
-        tests_suspected = .data$sus_cases_but_negative *
+        tests_mild = new_mild_cases * params$tests_diagnosis_mild_mod,
+        tests_mod = new_mod_cases * params$tests_diagnosis_mild_mod,
+        tests_suspected = sus_cases_but_negative *
           params$tests_diagnosis_mild_mod,
         testing_strategy = params$strategy
       )
@@ -82,13 +82,13 @@ diagnostics_weekly <- function(params,
     data <- data %>%
       dplyr::mutate(
         tests_mild =
-          .data$new_mild_cases * params$tests_diagnosis_mild_mod *
+          new_mild_cases * params$tests_diagnosis_mild_mod *
             params$perc_tested_mild_mod,
         tests_mod =
-          .data$new_mod_cases * params$tests_diagnosis_mild_mod *
+          new_mod_cases * params$tests_diagnosis_mild_mod *
             params$perc_tested_mild_mod,
         tests_suspected =
-          .data$sus_cases_but_negative * params$tests_diagnosis_mild_mod *
+          sus_cases_but_negative * params$tests_diagnosis_mild_mod *
             params$perc_tested_mild_mod,
         testing_strategy = params$strategy
       )

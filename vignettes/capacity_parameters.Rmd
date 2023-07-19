@@ -18,7 +18,6 @@ knitr::opts_chunk$set(
 ```{r setup}
 library(esft)
 ```
-**FLAG** - DATE SUBSETTING
 
 Here we will go into greater details on the user input defaults, the parameters, and the capacity calculations.
 
