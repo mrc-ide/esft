@@ -91,7 +91,8 @@ Date that the week ends, inclusive ($t_{n}$).
 
 Max of hospital demand for the dates inclusive in the week specified.
 Hospital demand is the number of people who would be using a hospital
-bed given enough healthcare capacity.
+bed given enough healthcare capacity. Note: this is only included if the data
+source is the imperial SEIR fit data.
 
 $$
 \text{Hospital demand} = \max\limits_{t_{0}\rightarrow t_{n}} (\text{Hospital demand})
@@ -101,7 +102,8 @@ $$
 
 Max of ICU demand for the dates inclusive in the week specified. ICU
 demand is the number of people who would be using an ICU bed given
-enough healthcare capacity
+enough healthcare capacity. Note: this is only included if the data
+source is the imperial SEIR fit data.
 
 $$
 \text{ICU demand} = \max\limits_{t_{0}\rightarrow t_{n}} (\text{ICU demand})
@@ -111,7 +113,8 @@ $$
 
 Sum of hospital incidence for the dates included in the week specified.
 Hospital incidence is the number of people who would be getting a
-hospital bed at the current time.
+hospital bed at the current time. Note: this is only included if the data
+source is the imperial SEIR fit data.
 
 $$
 \text{Hospital incidence} = \sum_{t_{0}}^{t_{n}}\text{Hospital incidence}
@@ -121,7 +124,8 @@ $$
 
 Sum of ICU incidence for the dates included in the week specified. ICU
 incidence is the number of people who would be getting an ICU bed at the
-current time.
+current time. Note: this is only included if the data
+source is the imperial SEIR fit data.
 
 $$
 \text{ICU incidence} = \sum_{t_{0}}^{t_{n}}\text{ICU incidence}
@@ -129,7 +133,7 @@ $$
 
 7. *infections*
 
-Sum of all infections for the dates included in the week specified.
+Sum of all infections (Imperial) or cases (WHO) for the dates included in the week specified.
 
 $$
 \text{Infections} = \sum_{t_{0}}^{t_{n}}\text{Infections}
@@ -142,11 +146,13 @@ until the end date of the week specified.
 
 9.  *new_critical_cases*
 
-Equivalent to the ICU incidence.
+Equivalent to the ICU incidence if Imperial, or the new cases multiplied by the
+proportion critical if WHO.
 
 10. *new_severe_cases*
 
-Equivalent to the hospital incidence.
+Equivalent to the hospital incidence if Imperial, or the new cases multiplied by
+the proportion severe if WHO.
 
 11. *new_mod_cases*
 
@@ -236,11 +242,15 @@ Date that the week ends, inclusive ($t_{n}$).
 
 3.  *crit_patients_nocap*
 
-ICU demand for that week (nr. 4, `cases_weekly`).
+ICU demand for that week if Imperial source data (nr. 4, `cases_weekly`), 
+cumulative critical cases minus the cumulative removed critical cases if WHO
+source data.
 
 4.  *sev_patients_nocap*
 
-Hospital demand for that week (nr. 3, `cases_weekly`).
+Hospital demand for that week if Imperial source data (nr. 3, `cases_weekly`), 
+cumulative severe cases minus the cumulative removed severe cases if WHO
+source data.
 
 5.  *mod_patients_nocap*
 
